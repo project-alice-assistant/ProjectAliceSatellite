@@ -1,0 +1,15 @@
+[Unit]
+Description=Project Alice
+
+[Service]
+ExecStartPre=/bin/sleep 5
+#WORKINGDIR
+#EXECSTART
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+RestartSec=5
+#USER
+
+[Install]
+WantedBy=multi-user.target
