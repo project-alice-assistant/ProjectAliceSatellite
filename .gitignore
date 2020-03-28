@@ -114,6 +114,5 @@ config.py
 *.pyc
 *Config.h
 
-var/cache/*
 var/logs/*
 !var/logs/.gitkeep
