@@ -11,8 +11,9 @@ import requests
 from core.base.model.Version import Version
 
 PIP = './venv/bin/pip'
-YAML = '/boot/ProjectAlice.yaml'
+YAML = '/boot/ProjectAliceSatellite.yaml'
 ASOUND = '/etc/asound.conf'
+VENV = '~/ProjectAlice/venv/'
 
 try:
 	import yaml
@@ -63,7 +64,7 @@ network={
 		self._confsFile = Path(self._rootDir, 'config.py')
 		self._confsSample = Path(self._rootDir, 'configTemplate.py')
 		self._initFile = Path(YAML)
-		self._latest = 1.16
+		self._latest = 1.01
 
 
 	def initProjectAlice(self) -> bool:
@@ -119,20 +120,27 @@ network={
 		if not connected:
 			self.logFatal('Your device needs internet access to continue')
 
-		updateChannel = initConfs['aliceUpdateChannel'] if 'aliceUpdateChannel' in initConfs else 'master'
-		updateSource = self.getUpdateSource(updateChannel)
-		# Update our system and sources
-		subprocess.run(['sudo', 'apt-get', 'update'])
-		subprocess.run(['sudo', 'apt-get', 'dist-upgrade', '-y'])
-		subprocess.run(['git', 'clean', '-df'])
-		subprocess.run(['git', 'stash'])
-		subprocess.run(['git', 'checkout', updateSource])
-		subprocess.run(['git', 'pull'])
-		subprocess.run(['git', 'stash', 'clear'])
+		# updateChannel = initConfs['aliceUpdateChannel'] if 'aliceUpdateChannel' in initConfs else 'master'
+		# updateSource = self.getUpdateSource(updateChannel)
+		# # Update our system and sources
+		# subprocess.run(['sudo', 'apt-get', 'update'])
+		# subprocess.run(['sudo', 'apt-get', 'dist-upgrade', '-y'])
+		# subprocess.run(['git', 'clean', '-df'])
+		# subprocess.run(['git', 'stash'])
+		# subprocess.run(['git', 'checkout', updateSource])
+		# subprocess.run(['git', 'pull'])
+		# subprocess.run(['git', 'stash', 'clear'])
 
 		time.sleep(1)
 
-		subprocess.run([PIP, 'uninstall', '-y', '-r', str(Path(self._rootDir, 'pipuninstalls.txt'))])
+		reqs = [line.rstrip('\n') for line in open(Path(self._rootDir, 'sysrequirements.txt'))]
+		subprocess.run(['sudo', 'apt-get', 'install', '-y', '--allow-unauthenticated'] + reqs)
+
+		if not Path(VENV).exists:
+			subprocess.run(['python3', '-m', 'venv', VENV])
+			initConfs['doGroundInstall'] = True
+		else:
+			subprocess.run([PIP, 'uninstall', '-y', '-r', str(Path(self._rootDir, 'pipuninstalls.txt'))])
 
 		if 'forceRewrite' not in initConfs:
 			initConfs['forceRewrite'] = True
@@ -162,20 +170,9 @@ network={
 		if 'doGroundInstall' not in initConfs or initConfs['doGroundInstall']:
 			subprocess.run([PIP, 'install', '-r', str(Path(self._rootDir, 'requirements.txt'))])
 
-			subprocess.run(['sudo', 'apt-get', 'install', '-y', 'dirmngr', 'apt-transport-https'])
-			subprocess.run(['sudo', 'bash', '-c', 'echo "deb https://raspbian.snips.ai/stretch stable main" > /etc/apt/sources.list.d/snips.list'])
-			subprocess.run(['sudo', 'apt-key', 'adv', '--fetch-keys', 'https://debian.snips.ai/5FFCD0DEB5BA45CD.pub'])
-			subprocess.run(['wget', '-q', 'https://ftp-master.debian.org/keys/release-10.asc', '-O-', '|', 'sudo', 'apt-key', 'add', '-'])
-			subprocess.run(['echo', '"deb http://deb.debian.org/debian buster non-free"', '|', 'sudo', 'tee', '/etc/apt/sources.list.d/debian.list'])
-			subprocess.run(['sudo', 'apt-key', 'adv', '--keyserver', 'gpg.mozilla.org', '--recv-keys', 'D4F50CDCA10A2849'])
-			subprocess.run(['sudo', 'sh', '-c', '\'curl https://raspbian.snips.ai/531DD1A7B702B14D.pub | apt-key add -\''])
-			subprocess.run(['sudo', 'apt-get', 'install', '-y', 'libttspico0'])
-			subprocess.run(['sudo', 'apt-get', 'install', '-y', 'libttspico-utils'])
-			subprocess.run(['sudo', 'apt-get', 'install', '-y', 'libatlas3-base=3.10.3-8+rpi1'])
-			subprocess.run(['sudo', 'apt-get', 'install', '-y', 'libgfortran3'])
-
-			reqs = [line.rstrip('\n') for line in open(Path(self._rootDir, 'sysrequirements.txt'))]
-			subprocess.run(['sudo', 'apt-get', 'install', '-y', '--allow-unauthenticated'] + reqs)
+			subprocess.run(['sudo', 'apt', 'install', './system/snips/snips-platform-common_0.64.0_armhf.deb', '-y'])
+			subprocess.run(['sudo', 'apt', 'install', './system/snips/snips-satellite_0.64.0_armhf.deb', '-y'])
+			subprocess.run(['sudo', 'apt', 'install', './system/snips/snips-hotword-model-heysnipsv4_0.64.0_armhf.deb', '-y'])
 
 			subprocess.run(['sudo', 'systemctl', 'stop', 'snips-satellite'])
 			subprocess.run(['sudo', 'systemctl', 'disable', 'snips-satellite'])
@@ -277,15 +274,15 @@ network={
 		else:
 			importlib.reload(config)
 
-		if initConfs['keepYAMLBackup']:
-			subprocess.run(['sudo', 'mv', Path(YAML), Path('/boot/ProjectAlice.yaml.bak')])
-		else:
-			subprocess.run(['sudo', 'rm', Path(YAML)])
+		# if initConfs['keepYAMLBackup']:
+		# 	subprocess.run(['sudo', 'mv', Path(YAML), Path('/boot/ProjectAlice.yaml.bak')])
+		# else:
+		# 	subprocess.run(['sudo', 'rm', Path(YAML)])
 
 		self.logWarning('Initializer done with configuring')
-		time.sleep(2)
-		subprocess.run(['sudo', 'systemctl', 'enable', 'ProjectAlice'])
-		subprocess.run(['sudo', 'shutdown', '-r', 'now'])
+		# time.sleep(2)
+		# subprocess.run(['sudo', 'systemctl', 'enable', 'ProjectAlice'])
+		# subprocess.run(['sudo', 'shutdown', '-r', 'now'])
 
 
 	@staticmethod

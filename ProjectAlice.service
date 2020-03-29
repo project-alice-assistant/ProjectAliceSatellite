@@ -1,5 +1,5 @@
 [Unit]
-Description=Project Alice
+Description=Project Alice Satellite
 
 [Service]
 ExecStartPre=/bin/sleep 5
