@@ -1,4 +1,18 @@
 settings = {
+	'deviceName': {
+		'defaultValue': '',
+		'dataType'    : 'string',
+		'isSensitive' : False,
+		'description' : 'This device name. It is of good practice to name it after the room it is placed in',
+		'onUpdate'    : 'updateDeviceName'
+	},
+	'uuid': {
+		'defaultValue': '',
+		'dataType'    : 'string',
+		'isSensitive' : False,
+		'hidden'      : True,
+		'description' : 'Attributed device uuid'
+	},
 	'mainUnitBroadcastPort': {
 		'defaultValue': 12354,
 		'dataType'    : 'integer',

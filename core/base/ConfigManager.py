@@ -223,6 +223,11 @@ class ConfigManager(Manager):
 		self.reconnectMqtt()
 
 
+	def updateDeviceName(self):
+		self.ConfigManager.updateSnipsConfiguration('snips-audio-server', 'bind', f'{self.getAliceConfigByName("deviceName")}@mqtt', True, False)
+		self.Commons.runRootSystemCommand(['restart', 'snips-satellite'])
+
+
 	def reconnectMqtt(self):
 		self.MqttManager.reconnect()
 

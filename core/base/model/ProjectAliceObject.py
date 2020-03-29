@@ -1,5 +1,4 @@
 import json
-
 from copy import copy
 
 import core.base.SuperManager as SM
@@ -77,6 +76,7 @@ class ProjectAliceObject:
 		self._logger.doLog(function='fatal', msg=self.decorateLogs(msg))
 		try:
 			self.ProjectAlice.onStop()
+			exit()
 		except:
 			exit()
 
@@ -159,3 +159,8 @@ class ProjectAliceObject:
 	@property
 	def Commons(self):
 		return SM.SuperManager.getInstance().commonsManager
+
+
+	@property
+	def NetworkManager(self):
+		return SM.SuperManager.getInstance().networkManager

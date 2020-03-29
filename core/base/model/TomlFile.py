@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 import json
+import re
 import subprocess
+import tempfile
 from pathlib import Path
 from textwrap import dedent
 from typing import Any, Dict, ItemsView, Optional, Union, ValuesView
-
-import re
-import tempfile
 
 from core.base.model.ProjectAliceObject import ProjectAliceObject
 
@@ -288,6 +287,10 @@ class Config:
 
 	def uncomment(self):
 		self.commented = False
+
+
+	def isCommented(self) -> bool:
+		return self.commented
 
 
 	def __str__(self) -> str:

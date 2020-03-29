@@ -28,7 +28,7 @@ class SuperManager:
 		self.threadManager = None
 		self.mqttManager = None
 		self.timeManager = None
-		self.wakewordManager = None
+		self.networkManager = None
 
 
 	def onStart(self):
@@ -72,6 +72,7 @@ class SuperManager:
 		from core.util.DatabaseManager import DatabaseManager
 		from core.util.ThreadManager import ThreadManager
 		from core.util.TimeManager import TimeManager
+		from core.util.NetworkManager import NetworkManager
 
 		self.commonsManager = CommonsManager()
 		self.commons = self.commonsManager
@@ -80,6 +81,7 @@ class SuperManager:
 		self.threadManager = ThreadManager()
 		self.mqttManager = MqttManager()
 		self.timeManager = TimeManager()
+		self.networkManager = NetworkManager()
 
 		self._managers = {name[0].upper() + name[1:]: manager for name, manager in self.__dict__.items() if name.endswith('Manager')}
 

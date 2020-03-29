@@ -1,4 +1,5 @@
 import json
+import traceback
 
 import paho.mqtt.client as mqtt
 
@@ -38,13 +39,21 @@ class MqttManager(Manager):
 	def onConnect(self, client, userdata, flags, rc):
 
 		subscribedEvents = [
-			(constants.TOPIC_SESSION_ENDED, 0)
+			(constants.TOPIC_ALICE_GREETING, 0)
 		]
 
 		self._mqttClient.subscribe(subscribedEvents)
 
 
 	def connect(self):
+		if self.ConfigManager.getSnipsConfiguration(parent='snips-common', key='mqtt', createIfNotExist=False):
+			try:
+				self.NetworkManager.setupSatellite()
+			except Exception as e:
+				self.logCritical(f'Couldn\'t access Alice\'s network: {e}')
+				traceback.print_exc()
+			return
+
 		if self.ConfigManager.getAliceConfigByName('mqttUser') and self.ConfigManager.getAliceConfigByName('mqttPassword'):
 			self._mqttClient.username_pw_set(self.ConfigManager.getAliceConfigByName('mqttUser'), self.ConfigManager.getAliceConfigByName('mqttPassword'))
 
@@ -58,8 +67,12 @@ class MqttManager(Manager):
 
 
 	def disconnect(self):
-		self._mqttClient.loop_stop()
-		self._mqttClient.disconnect()
+		try:
+			self._mqttClient.loop_stop()
+			self._mqttClient.disconnect()
+		except:
+			# Do nothing, we are certainly not connected
+			pass
 
 
 	def reconnect(self):

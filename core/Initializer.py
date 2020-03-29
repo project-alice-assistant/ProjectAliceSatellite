@@ -123,8 +123,6 @@ network={
 		# updateChannel = initConfs['aliceUpdateChannel'] if 'aliceUpdateChannel' in initConfs else 'master'
 		# updateSource = self.getUpdateSource(updateChannel)
 		# # Update our system and sources
-		subprocess.run(['sudo', 'apt-get', 'update'])
-		subprocess.run(['sudo', 'apt-get', 'dist-upgrade', '-y'])
 		# subprocess.run(['git', 'clean', '-df'])
 		# subprocess.run(['git', 'stash'])
 		# subprocess.run(['git', 'checkout', updateSource])
@@ -132,9 +130,6 @@ network={
 		# subprocess.run(['git', 'stash', 'clear'])
 
 		time.sleep(1)
-
-		reqs = [line.rstrip('\n') for line in open(Path(self._rootDir, 'sysrequirements.txt'))]
-		subprocess.run(['sudo', 'apt-get', 'install', '-y', '--allow-unauthenticated'] + reqs)
 
 		if not Path(VENV).exists:
 			subprocess.run(['python3', '-m', 'venv', VENV])
@@ -162,6 +157,12 @@ network={
 			self._confsFile.unlink()
 			confs = self.newConfs()
 			self._confsFile.write_text(f"settings = {json.dumps(confs, indent=4).replace('false', 'False').replace('true', 'True')}")
+
+
+		subprocess.run(['sudo', 'apt-get', 'update'])
+		subprocess.run(['sudo', 'apt-get', 'dist-upgrade', '-y'])
+		reqs = [line.rstrip('\n') for line in open(Path(self._rootDir, 'sysrequirements.txt'))]
+		subprocess.run(['sudo', 'apt-get', 'install', '-y', '--allow-unauthenticated'] + reqs)
 
 		config = importlib.import_module('config')
 		confs = config.settings.copy()
