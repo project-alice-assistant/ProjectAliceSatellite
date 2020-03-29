@@ -72,6 +72,7 @@ class NetworkManager(Manager):
 		self.ConfigManager.updateAliceConfiguration(key='mqttHost', value=mainUnitIp)
 		self.ConfigManager.updateAliceConfiguration(key='deviceName', value=attributedRoom)
 		self.ConfigManager.updateAliceConfiguration(key='uuid', value=attributedUid)
+		self.Commons.runRootSystemCommand(['restart', 'snips-satellite'])
 
 
 	def tryConnectingToAlice(self):

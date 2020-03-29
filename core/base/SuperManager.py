@@ -29,6 +29,7 @@ class SuperManager:
 		self.mqttManager = None
 		self.timeManager = None
 		self.networkManager = None
+		self.snipsServicesManager = None
 
 
 	def onStart(self):
@@ -41,6 +42,9 @@ class SuperManager:
 		databaseManager = self._managers.pop('DatabaseManager')
 		databaseManager.onStart()
 
+		snipsServicesManager = self._managers.pop('SnipsServicesManager')
+		snipsServicesManager.onStart()
+
 		mqttManager = self._managers.pop('MqttManager')
 		mqttManager.onStart()
 
@@ -52,6 +56,7 @@ class SuperManager:
 		self._managers[configManager.name] = configManager
 		self._managers[databaseManager.name] = databaseManager
 		self._managers[mqttManager.name] = mqttManager
+		self._managers[snipsServicesManager.name] = snipsServicesManager
 
 
 	def onBooted(self):
@@ -73,6 +78,7 @@ class SuperManager:
 		from core.util.ThreadManager import ThreadManager
 		from core.util.TimeManager import TimeManager
 		from core.util.NetworkManager import NetworkManager
+		from core.snips.SnipsServicesManager import SnipsServicesManager
 
 		self.commonsManager = CommonsManager()
 		self.commons = self.commonsManager
@@ -82,6 +88,7 @@ class SuperManager:
 		self.mqttManager = MqttManager()
 		self.timeManager = TimeManager()
 		self.networkManager = NetworkManager()
+		self.snipsServicesManager = SnipsServicesManager()
 
 		self._managers = {name[0].upper() + name[1:]: manager for name, manager in self.__dict__.items() if name.endswith('Manager')}
 

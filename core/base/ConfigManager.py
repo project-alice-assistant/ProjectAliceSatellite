@@ -92,13 +92,24 @@ class ConfigManager(Manager):
 		return aliceConfigs
 
 
-	def updateAliceConfiguration(self, key: str, value: typing.Any):
+	def updateAliceConfiguration(self, key: str, value: typing.Any, doPreAndPostProcessing: bool = True):
 		if key not in self._aliceConfigurations:
 			self.logWarning(f'Was asked to update {key} but key doesn\'t exist')
 			raise ConfigurationUpdateFailed()
 
+		if doPreAndPostProcessing:
+			pre = self.getAliceConfUpdatePreProcessing(confName=key)
+
+			if pre and not self.ConfigManager.doConfigUpdatePreProcessing(pre, value):
+				return
+
 		self._aliceConfigurations[key] = value
 		self.writeToAliceConfigurationFile(self.aliceConfigurations)
+
+		if doPreAndPostProcessing:
+			post = self.getAliceConfUpdatePostProcessing(confName=key)
+			if post:
+				self.doConfigUpdatePostProcessing(functions={post})
 
 
 	def writeToAliceConfigurationFile(self, confs: dict):
@@ -199,7 +210,7 @@ class ConfigManager(Manager):
 			func = getattr(self, function)
 			return func(value)
 		except:
-			self.logWarning(f'Configuration pre processing method "{function}" does not exist')
+			self.logWarning(f'Configuration pre processing method **{function}** does not exist')
 			return False
 
 
@@ -210,26 +221,26 @@ class ConfigManager(Manager):
 			try:
 				func = getattr(self, function)
 				func()
-			except:
-				self.logWarning(f'Configuration post processing method "{function}" does not exist')
+			except AttributeError:
+				self.logWarning(f'Configuration post processing method **{function}** does not exist')
 				continue
 
 
 	def updateMqttSettings(self):
-		self.ConfigManager.updateSnipsConfiguration('snips-common', 'mqtt', f'{self.getAliceConfigByName("mqttHost")}:{self.getAliceConfigByName("mqttPort"):}', False, False)
-		self.ConfigManager.updateSnipsConfiguration('snips-common', 'mqtt_username', self.getAliceConfigByName('mqttHost'), False, False)
-		self.ConfigManager.updateSnipsConfiguration('snips-common', 'mqtt_password', self.getAliceConfigByName('mqttHost'), False, False)
-		self.ConfigManager.updateSnipsConfiguration('snips-common', 'mqtt_tls_cafile', self.getAliceConfigByName('mqttHost'), True, False)
-		self.reconnectMqtt()
+		self.ConfigManager.updateSnipsConfiguration('snips-common', 'mqtt', f'{self.getAliceConfigByName("mqttHost")}:{self.getAliceConfigByName("mqttPort"):}', True)
+
+		if self.getAliceConfigByName('mqttUser'):
+			self.ConfigManager.updateSnipsConfiguration('snips-common', 'mqtt_username', self.getAliceConfigByName('mqttUser'), False)
+
+		if self.getAliceConfigByName('mqtt_password'):
+			self.ConfigManager.updateSnipsConfiguration('snips-common', 'mqtt_password', self.getAliceConfigByName('mqttPassword'), False)
+
+		if self.getAliceConfigByName('mqtt_tls_cafile'):
+			self.ConfigManager.updateSnipsConfiguration('snips-common', 'mqtt_tls_cafile', self.getAliceConfigByName('mqttTLSFile'), False)
 
 
 	def updateDeviceName(self):
-		self.ConfigManager.updateSnipsConfiguration('snips-audio-server', 'bind', f'{self.getAliceConfigByName("deviceName")}@mqtt', True, False)
-		self.Commons.runRootSystemCommand(['restart', 'snips-satellite'])
-
-
-	def reconnectMqtt(self):
-		self.MqttManager.reconnect()
+		self.ConfigManager.updateSnipsConfiguration('snips-audio-server', 'bind', f'{self.getAliceConfigByName("deviceName")}@mqtt', True)
 
 
 	@property

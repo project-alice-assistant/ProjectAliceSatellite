@@ -46,7 +46,7 @@ class MqttManager(Manager):
 
 
 	def connect(self):
-		if self.ConfigManager.getSnipsConfiguration(parent='snips-common', key='mqtt', createIfNotExist=False):
+		if not self.ConfigManager.getAliceConfigByName('uuid'):
 			try:
 				self.NetworkManager.setupSatellite()
 			except Exception as e:
