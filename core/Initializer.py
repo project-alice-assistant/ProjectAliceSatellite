@@ -123,8 +123,8 @@ network={
 		# updateChannel = initConfs['aliceUpdateChannel'] if 'aliceUpdateChannel' in initConfs else 'master'
 		# updateSource = self.getUpdateSource(updateChannel)
 		# # Update our system and sources
-		# subprocess.run(['sudo', 'apt-get', 'update'])
-		# subprocess.run(['sudo', 'apt-get', 'dist-upgrade', '-y'])
+		subprocess.run(['sudo', 'apt-get', 'update'])
+		subprocess.run(['sudo', 'apt-get', 'dist-upgrade', '-y'])
 		# subprocess.run(['git', 'clean', '-df'])
 		# subprocess.run(['git', 'stash'])
 		# subprocess.run(['git', 'checkout', updateSource])
@@ -180,7 +180,6 @@ network={
 		confs['ssid'] = initConfs['wifiNetworkName']
 		confs['wifipassword'] = str(initConfs['wifiWPAPass'])
 		confs['useHLC'] = bool(initConfs['useHLC'])
-		confs['mainUnitBroadcastPort'] = int(initConfs['newDeviceBroadcastPort'] or 12354)
 
 		aliceUpdateChannel = initConfs['aliceUpdateChannel']
 		if aliceUpdateChannel not in {'master', 'rc', 'beta', 'alpha'}:
