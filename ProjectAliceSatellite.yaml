@@ -1,0 +1,60 @@
+---
+################################################
+#                                              #
+#       Project Alice quick install file       #
+#           For advanced users only            #
+# Edit the content of  this file to your needs #
+# and   place   it in  /boot/ProjectAlice.yaml #
+# after   flashing  your  sd  card   with  our #
+# Project Alice Satellite image.               #
+#                                              #
+# Upon  first  boot  Alice  will perform  some #
+# updates and configure according to this file #
+#                                              #
+################################################
+#            DON'T CHANGE ME                   #
+version: 1.01
+################################################
+
+# How to prevent frequent errors:
+# Always add a space after the ":" (e.g. deviceName: default instead of deviceName:default)
+
+# If you place this file into /boot after a first initialization it won't overwrite your settings unless you set this to yes
+forceRewrite: no
+
+# By setting the next parameter to yes, ProjectAlice will also install all the required dependencies
+doGroundInstall: yes
+
+# After initialization is done, keep a copy of this yaml file in /boot. Be aware this can be a security risk, as /boot is accessible by anyone mounting your SD card!
+keepYAMLBackup: no
+
+# Enter Wifi credentials for automatic adding of tasmota/zigbee/netatmo devices even when Alice has wired access
+useWifi: yes
+wifiNetworkName:
+wifiWPAPass:
+wifiCountryCode:
+
+# hardware - Turn only one to yes!
+audioHardware:
+  usbMic:             no
+  respeaker2:         no
+  respeaker4:         no
+  respeaker6MicArray: no
+  respeaker7:         no
+  respeakerCoreV2:    no
+  googleAIY:          no
+  googleAIY2:         no
+  matrixCreator:      no
+  matrixVoice:        no
+  ps3eye:             no
+
+# System
+# Whether to install Hermes Led Control or not. HLC is the best way to manage your device leds if you have any
+useHLC: yes
+
+# !WARNING! You know what you are doing by changing the following to anything else than "master"!
+# This allows to init ProjectAlice on any branches, even unstable ones
+# Available: master / alpha / beta / rc
+aliceUpdateChannel: master
+
+...

@@ -1,0 +1,25 @@
+VERSION = '1.0.0-a1'
+DEFAULT_SITE_ID = 'default'
+DEFAULT = 'default'
+UNKNOWN_MANAGER = 'unknownManager'
+
+DATABASE_FILE = 'system/database/data.db'
+GITHUB_URL = 'https://github.com/project-alice-assistant'
+GITHUB_RAW_URL = 'https://raw.githubusercontent.com/project-alice-assistant'
+GITHUB_API_URL = 'https://api.github.com/repos/project-alice-assistant'
+GITHUB_REPOSITORY_ID = 193512918
+
+TOPIC_ALICE_GREETING = 'projectalice/devices/greeting'
+TOPIC_NEW_HOTWORD = 'projectalice/devices/alice/newHotword'
+TOPIC_ALICE_CONNECTION_ACCEPTED = 'projectalice/devices/connectionAccepted'
+TOPIC_ALICE_CONNECTION_REFUSED = 'projectalice/devices/connectionRefused'
+TOPIC_DISCONNECTING = 'projectalice/devices/disconnection'
+TOPIC_CORE_RECONNECTION = 'projectalice/devices/coreReconnection'
+TOPIC_CORE_DISCONNECTION = 'projectalice/devices/coreDisconnection'
+
+EVENT_FULL_MINUTE = 'fullMinute'
+EVENT_FIVE_MINUTE = 'fiveMinute'
+EVENT_QUARTER_HOUR = 'quarterHour'
+EVENT_FULL_HOUR = 'fullHour'
+EVENT_SKILL_UPDATED = 'skillUpdated'
+EVENT_BOOTED = 'booted'
