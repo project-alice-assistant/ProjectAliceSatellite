@@ -15,6 +15,7 @@
     authors: 	            Psycho <https://github.com/Psychokiller1888>
 """
 import logging.handlers
+import os
 import signal
 import sys
 import time
@@ -22,12 +23,10 @@ import traceback
 from datetime import datetime
 from pathlib import Path
 
-import os
 import psutil
 
 from core.Initializer import Initializer
 from core.util.model import BashFormatting, FileFormatting, HtmlFormatting
-from core.util.model.MqttLoggingHandler import MqttLoggingHandler
 
 _logger = logging.getLogger('ProjectAlice')
 _logger.setLevel(logging.INFO)
@@ -42,17 +41,14 @@ logsMountpoint = Path(Path(__file__).resolve().parent, 'var', 'logs')
 logFileHandler = logging.FileHandler(filename=f'{logsMountpoint}/logs.log', mode='w')
 rotatingHandler = logging.handlers.RotatingFileHandler(filename=f'{logsMountpoint}/{date}-logs.log', mode='a', maxBytes=100000, backupCount=20)
 streamHandler = logging.StreamHandler()
-mqttHandler = MqttLoggingHandler()
 
 logFileHandler.setFormatter(logFileFormatter)
 rotatingHandler.setFormatter(logFileFormatter)
-mqttHandler.setFormatter(htmlFormatter)
 streamHandler.setFormatter(bashFormatter)
 
 _logger.addHandler(logFileHandler)
 _logger.addHandler(rotatingHandler)
 _logger.addHandler(streamHandler)
-_logger.addHandler(mqttHandler)
 
 
 def exceptionListener(*exc_info):

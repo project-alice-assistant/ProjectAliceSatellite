@@ -11,6 +11,11 @@ GITHUB_REPOSITORY_ID = 193512918
 
 TOPIC_ALICE_GREETING = 'projectalice/devices/greeting'
 TOPIC_NEW_HOTWORD = 'projectalice/devices/alice/newHotword'
+TOPIC_ALICE_CONNECTION_ACCEPTED = 'projectalice/devices/connectionAccepted'
+TOPIC_ALICE_CONNECTION_REFUSED = 'projectalice/devices/connectionRefused'
+TOPIC_DISCONNECTING = 'projectalice/devices/disconnection'
+TOPIC_CORE_RECONNECTION = 'projectalice/devices/coreReconnection'
+TOPIC_CORE_DISCONNECTION = 'projectalice/devices/coreDisconnection'
 
 EVENT_FULL_MINUTE = 'fullMinute'
 EVENT_FIVE_MINUTE = 'fiveMinute'

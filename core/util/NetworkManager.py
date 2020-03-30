@@ -1,6 +1,10 @@
 import socket
 
+from paho.mqtt.client import MQTTMessage
+
 from core.base.model.Manager import Manager
+from core.base.model.States import State
+from core.commons import constants
 
 
 class NetworkManager(Manager):
@@ -8,10 +12,24 @@ class NetworkManager(Manager):
 	def __init__(self):
 		super().__init__()
 		self._tries = 0
+		self._greetingTimer = None
+		self._state = State.BOOTING
+
+
+	def onStop(self):
+		self.MqttManager.publish(
+			topic=constants.TOPIC_DISCONNECTING,
+			payload={
+				'siteId': self.ConfigManager.getAliceConfigByName('deviceName'),
+				'uid': self.ConfigManager.getAliceConfigByName('uuid'),
+			}
+		)
 
 
 	def setupSatellite(self):
 		self.logInfo('This satellite is not yet registered for Project Alice. Searching for main unit')
+
+		self._state = State.NEW
 
 		listenSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		listenSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -65,6 +83,7 @@ class NetworkManager(Manager):
 			self.logFatal('The main unit did not answer')
 			return
 		elif data.decode() != 'ok':
+			self._state = State.ERROR
 			self.logFatal('The main unit refused the addition')
 			return
 
@@ -72,14 +91,79 @@ class NetworkManager(Manager):
 		self.ConfigManager.updateAliceConfiguration(key='mqttHost', value=mainUnitIp)
 		self.ConfigManager.updateAliceConfiguration(key='deviceName', value=attributedRoom)
 		self.ConfigManager.updateAliceConfiguration(key='uuid', value=attributedUid)
-		self.Commons.runRootSystemCommand(['restart', 'snips-satellite'])
+		self._state = State.ACCEPTED
 
 
 	def tryConnectingToAlice(self):
+		if self._greetingTimer and self._greetingTimer.is_alive():
+			self._greetingTimer.cancel()
+
 		if self._tries >= 5:
 			self.logWarning('Alice did not answer to greetings for 5 times, scheduling retry in 5 minutes')
 			self._tries = 0
+			self._state = State.DORMANT
+			self._greetingTimer = self.ThreadManager.newTimer(
+				interval=300,
+				func=self.tryConnectingToAlice
+			)
 			return
 
+		self._state = State.WAITING_REPLY
+
 		self._tries += 1
-		self.logInfo(f'Sending greetings ({self._tries}/5) to Alice')
+		self.logInfo(f'Sending greetings to Alice --({self._tries}/5)--')
+
+		self.MqttManager.publish(
+			topic=constants.TOPIC_ALICE_GREETING,
+			payload={
+				'siteId': self.ConfigManager.getAliceConfigByName('deviceName'),
+				'uid': self.ConfigManager.getAliceConfigByName('uuid'),
+			}
+		)
+
+		self._greetingTimer = self.ThreadManager.newTimer(
+			interval=5,
+			func=self.tryConnectingToAlice
+		)
+
+
+	def onAliceConnectionAccepted(self):
+		if self._state != State.WAITING_REPLY:
+			return
+
+		if self._greetingTimer and self._greetingTimer.is_alive():
+			self._greetingTimer.cancel()
+
+		self._state = State.REGISTERED
+		self._tries = 0
+		self.Commons.runRootSystemCommand(['systemctl', 'start', 'snips-satellite'])
+		self.logInfo('Alice answered and accepted the connection')
+
+
+	def onAliceConnectionRefused(self, message: MQTTMessage):
+		if self._state != State.WAITING_REPLY:
+			return
+
+		if self._greetingTimer and self._greetingTimer.is_alive():
+			self._greetingTimer.cancel()
+
+		self._state = State.REFUSED
+		self.logFatal('Alice answered and refused the connection')
+
+
+	def onCoreDisconnection(self):
+		if self._state == State.REGISTERED:
+			self._state = State.DISCONNECTED
+			self.logInfo('Alice main unit disconnected')
+			self.Commons.runRootSystemCommand(['systemctl', 'stop', 'snips-satellite'])
+
+
+	def onCoreReconnection(self):
+		if self._state == State.DISCONNECTED:
+			self.logInfo('Alice main unit came online')
+			self.tryConnectingToAlice()
+
+
+	@property
+	def state(self) -> State:
+		return self._state

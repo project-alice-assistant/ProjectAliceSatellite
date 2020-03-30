@@ -46,6 +46,9 @@ class SuperManager:
 		snipsServicesManager = self._managers.pop('SnipsServicesManager')
 		snipsServicesManager.onStart()
 
+		networkManager = self._managers.pop('NetworkManager')
+		networkManager.onStart()
+
 		mqttManager = self._managers.pop('MqttManager')
 		mqttManager.onStart()
 
@@ -58,6 +61,7 @@ class SuperManager:
 		self._managers[databaseManager.name] = databaseManager
 		self._managers[mqttManager.name] = mqttManager
 		self._managers[snipsServicesManager.name] = snipsServicesManager
+		self._managers[networkManager.name] = networkManager
 
 
 	def onBooted(self):
