@@ -7,7 +7,7 @@ DATABASE_FILE = 'system/database/data.db'
 GITHUB_URL = 'https://github.com/project-alice-assistant'
 GITHUB_RAW_URL = 'https://raw.githubusercontent.com/project-alice-assistant'
 GITHUB_API_URL = 'https://api.github.com/repos/project-alice-assistant'
-GITHUB_REPOSITORY_ID = 193512918
+GITHUB_REPOSITORY_ID = 250856660
 
 TOPIC_ALICE_GREETING = 'projectalice/devices/greeting'
 TOPIC_NEW_HOTWORD = 'projectalice/devices/alice/newHotword'

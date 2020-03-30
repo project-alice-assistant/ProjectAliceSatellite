@@ -120,14 +120,14 @@ network={
 		if not connected:
 			self.logFatal('Your device needs internet access to continue')
 
-		# updateChannel = initConfs['aliceUpdateChannel'] if 'aliceUpdateChannel' in initConfs else 'master'
-		# updateSource = self.getUpdateSource(updateChannel)
-		# # Update our system and sources
-		# subprocess.run(['git', 'clean', '-df'])
-		# subprocess.run(['git', 'stash'])
-		# subprocess.run(['git', 'checkout', updateSource])
-		# subprocess.run(['git', 'pull'])
-		# subprocess.run(['git', 'stash', 'clear'])
+		updateChannel = initConfs['aliceUpdateChannel'] if 'aliceUpdateChannel' in initConfs else 'master'
+		updateSource = self.getUpdateSource(updateChannel)
+		# Update our system and sources
+		subprocess.run(['git', 'clean', '-df'])
+		subprocess.run(['git', 'stash'])
+		subprocess.run(['git', 'checkout', updateSource])
+		subprocess.run(['git', 'pull'])
+		subprocess.run(['git', 'stash', 'clear'])
 
 		time.sleep(1)
 
@@ -274,15 +274,15 @@ network={
 		else:
 			importlib.reload(config)
 
-		# if initConfs['keepYAMLBackup']:
-		# 	subprocess.run(['sudo', 'mv', Path(YAML), Path('/boot/ProjectAlice.yaml.bak')])
-		# else:
-		# 	subprocess.run(['sudo', 'rm', Path(YAML)])
+		if initConfs['keepYAMLBackup']:
+			subprocess.run(['sudo', 'mv', Path(YAML), Path('/boot/ProjectAlice.yaml.bak')])
+		else:
+			subprocess.run(['sudo', 'rm', Path(YAML)])
 
 		self.logWarning('Initializer done with configuring')
-		# time.sleep(2)
-		# subprocess.run(['sudo', 'systemctl', 'enable', 'ProjectAlice'])
-		# subprocess.run(['sudo', 'shutdown', '-r', 'now'])
+		time.sleep(2)
+		subprocess.run(['sudo', 'systemctl', 'enable', 'ProjectAlice'])
+		subprocess.run(['sudo', 'shutdown', '-r', 'now'])
 
 
 	@staticmethod
