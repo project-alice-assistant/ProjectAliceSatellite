@@ -152,8 +152,8 @@ class ProjectAliceObject:
 
 
 	@property
-	def WakewordManager(self):
-		return SM.SuperManager.getInstance().wakewordManager
+	def HotwordManager(self):
+		return SM.SuperManager.getInstance().hotwordManager
 
 
 	@property

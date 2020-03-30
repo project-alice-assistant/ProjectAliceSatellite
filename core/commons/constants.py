@@ -10,6 +10,7 @@ GITHUB_API_URL = 'https://api.github.com/repos/project-alice-assistant'
 GITHUB_REPOSITORY_ID = 193512918
 
 TOPIC_ALICE_GREETING = 'projectalice/devices/greeting'
+TOPIC_NEW_HOTWORD = 'projectalice/devices/alice/newHotword'
 
 EVENT_FULL_MINUTE = 'fullMinute'
 EVENT_FIVE_MINUTE = 'fiveMinute'

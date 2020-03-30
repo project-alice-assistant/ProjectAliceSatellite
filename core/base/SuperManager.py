@@ -30,6 +30,7 @@ class SuperManager:
 		self.timeManager = None
 		self.networkManager = None
 		self.snipsServicesManager = None
+		self.hotwordManager = None
 
 
 	def onStart(self):
@@ -79,6 +80,7 @@ class SuperManager:
 		from core.util.TimeManager import TimeManager
 		from core.util.NetworkManager import NetworkManager
 		from core.snips.SnipsServicesManager import SnipsServicesManager
+		from core.util.HotwordManager import HotwordManager
 
 		self.commonsManager = CommonsManager()
 		self.commons = self.commonsManager
@@ -89,6 +91,7 @@ class SuperManager:
 		self.timeManager = TimeManager()
 		self.networkManager = NetworkManager()
 		self.snipsServicesManager = SnipsServicesManager()
+		self.hotwordManager = HotwordManager()
 
 		self._managers = {name[0].upper() + name[1:]: manager for name, manager in self.__dict__.items() if name.endswith('Manager')}
 
@@ -96,12 +99,14 @@ class SuperManager:
 	def onStop(self):
 		managerName = constants.UNKNOWN_MANAGER
 		try:
-			mqttManager = self._managers.pop('MqttManager')
+			mqttManager = self._managers.pop('MqttManager', None)
 
 			for managerName, manager in self._managers.items():
 				manager.onStop()
 
-			mqttManager.onStop()
+			if mqttManager:
+				mqttManager.onStop()
+
 		except Exception as e:
 			Logger().logError(f'Error while shutting down manager "{managerName}": {e}')
 

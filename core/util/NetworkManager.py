@@ -47,7 +47,7 @@ class NetworkManager(Manager):
 		sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		sock.connect((mainUnitIp, mainUnitListenPort))
-		sock.send(bytes(f'{self.Commons.getLocalIp()}:alicesatellite', encoding='utf8'))
+		sock.send(bytes(f'{self.Commons.getLocalIp()}:AliceSatellite', encoding='utf8'))
 		sock.close()
 
 		# Check if we've been accepted

@@ -21,7 +21,22 @@ class MqttManager(Manager):
 		self._mqttClient.on_message = self.onMqttMessage
 		self._mqttClient.on_connect = self.onConnect
 		self._mqttClient.on_log = self.onLog
-		self.connect()
+
+		self._mqttClient.message_callback_add(constants.TOPIC_NEW_HOTWORD, self.onNewHotword)
+
+		if self.ConfigManager.getAliceConfigByName('uuid'):
+			self.connect()
+
+
+	def onBooted(self):
+		if not self.ConfigManager.getAliceConfigByName('uuid'):
+			try:
+				self.NetworkManager.setupSatellite()
+				self.connect()
+			except Exception as e:
+				self.logCritical(f'Couldn\'t access Alice\'s network: {e}')
+				traceback.print_exc()
+			return
 
 
 	def onStop(self):
@@ -37,23 +52,15 @@ class MqttManager(Manager):
 
 	# noinspection PyUnusedLocal
 	def onConnect(self, client, userdata, flags, rc):
-
 		subscribedEvents = [
-			(constants.TOPIC_ALICE_GREETING, 0)
+			(constants.TOPIC_ALICE_GREETING, 0),
+			(constants.TOPIC_NEW_HOTWORD, 0)
 		]
 
 		self._mqttClient.subscribe(subscribedEvents)
 
 
 	def connect(self):
-		if not self.ConfigManager.getAliceConfigByName('uuid'):
-			try:
-				self.NetworkManager.setupSatellite()
-			except Exception as e:
-				self.logCritical(f'Couldn\'t access Alice\'s network: {e}')
-				traceback.print_exc()
-			return
-
 		if self.ConfigManager.getAliceConfigByName('mqttUser') and self.ConfigManager.getAliceConfigByName('mqttPassword'):
 			self._mqttClient.username_pw_set(self.ConfigManager.getAliceConfigByName('mqttUser'), self.ConfigManager.getAliceConfigByName('mqttPassword'))
 
@@ -88,6 +95,12 @@ class MqttManager(Manager):
 
 		except Exception as e:
 			self.logError(f'Error in onMessage: {e}')
+
+
+	# noinspection PyUnusedLocal
+	def onNewHotword(self, client, userdata, message: mqtt.MQTTMessage):
+		payload = self.Commons.payload(message)
+		self.HotwordManager.newHotword(payload)
 
 
 	def publish(self, topic: str, payload: (dict, str) = None, qos: int = 0, retain: bool = False):
