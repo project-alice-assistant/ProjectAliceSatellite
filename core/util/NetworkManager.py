@@ -89,7 +89,7 @@ class NetworkManager(Manager):
 
 		# Save everything and let's continue!
 		self.ConfigManager.updateAliceConfiguration(key='mqttHost', value=mainUnitIp)
-		self.ConfigManager.updateAliceConfiguration(key='deviceName', value=attributedRoom)
+		self.ConfigManager.updateAliceConfiguration(key='deviceName', value=attributedRoom.replace('_', ' '))
 		self.ConfigManager.updateAliceConfiguration(key='uuid', value=attributedUid)
 		self._state = State.ACCEPTED
 
