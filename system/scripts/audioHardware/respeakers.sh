@@ -1,15 +1,18 @@
 #!/usr/bin/env bash
 
-cd ~ || exit
+cd /home/$(logname) || exit
 
-if [[ -d "seeed-voicecard" ]]; then
-  rm -rf seeed-voicecard
+if [[ -d "/home/$(logname)/seeed-voicecard" ]]; then
+  rm -rf /home/$(logname)/seeed-voicecard
 fi
 
-git clone https://github.com/respeaker/seeed-voicecard.git
-cd seeed-voicecard || exit
-chmod +x ./install.sh
-./install.sh
+git clone https://github.com/respeaker/seeed-voicecard.git /home/$(logname)/seeed-voicecard
+
+sed -i -e 's/  install_kernel/#  install_kernel/' /home/$(logname)/seeed-voicecard/install.sh
+sed -i -e 's/  check_kernel_headers/#  check_kernel_headers/' /home/$(logname)/seeed-voicecard/install.sh
+
+chmod +x /home/$(logname)/seeed-voicecard/install.sh
+./home/$(logname)/seeed-voicecard/install.sh
 
 sleep 1
 
