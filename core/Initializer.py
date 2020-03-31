@@ -275,7 +275,7 @@ network={
 			importlib.reload(config)
 
 		if initConfs['keepYAMLBackup']:
-			subprocess.run(['sudo', 'mv', Path(YAML), Path('/boot/ProjectAlice.yaml.bak')])
+			subprocess.run(['sudo', 'mv', Path(YAML), Path('/boot/ProjectAliceSatellite.yaml.bak')])
 		else:
 			subprocess.run(['sudo', 'rm', Path(YAML)])
 
