@@ -178,7 +178,7 @@ class NetworkManager(Manager):
 			self._checkCoreHeartbeatTimer.cancel()
 
 		if restart:
-			self._heartbeatTimer = self.ThreadManager.newTimer(interval=2, func=self.sendHeartbeat)
+			self._heartbeatTimer = self.ThreadManager.newTimer(interval=0.5, func=self.sendHeartbeat)
 			self._checkCoreHeartbeatTimer = self.ThreadManager.newTimer(interval=3, func=self.checkCoreHeartbeat)
 
 
@@ -190,6 +190,7 @@ class NetworkManager(Manager):
 				'siteId': self.ConfigManager.getAliceConfigByName('deviceName')
 			}
 		)
+		self._heartbeatTimer = self.ThreadManager.newTimer(interval=2, func=self.sendHeartbeat)
 
 
 	def checkCoreHeartbeat(self):
