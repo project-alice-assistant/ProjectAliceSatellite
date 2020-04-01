@@ -1,8 +1,6 @@
 import socket
 import time
 
-from paho.mqtt.client import MQTTMessage
-
 from core.base.model.Manager import Manager
 from core.base.model.States import State
 from core.commons import constants
@@ -147,7 +145,7 @@ class NetworkManager(Manager):
 		self.logInfo('Alice answered and accepted the connection')
 
 
-	def onAliceConnectionRefused(self, message: MQTTMessage):
+	def onAliceConnectionRefused(self):
 		if self._state != State.WAITING_REPLY:
 			return
 
