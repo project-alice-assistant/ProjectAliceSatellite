@@ -54,7 +54,7 @@ class SkillManager(Manager):
 		self._skillInstallThread = self.ThreadManager.newThread(name='SkillInstallThread', target=self._checkForSkillInstall, autostart=False)
 		self._initSkills()
 
-		self.ConfigManager.loadCheckAndUpdateSkillConfigurations()
+		#self.ConfigManager.loadCheckAndUpdateSkillConfigurations()
 
 		self.startAllSkills()
 

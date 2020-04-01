@@ -69,17 +69,10 @@ class HotwordDownloadThread(Thread):
 			if not isinstance(conf, list):
 				conf = list()
 
-			addSnips = True
-			regex = re.compile(f'.*/{hotwordPath}=[0-9.]+$')
-			copy = conf.copy()
-			for i, hotword in enumerate(copy):
-				if hotword.find('/snips_hotword='):
-					addSnips = False
-				elif regex.match(hotword):
+			wakewordRegex = re.compile(f'^{hotwordPath}=[0-9.]+$')
+			for i, hotword in enumerate(conf.copy()):
+				if wakewordRegex.match(hotword):
 					conf.pop(i)
-
-			if addSnips:
-				conf.append(str(rootPath / 'snips_hotword=0.53'))
 
 			conf.append(f'{hotwordPath}=0.52')
 			SuperManager.getInstance().configManager.updateSnipsConfiguration(parent='snips-hotword', key='model', value=conf, createIfNotExist=True)

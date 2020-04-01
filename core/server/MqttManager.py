@@ -124,6 +124,9 @@ class MqttManager(Manager):
 	# noinspection PyUnusedLocal
 	def onNewHotword(self, client, userdata, message: mqtt.MQTTMessage):
 		payload = self.Commons.payload(message)
+		if 'uid' not in payload or payload['uid'] != self.ConfigManager.getAliceConfigByName('uuid'):
+			return
+
 		self.HotwordManager.newHotword(payload)
 
 

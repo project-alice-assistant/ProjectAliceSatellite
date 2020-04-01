@@ -175,7 +175,7 @@ class ConfigManager(Manager):
 		if config is None:
 			self.logWarning(f'Tried to get "{parent}/{key}" in snips configuration but key was not found')
 
-		return config
+		return config.value
 
 
 	def configAliceExists(self, configName: str) -> bool:
