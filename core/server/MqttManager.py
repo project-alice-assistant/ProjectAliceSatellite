@@ -25,6 +25,7 @@ class MqttManager(Manager):
 		self._mqttClient.message_callback_add(constants.TOPIC_NEW_HOTWORD, self.onNewHotword)
 		self._mqttClient.message_callback_add(constants.TOPIC_CORE_DISCONNECTION, self.onCoreDisconnection)
 		self._mqttClient.message_callback_add(constants.TOPIC_CORE_RECONNECTION, self.onCoreReconnection)
+		self._mqttClient.message_callback_add(constants.TOPIC_CORE_HEARTBEAT, self.onCoreHeartbeat)
 
 		if self.ConfigManager.getAliceConfigByName('uuid'):
 			self.connect()
@@ -134,6 +135,11 @@ class MqttManager(Manager):
 	# noinspection PyUnusedLocal
 	def onCoreDisconnection(self, client, userdata, message: mqtt.MQTTMessage):
 		self.NetworkManager.onCoreDisconnection()
+
+
+	# noinspection PyUnusedLocal
+	def onCoreHeartbeat(self, client, userdata, message: mqtt.MQTTMessage):
+		self.NetworkManager.coreHeartbeat()
 
 
 	def publish(self, topic: str, payload: (dict, str) = None, qos: int = 0, retain: bool = False):

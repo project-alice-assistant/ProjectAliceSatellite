@@ -1,4 +1,5 @@
 import socket
+import time
 
 from paho.mqtt.client import MQTTMessage
 
@@ -14,6 +15,9 @@ class NetworkManager(Manager):
 		self._tries = 0
 		self._greetingTimer = None
 		self._state = State.BOOTING
+		self._heartbeatTimer = None
+		self._coreLastHeartbeat = 0
+		self._checkCoreHeartbeatTimer = None
 
 
 	def onStop(self):
@@ -134,6 +138,9 @@ class NetworkManager(Manager):
 		if self._greetingTimer and self._greetingTimer.is_alive():
 			self._greetingTimer.cancel()
 
+		self.cancelHeartbeatsTimers(restart=True)
+		self._coreLastHeartbeat = time.time()
+
 		self._state = State.REGISTERED
 		self._tries = 0
 		self.Commons.runRootSystemCommand(['systemctl', 'start', 'snips-satellite'])
@@ -144,9 +151,7 @@ class NetworkManager(Manager):
 		if self._state != State.WAITING_REPLY:
 			return
 
-		if self._greetingTimer and self._greetingTimer.is_alive():
-			self._greetingTimer.cancel()
-
+		self.cancelHeartbeatsTimers()
 		self._state = State.REFUSED
 		self.logFatal('Alice answered and refused the connection')
 
@@ -155,13 +160,49 @@ class NetworkManager(Manager):
 		if self._state == State.REGISTERED:
 			self._state = State.DISCONNECTED
 			self.logInfo('Alice main unit disconnected')
+			self.cancelHeartbeatsTimers()
 			self.Commons.runRootSystemCommand(['systemctl', 'stop', 'snips-satellite'])
 
 
 	def onCoreReconnection(self):
 		if self._state == State.DISCONNECTED:
+			self.cancelHeartbeatsTimers(restart=True)
+			self._coreLastHeartbeat = time.time()
 			self.logInfo('Alice main unit came online')
 			self.tryConnectingToAlice()
+
+
+	def cancelHeartbeatsTimers(self, restart: bool = False):
+		if self._heartbeatTimer and self._heartbeatTimer.is_alive():
+			self._heartbeatTimer.cancel()
+
+		if self._checkCoreHeartbeatTimer and self._checkCoreHeartbeatTimer.is_alive():
+			self._checkCoreHeartbeatTimer.cancel()
+
+		if restart:
+			self._heartbeatTimer = self.ThreadManager.newTimer(interval=2, func=self.sendHeartbeat)
+			self._checkCoreHeartbeatTimer = self.ThreadManager.newTimer(interval=3, func=self.checkCoreHeartbeat)
+
+
+	def sendHeartbeat(self):
+		self.MqttManager.publish(
+			topic=constants.TOPIC_DEVICE_HEARTBEAT,
+			payload={
+				'uid': self.ConfigManager.getAliceConfigByName('uuid'),
+				'siteId': self.ConfigManager.getAliceConfigByName('deviceName')
+			}
+		)
+
+
+	def checkCoreHeartbeat(self):
+		now = time.time()
+		if now - 5 > self._coreLastHeartbeat:
+			self.logWarning(f'Main unit hasn\'t given any signs of life for over 5 seconds, disconnecting...')
+			self.onCoreDisconnection()
+
+
+	def coreHeartbeat(self):
+		self._coreLastHeartbeat = time.time()
 
 
 	@property
