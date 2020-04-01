@@ -164,3 +164,13 @@ class ProjectAliceObject:
 	@property
 	def NetworkManager(self):
 		return SM.SuperManager.getInstance().networkManager
+
+
+	@property
+	def SkillManager(self):
+		return SM.SuperManager.getInstance().skillManager
+
+
+	@property
+	def InternetManager(self):
+		return SM.SuperManager.getInstance().internetManager
