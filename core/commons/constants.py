@@ -18,6 +18,8 @@ TOPIC_CORE_RECONNECTION = 'projectalice/devices/coreReconnection'
 TOPIC_CORE_DISCONNECTION = 'projectalice/devices/coreDisconnection'
 TOPIC_DEVICE_HEARTBEAT = 'projectalice/devices/heartbeat'
 TOPIC_CORE_HEARTBEAT = 'projectalice/devices/coreHeartbeat'
+TOPIC_DND = 'projectalice/devices/stopListen'
+TOPIC_STOP_DND = 'projectalice/devices/startListen'
 
 EVENT_FULL_MINUTE = 'fullMinute'
 EVENT_FIVE_MINUTE = 'fiveMinute'

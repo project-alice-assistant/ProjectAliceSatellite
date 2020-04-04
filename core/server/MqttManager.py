@@ -13,6 +13,7 @@ class MqttManager(Manager):
 	def __init__(self):
 		super().__init__()
 		self._mqttClient = mqtt.Client()
+		self._dnd = False
 
 
 	def onStart(self):
@@ -60,7 +61,9 @@ class MqttManager(Manager):
 			(constants.TOPIC_ALICE_CONNECTION_ACCEPTED, 0),
 			(constants.TOPIC_ALICE_CONNECTION_REFUSED, 0),
 			(constants.TOPIC_CORE_RECONNECTION, 0),
-			(constants.TOPIC_CORE_DISCONNECTION, 0)
+			(constants.TOPIC_CORE_DISCONNECTION, 0),
+			(constants.TOPIC_DND, 0),
+			(constants.TOPIC_STOP_DND, 0)
 		]
 
 		self._mqttClient.subscribe(subscribedEvents)
@@ -115,6 +118,16 @@ class MqttManager(Manager):
 				self.NetworkManager.onAliceConnectionRefused()
 
 			if self.NetworkManager.state != State.REGISTERED:
+				return
+
+			if message.topic == constants.TOPIC_STOP_DND:
+				self.Commons.runRootSystemCommand(['systemctl', 'start', 'snips-satellite'])
+				self._dnd = False
+			elif message.topic == constants.TOPIC_DND:
+				self.Commons.runRootSystemCommand(['systemctl', 'stop', 'snips-satellite'])
+				self._dnd = True
+
+			if self._dnd:
 				return
 
 		except Exception as e:
