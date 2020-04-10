@@ -20,13 +20,15 @@ class ProjectAlice(Singleton):
 		with Stopwatch() as stopWatch:
 			self._restart = False
 			self._restartHandler = restartHandler
+
 			self._superManager = SuperManager(self)
 
 			self._superManager.initManagers()
-			self._superManager.onStart()
 
 			if self._superManager.configManager.getAliceConfigByName('useHLC'):
 				self._superManager.commons.runRootSystemCommand(['systemctl', 'start', 'hermesledcontrol'])
+
+			self._superManager.onStart()
 
 			self._superManager.onBooted()
 

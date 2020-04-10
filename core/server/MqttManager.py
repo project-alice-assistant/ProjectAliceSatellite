@@ -63,7 +63,8 @@ class MqttManager(Manager):
 			(constants.TOPIC_CORE_RECONNECTION, 0),
 			(constants.TOPIC_CORE_DISCONNECTION, 0),
 			(constants.TOPIC_DND, 0),
-			(constants.TOPIC_STOP_DND, 0)
+			(constants.TOPIC_STOP_DND, 0),
+			(constants.TOPIC_TOGGLE_DND, 0)
 		]
 
 		self._mqttClient.subscribe(subscribedEvents)
@@ -104,13 +105,14 @@ class MqttManager(Manager):
 			payload = self.Commons.payload(message)
 			uid = payload.get('uid', None)
 
-			if siteId and siteId != self.ConfigManager.getAliceConfigByName('deviceName'):
-				self.logDebug(f'Based on siteId **{siteId}** the message --{message.topic}-- was filtered out')
-				return
-
-			if uid and uid != self.ConfigManager.getAliceConfigByName('uuid'):
-				self.logDebug(f'Based on uid **{uid}** the message --{message.topic}-- was filtered out')
-				return
+			if uid:
+				if uid != self.ConfigManager.getAliceConfigByName('uuid'):
+					self.logDebug(f'Based on uid **{uid}** the message --{message.topic}-- was filtered out')
+					return
+			else:
+				if siteId and siteId != self.ConfigManager.getAliceConfigByName('deviceName'):
+					self.logDebug(f'Based on siteId **{siteId}** the message --{message.topic}-- was filtered out')
+					return
 
 			if message.topic == constants.TOPIC_ALICE_CONNECTION_ACCEPTED:
 				self.NetworkManager.onAliceConnectionAccepted()
@@ -121,11 +123,39 @@ class MqttManager(Manager):
 				return
 
 			if message.topic == constants.TOPIC_STOP_DND:
-				self.Commons.runRootSystemCommand(['systemctl', 'start', 'snips-satellite'])
+				self.SnipsServicesManager.runCmd('start')
+				self.publish(
+					topic='hermes/leds/clear',
+					payload={
+						'siteId': self.ConfigManager.getAliceConfigByName('deviceName')
+					}
+				)
 				self._dnd = False
 			elif message.topic == constants.TOPIC_DND:
-				self.Commons.runRootSystemCommand(['systemctl', 'stop', 'snips-satellite'])
+				self.SnipsServicesManager.runCmd('stop')
+				self.publish(
+					topic='hermes/leds/doNotDisturb',
+					payload={
+						'siteId': self.ConfigManager.getAliceConfigByName('deviceName')
+					}
+				)
 				self._dnd = True
+			elif message.topic == constants.TOPIC_TOGGLE_DND:
+				if self._dnd:
+					self.SnipsServicesManager.runCmd('start')
+					topic = 'hermes/leds/clear'
+				else:
+					self.SnipsServicesManager.runCmd('stop')
+					topic = 'hermes/leds/doNotDisturb'
+
+				self._dnd = not self._dnd
+
+				self.publish(
+					topic=topic,
+					payload={
+						'siteId': self.ConfigManager.getAliceConfigByName('deviceName')
+					}
+				)
 
 			if self._dnd:
 				return

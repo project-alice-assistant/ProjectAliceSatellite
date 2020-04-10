@@ -174,3 +174,8 @@ class ProjectAliceObject:
 	@property
 	def InternetManager(self):
 		return SM.SuperManager.getInstance().internetManager
+
+
+	@property
+	def SnipsServicesManager(self):
+		return SM.SuperManager.getInstance().snipsServicesManager
