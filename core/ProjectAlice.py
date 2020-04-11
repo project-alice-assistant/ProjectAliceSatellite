@@ -1,3 +1,5 @@
+import subprocess
+
 import requests
 
 from core.base.SuperManager import SuperManager
@@ -71,6 +73,12 @@ class ProjectAlice(Singleton):
 		self._restartHandler()
 
 
+	def onFullHour(self):
+		if not self._superManager.configManager.getAliceConfigByName('aliceAutoUpdate'):
+			return
+		self.updateProjectAlice()
+
+
 	def updateProjectAlice(self):
 		self._logger.logInfo('Checking for satellite updates')
 		req = requests.get(url=f'{constants.GITHUB_API_URL}/ProjectAliceSatellite/branches', auth=SuperManager.getInstance().configManager.getGithubAuth())
@@ -98,7 +106,16 @@ class ProjectAlice(Singleton):
 
 		self._logger.logInfo(f'Checking on "{str(candidate)}" update channel')
 		commons = SuperManager.getInstance().commons
+
+		currentHash = subprocess.check_output(['git', 'rev-parse', '--short HEAD'])
+
 		commons.runSystemCommand(['git', '-C', commons.rootDir(), 'stash'])
 		commons.runSystemCommand(['git', '-C', commons.rootDir(), 'clean', '-df'])
 		commons.runSystemCommand(['git', '-C', commons.rootDir(), 'checkout', str(candidate)])
 		commons.runSystemCommand(['git', '-C', commons.rootDir(), 'pull'])
+
+		newHash = subprocess.check_output(['git', 'rev-parse', '--short HEAD'])
+
+		if currentHash != newHash:
+			self._logger.logWarning('New satellite version installed, need to restart...')
+			self.doRestart()
