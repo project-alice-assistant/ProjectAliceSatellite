@@ -116,8 +116,20 @@ class MqttManager(Manager):
 
 			if message.topic == constants.TOPIC_ALICE_CONNECTION_ACCEPTED:
 				self.NetworkManager.onAliceConnectionAccepted()
+				self.publish(
+					topic='hermes/leds/clear',
+					payload={
+						'siteId': self.ConfigManager.getAliceConfigByName('deviceName')
+					}
+				)
 			elif message.topic == constants.TOPIC_ALICE_CONNECTION_REFUSED:
 				self.NetworkManager.onAliceConnectionRefused()
+				self.publish(
+					topic='hermes/leds/connectionError',
+					payload={
+						'siteId': self.ConfigManager.getAliceConfigByName('deviceName')
+					}
+				)
 
 			if self.NetworkManager.state != State.REGISTERED:
 				return
@@ -181,6 +193,12 @@ class MqttManager(Manager):
 	# noinspection PyUnusedLocal
 	def onCoreDisconnection(self, client, userdata, message: mqtt.MQTTMessage):
 		self.NetworkManager.onCoreDisconnection()
+		self.publish(
+			topic='hermes/leds/connectionError',
+			payload={
+				'siteId': self.ConfigManager.getAliceConfigByName('deviceName')
+			}
+		)
 
 
 	# noinspection PyUnusedLocal
