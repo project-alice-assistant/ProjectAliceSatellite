@@ -50,7 +50,6 @@ class NetworkManager(Manager):
 				if i >= 5:
 					self.logFatal('No main unit found, did you ask Alice to add this new device?')
 					return
-				pass
 
 		self.logInfo('Main unit found!')
 		try:

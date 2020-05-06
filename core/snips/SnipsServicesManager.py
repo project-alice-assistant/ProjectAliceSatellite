@@ -10,7 +10,7 @@ class SnipsServicesManager(Manager):
 		super().__init__()
 
 		self._snipsServices = [
-			'snips-satellite'
+			'snips-hotword'
 		]
 
 
@@ -40,6 +40,6 @@ class SnipsServicesManager(Manager):
 			if result.returncode == 0:
 				self.logInfo(f"Service {service} {cmd}'ed")
 			elif result.returncode == 5:
-				pass
+				pass # Do nothing
 			else:
 				self.logInfo(f"Tried to {cmd} the {service} service but it returned with return code {result.returncode}")

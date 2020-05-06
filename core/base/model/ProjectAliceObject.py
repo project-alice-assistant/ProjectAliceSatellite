@@ -2,6 +2,7 @@ import json
 from copy import copy
 
 import core.base.SuperManager as SM
+from core.commons import constants
 from core.util.model.Logger import Logger
 
 
@@ -94,88 +95,120 @@ class ProjectAliceObject:
 
 
 	def onStart(self):
-		pass
+		pass # Super object function is overriden only if needed
 
 
 	def onStop(self):
-		pass
+		pass # Super object function is overriden only if needed
 
 
 	def onBooted(self):
-		pass
+		pass # Super object function is overriden only if needed
 
 
 	def onFullMinute(self):
-		pass
+		pass # Super object function is overriden only if needed
 
 
 	def onFiveMinute(self):
-		pass
+		pass # Super object function is overriden only if needed
 
 
 	def onQuarterHour(self):
-		pass
+		pass # Super object function is overriden only if needed
 
 
 	def onFullHour(self):
-		pass
+		pass # Super object function is overriden only if needed
+
+
+	def onAudioFrame(self, **kwargs):
+		pass # Super object function is overriden only if needed
+
+
+	def onWakeword(self, siteId: str, user: str = constants.UNKNOWN_USER):
+		pass # Super object function is overriden only if needed
+
+
+	def onHotword(self, siteId: str, user: str = constants.UNKNOWN_USER):
+		pass # Super object function is overriden only if needed
+
+
+	def onHotwordToggleOn(self, siteId: str, session):
+		pass # Super object function is overriden only if needed
+
+
+	def onHotwordToggleOff(self, siteId: str, session):
+		pass # Super object function is overriden only if needed
+
+
+	def onPlayBytes(self, requestId: str, payload: bytearray, siteId: str, sessionId: str = None):
+		pass # Super object function is overriden only if needed
+
+
+	def onPlayBytesFinished(self, requestId: str, siteId: str, sessionId: str = None):
+		pass # Super object function is overriden only if needed
 
 
 	@property
-	def ProjectAlice(self):
+	def ProjectAlice(self): #NOSONAR
 		return SM.SuperManager.getInstance().projectAlice
 
 
 	@property
-	def ConfigManager(self):
+	def ConfigManager(self): #NOSONAR
 		return SM.SuperManager.getInstance().configManager
 
 
 	@property
-	def MqttManager(self):
+	def MqttManager(self): #NOSONAR
 		return SM.SuperManager.getInstance().mqttManager
 
 
 	@property
-	def DatabaseManager(self):
+	def DatabaseManager(self): #NOSONAR
 		return SM.SuperManager.getInstance().databaseManager
 
 
 	@property
-	def ThreadManager(self):
+	def ThreadManager(self): #NOSONAR
 		return SM.SuperManager.getInstance().threadManager
 
 
 	@property
-	def TimeManager(self):
+	def TimeManager(self): #NOSONAR
 		return SM.SuperManager.getInstance().timeManager
 
 
 	@property
-	def HotwordManager(self):
+	def HotwordManager(self): #NOSONAR
 		return SM.SuperManager.getInstance().hotwordManager
 
 
 	@property
-	def Commons(self):
+	def Commons(self): #NOSONAR
 		return SM.SuperManager.getInstance().commonsManager
 
 
 	@property
-	def NetworkManager(self):
+	def NetworkManager(self): #NOSONAR
 		return SM.SuperManager.getInstance().networkManager
 
 
 	@property
-	def SkillManager(self):
+	def SkillManager(self): #NOSONAR
 		return SM.SuperManager.getInstance().skillManager
 
 
 	@property
-	def InternetManager(self):
+	def InternetManager(self): #NOSONAR
 		return SM.SuperManager.getInstance().internetManager
 
 
 	@property
-	def SnipsServicesManager(self):
+	def SnipsServicesManager(self): #NOSONAR
 		return SM.SuperManager.getInstance().snipsServicesManager
+
+	@property
+	def AudioServer(self): #NOSONAR
+		return SM.SuperManager.getInstance().audioManager

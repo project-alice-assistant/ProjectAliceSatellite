@@ -1,7 +1,9 @@
 import json
 import traceback
+from typing import Union
 
 import paho.mqtt.client as mqtt
+from paho.mqtt import publish
 
 from core.base.model.Manager import Manager
 from core.base.model.States import State
@@ -27,6 +29,10 @@ class MqttManager(Manager):
 		self._mqttClient.message_callback_add(constants.TOPIC_CORE_DISCONNECTION, self.onCoreDisconnection)
 		self._mqttClient.message_callback_add(constants.TOPIC_CORE_RECONNECTION, self.onCoreReconnection)
 		self._mqttClient.message_callback_add(constants.TOPIC_CORE_HEARTBEAT, self.onCoreHeartbeat)
+		self._mqttClient.message_callback_add(constants.TOPIC_HOTWORD_TOGGLE_ON, self.hotwordToggleOn)
+		self._mqttClient.message_callback_add(constants.TOPIC_HOTWORD_TOGGLE_OFF, self.hotwordToggleOff)
+		self._mqttClient.message_callback_add(constants.TOPIC_HOTWORD_DETECTED, self.onHotwordDetected)
+		self._mqttClient.message_callback_add(constants.TOPIC_PLAY_BYTES.format(constants.DEFAULT_SITE_ID), self.topicPlayBytes)
 
 		if self.ConfigManager.getAliceConfigByName('uuid'):
 			self.connect()
@@ -40,7 +46,6 @@ class MqttManager(Manager):
 			except Exception as e:
 				self.logCritical(f'Couldn\'t access Alice\'s network: {e}')
 				traceback.print_exc()
-			return
 
 
 	def onStop(self):
@@ -64,7 +69,11 @@ class MqttManager(Manager):
 			(constants.TOPIC_CORE_DISCONNECTION, 0),
 			(constants.TOPIC_DND, 0),
 			(constants.TOPIC_STOP_DND, 0),
-			(constants.TOPIC_TOGGLE_DND, 0)
+			(constants.TOPIC_TOGGLE_DND, 0),
+			(constants.TOPIC_HOTWORD_DETECTED, 0),
+			(constants.TOPIC_HOTWORD_TOGGLE_ON, 0),
+			(constants.TOPIC_HOTWORD_TOGGLE_OFF, 0),
+			(constants.TOPIC_PLAY_BYTES.format(constants.DEFAULT_SITE_ID), 0)
 		]
 
 		self._mqttClient.subscribe(subscribedEvents)
@@ -79,7 +88,7 @@ class MqttManager(Manager):
 			self._mqttClient.tls_set(certfile=self.ConfigManager.getAliceConfigByName('mqttTLSFile'))
 			self._mqttClient.tls_insecure_set(False)
 
-		self._mqttClient.connect(self.ConfigManager.getAliceConfigByName('mqttHost'), int(self.ConfigManager.getAliceConfigByName('mqttPort')))
+		self._mqttClient.connect('localhost', int(self.ConfigManager.getAliceConfigByName('mqttPort')))
 
 		self._mqttClient.loop_start()
 
@@ -98,8 +107,7 @@ class MqttManager(Manager):
 		self.connect()
 
 
-	# noinspection PyUnusedLocal
-	def onMqttMessage(self, client, userdata, message: mqtt.MQTTMessage):
+	def onMqttMessage(self, _client, _userdata, message: mqtt.MQTTMessage):
 		try:
 			siteId = self.Commons.parseSiteId(message)
 			payload = self.Commons.payload(message)
@@ -176,8 +184,7 @@ class MqttManager(Manager):
 			self.logError(f'Error in onMessage: {e}')
 
 
-	# noinspection PyUnusedLocal
-	def onNewHotword(self, client, userdata, message: mqtt.MQTTMessage):
+	def onNewHotword(self, _client, _userdata, message: mqtt.MQTTMessage):
 		payload = self.Commons.payload(message)
 		if 'uid' not in payload or payload['uid'] != self.ConfigManager.getAliceConfigByName('uuid'):
 			return
@@ -185,13 +192,11 @@ class MqttManager(Manager):
 		self.HotwordManager.newHotword(payload)
 
 
-	# noinspection PyUnusedLocal
-	def onCoreReconnection(self, client, userdata, message: mqtt.MQTTMessage):
+	def onCoreReconnection(self, _client, _userdata, _message: mqtt.MQTTMessage):
 		self.NetworkManager.onCoreReconnection()
 
 
-	# noinspection PyUnusedLocal
-	def onCoreDisconnection(self, client, userdata, message: mqtt.MQTTMessage):
+	def onCoreDisconnection(self, _client, _userdata, _message: mqtt.MQTTMessage):
 		self.NetworkManager.onCoreDisconnection()
 		self.publish(
 			topic='hermes/leds/connectionError',
@@ -201,16 +206,77 @@ class MqttManager(Manager):
 		)
 
 
-	# noinspection PyUnusedLocal
-	def onCoreHeartbeat(self, client, userdata, message: mqtt.MQTTMessage):
+	def topicPlayBytes(self, _client, _data, msg: mqtt.MQTTMessage):
+		"""
+		SessionId is completly custom and does not belong in the Hermes Protocol
+		:param _client:
+		:param _data:
+		:param msg:
+		:return:
+		"""
+		count = msg.topic.count('/')
+		if count > 4:
+			requestId = msg.topic.rsplit('/')[-1]
+			sessionId = msg.topic.rsplit('/')[-2]
+		else:
+			requestId = msg.topic.rsplit('/')[-1]
+			sessionId = None
+
+		siteId = self.Commons.parseSiteId(msg)
+		self.broadcast(method=constants.EVENT_PLAY_BYTES, exceptions=self.name, propagateToSkills=True, requestId=requestId, payload=msg.payload, siteId=siteId, sessionId=sessionId)
+
+
+	def hotwordToggleOn(self, _client, _data, msg: mqtt.MQTTMessage):
+		siteId = self.Commons.parseSiteId(msg)
+		if siteId != constants.DEFAULT_SITE_ID:
+			return
+
+		self.broadcast(method=constants.EVENT_HOTWORD_TOGGLE_ON, exceptions=[self.name], propagateToSkills=True, siteId=siteId)
+
+
+	def hotwordToggleOff(self, _client, _data, msg: mqtt.MQTTMessage):
+		siteId = self.Commons.parseSiteId(msg)
+		if siteId != constants.DEFAULT_SITE_ID:
+			return
+
+		self.broadcast(method=constants.EVENT_HOTWORD_TOGGLE_OFF, exceptions=[self.name], propagateToSkills=True, siteId=siteId)
+
+
+	def onHotwordDetected(self, _client, _data, msg):
+		siteId = self.Commons.parseSiteId(msg)
+		payload = self.Commons.payload(msg)
+
+		user = constants.UNKNOWN_USER
+		if payload['modelType'] == 'personal':
+			user = payload['modelId']
+
+		if user == constants.UNKNOWN_USER:
+			self.broadcast(method=constants.EVENT_HOTWORD, exceptions=[self.name], propagateToSkills=True, siteId=siteId, user=user)
+		else:
+			self.broadcast(method=constants.EVENT_WAKEWORD, exceptions=[self.name], propagateToSkills=True, siteId=siteId, user=user)
+
+
+	def onCoreHeartbeat(self, _client, _userdata, _message: mqtt.MQTTMessage):
 		self.NetworkManager.coreHeartbeat()
 
 
-	def publish(self, topic: str, payload: (dict, str) = None, qos: int = 0, retain: bool = False):
+	def publish(self, topic: str, payload: Union[dict, str] = None, qos: int = 0, retain: bool = False):
 		if isinstance(payload, dict):
 			payload = json.dumps(payload)
 
 		self._mqttClient.publish(topic, payload, qos, retain)
+
+
+	@staticmethod
+	def localPublish(topic: str, payload: Union[dict, str] = None):
+		if isinstance(payload, dict):
+			payload = json.dumps(payload)
+
+		publish.single(
+			topic=topic,
+			payload=payload,
+			hostname='127.0.0.1'
+		)
 
 
 	@property

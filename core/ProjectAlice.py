@@ -19,6 +19,8 @@ class ProjectAlice(Singleton):
 		self._logger = Logger(prepend='[Project Alice]')
 		self._logger.logInfo('Starting Alice satellite unit')
 		self._booted = False
+		self._isUpdating = False
+		self._shuttingDown = False
 		with Stopwatch() as stopWatch:
 			self._restart = False
 			self._restartHandler = restartHandler
@@ -63,14 +65,20 @@ class ProjectAlice(Singleton):
 		self.onStop()
 
 
-	def onStop(self):
+	def onStop(self, withReboot: bool = False):
 		self._logger.logInfo('Shutting down')
+		self._shuttingDown = True
 		self._superManager.onStop()
 		if self._superManager.configManager.getAliceConfigByName('useHLC'):
 			self._superManager.commons.runRootSystemCommand(['systemctl', 'stop', 'hermesledcontrol'])
 
+		self._booted = False
 		self.INSTANCE = None
-		self._restartHandler()
+
+		if withReboot:
+			subprocess.run(['sudo', 'shutdown', '-r', 'now'])
+		else:
+			self._restartHandler()
 
 
 	def onFullHour(self):
@@ -81,6 +89,7 @@ class ProjectAlice(Singleton):
 
 	def updateProjectAlice(self):
 		self._logger.logInfo('Checking for satellite updates')
+		self._isUpdating = True
 		req = requests.get(url=f'{constants.GITHUB_API_URL}/ProjectAliceSatellite/branches', auth=SuperManager.getInstance().configManager.getGithubAuth())
 		if req.status_code != 200:
 			self._logger.logWarning('Failed checking for updates')
@@ -119,3 +128,15 @@ class ProjectAlice(Singleton):
 		if currentHash != newHash:
 			self._logger.logWarning('New satellite version installed, need to restart...')
 			self.doRestart()
+
+		self._isUpdating = False
+
+
+	@property
+	def updating(self) -> bool:
+		return self._isUpdating
+
+
+	@property
+	def shuttingDown(self) -> bool:
+		return self._shuttingDown

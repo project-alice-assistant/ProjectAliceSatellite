@@ -33,6 +33,7 @@ class SuperManager:
 		self.hotwordManager = None
 		self.skillManager = None
 		self.internetManager = None
+		self.audioManager = None
 
 
 	def onStart(self):
@@ -93,6 +94,7 @@ class SuperManager:
 		from core.util.HotwordManager import HotwordManager
 		from core.base.SkillManager import SkillManager
 		from core.util.InternetManager import InternetManager
+		from core.server.AudioServer import AudioManager
 
 		self.commonsManager = CommonsManager()
 		self.commons = self.commonsManager
@@ -106,6 +108,7 @@ class SuperManager:
 		self.hotwordManager = HotwordManager()
 		self.skillManager = SkillManager()
 		self.internetManager = InternetManager()
+		self.audioManager = AudioManager()
 
 		self._managers = {name[0].upper() + name[1:]: manager for name, manager in self.__dict__.items() if name.endswith('Manager')}
 
