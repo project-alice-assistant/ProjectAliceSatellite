@@ -1,4 +1,5 @@
 import json
+import re
 import traceback
 from typing import Union
 
@@ -16,6 +17,7 @@ class MqttManager(Manager):
 		super().__init__()
 		self._mqttClient = mqtt.Client()
 		self._dnd = False
+		self._audioFrameRegex = re.compile(constants.TOPIC_AUDIO_FRAME.replace('{}', '(.*)'))
 
 
 	def onStart(self):
@@ -88,7 +90,7 @@ class MqttManager(Manager):
 			self._mqttClient.tls_set(certfile=self.ConfigManager.getAliceConfigByName('mqttTLSFile'))
 			self._mqttClient.tls_insecure_set(False)
 
-		self._mqttClient.connect('localhost', int(self.ConfigManager.getAliceConfigByName('mqttPort')))
+		self._mqttClient.connect(self.ConfigManager.getAliceConfigByName('mqttHost'), int(self.ConfigManager.getAliceConfigByName('mqttPort')))
 
 		self._mqttClient.loop_start()
 
@@ -109,6 +111,16 @@ class MqttManager(Manager):
 
 	def onMqttMessage(self, _client, _userdata, message: mqtt.MQTTMessage):
 		try:
+			if self._audioFrameRegex.match(message.topic):
+				self.broadcast(
+					method=constants.EVENT_AUDIO_FRAME,
+					exceptions=[self.name],
+					propagateToSkills=True,
+					message=message,
+					siteId=message.topic.replace('hermes/audioServer/', '').replace('/audioFrame', '')
+				)
+				return
+
 			siteId = self.Commons.parseSiteId(message)
 			payload = self.Commons.payload(message)
 			uid = payload.get('uid', None)
@@ -243,6 +255,7 @@ class MqttManager(Manager):
 
 
 	def onHotwordDetected(self, _client, _data, msg):
+		print('hotword')
 		siteId = self.Commons.parseSiteId(msg)
 		payload = self.Commons.payload(msg)
 
@@ -275,7 +288,7 @@ class MqttManager(Manager):
 		publish.single(
 			topic=topic,
 			payload=payload,
-			hostname='127.0.0.1'
+			hostname='localhost'
 		)
 
 

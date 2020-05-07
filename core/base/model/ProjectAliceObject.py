@@ -22,7 +22,7 @@ class ProjectAliceObject:
 		return self.__repr__()
 
 
-	def broadcast(self, method: str, exceptions: list = None, manager = None, **kwargs):
+	def broadcast(self, method: str, exceptions: list = None, manager = None, propagateToSkills: bool = False, **kwargs):
 		if not exceptions:
 			exceptions = list()
 

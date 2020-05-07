@@ -102,11 +102,5 @@ settings = {
 		'dataType'    : 'string',
 		'isSensitive' : False,
 		'display'     : 'hidden'
-	},
-	'micSampleRate': {
-		'defaultValue': 16000,
-		'dataType'    : 'integer',
-		'isSensitive' : False,
-		'description' : 'Your microphone sample rate'
-	},
+	}
 }

@@ -12,6 +12,7 @@ from core.commons import constants
 
 
 class AudioManager(Manager):
+	SAMPLERATE = 16000
 
 	# Inspired by https://github.com/koenvervloesem/hermes-audio-server
 
@@ -64,13 +65,13 @@ class AudioManager(Manager):
 		audioStream = self._audio.open(
 			format=pyaudio.paInt16,
 			channels=1,
-			rate=self.ConfigManager.getAliceConfigByName('micSampleRate'),
+			rate=self.SAMPLERATE,
 			frames_per_buffer=320,
 			input=True
 		)
 
 		speech = False
-		silence = 16000 / 320
+		silence = self.SAMPLERATE / 320
 		speechFrames = 0
 		minSpeechFrames = round(silence / 3)
 
@@ -80,7 +81,7 @@ class AudioManager(Manager):
 
 			try:
 				frames = audioStream.read(num_frames=320, exception_on_overflow=False)
-				if self._vad.is_speech(frames, 16000):
+				if self._vad.is_speech(frames, self.SAMPLERATE):
 					if not speech and speechFrames < minSpeechFrames:
 						speechFrames += 1
 					elif speechFrames >= minSpeechFrames:
@@ -90,7 +91,7 @@ class AudioManager(Manager):
 							payload={
 								'siteId': constants.DEFAULT_SITE_ID
 							})
-						silence = 16000 / 320
+						silence = self.SAMPLERATE / 320
 						speechFrames = 0
 				else:
 					if speech:
@@ -116,7 +117,7 @@ class AudioManager(Manager):
 			with wave.open(buffer, 'wb') as wav:
 				wav.setnchannels(1)
 				wav.setsampwidth(2)
-				wav.setframerate(16000)
+				wav.setframerate(self.SAMPLERATE)
 				wav.writeframes(frames)
 
 			audioFrames = buffer.getvalue()
@@ -124,7 +125,7 @@ class AudioManager(Manager):
 			if self._sessionStarted:
 				self.MqttManager.publish(topic=constants.TOPIC_AUDIO_FRAME.format(constants.DEFAULT_SITE_ID), payload=bytearray(audioFrames))
 			else:
-				self.MqttManager.localPublish(topic=constants.TOPIC_AUDIO_FRAME.format(constants.DEFAULT_SITE_ID), payload=bytearray(audioFrames))
+				self.MqttManager.publish(topic=constants.TOPIC_AUDIO_FRAME.format(constants.DEFAULT_SITE_ID), payload=bytearray(audioFrames))
 
 
 	def onPlayBytes(self, requestId: str, payload: bytearray, siteId: str, sessionId: str = None):
