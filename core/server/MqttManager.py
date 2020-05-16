@@ -155,7 +155,6 @@ class MqttManager(Manager):
 				return
 
 			if message.topic == constants.TOPIC_STOP_DND:
-				self.SnipsServicesManager.runCmd('start')
 				self.publish(
 					topic='hermes/leds/clear',
 					payload={
@@ -164,7 +163,6 @@ class MqttManager(Manager):
 				)
 				self._dnd = False
 			elif message.topic == constants.TOPIC_DND:
-				self.SnipsServicesManager.runCmd('stop')
 				self.publish(
 					topic='hermes/leds/doNotDisturb',
 					payload={
@@ -174,10 +172,8 @@ class MqttManager(Manager):
 				self._dnd = True
 			elif message.topic == constants.TOPIC_TOGGLE_DND:
 				if self._dnd:
-					self.SnipsServicesManager.runCmd('start')
 					topic = 'hermes/leds/clear'
 				else:
-					self.SnipsServicesManager.runCmd('stop')
 					topic = 'hermes/leds/doNotDisturb'
 
 				self._dnd = not self._dnd

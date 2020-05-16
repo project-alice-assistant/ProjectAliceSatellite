@@ -1,6 +1,8 @@
 VERSION = '1.0.0-a1'
 DEFAULT_SITE_ID = 'default'
 DEFAULT = 'default'
+DUMMY = 'dummy'
+UNKNOWN = 'unknown'
 UNKNOWN_MANAGER = 'unknownManager'
 UNKNOWN_USER = 'unknownUser'
 

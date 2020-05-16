@@ -1,12 +1,20 @@
 import json
+import re
 from copy import copy
 
+from importlib_metadata import PackageNotFoundError, version as packageVersion
+
 import core.base.SuperManager as SM
+from core.base.model.Version import Version
 from core.commons import constants
 from core.util.model.Logger import Logger
 
 
 class ProjectAliceObject:
+	DEPENDENCIES = {
+		'system': [],
+		'pip'   : []
+	}
 
 	def __init__(self, *args, **kwargs):
 		self._logger = Logger(*args, **kwargs)
@@ -59,6 +67,61 @@ class ProjectAliceObject:
 
 		for name in deadManagers:
 			del SM.SuperManager.getInstance().managers[name]
+
+
+	def checkDependencies(self) -> bool:
+		self.logInfo('Checking dependencies')
+		for dep in self.DEPENDENCIES['pip']:
+			match = re.match(r'^([a-zA-Z-_]*)(?:([=><]{0,2})([\d.]*)$)', dep)
+			if not match:
+				continue
+
+			packageName, operator, version = match.groups()
+			if not packageName:
+				self.logWarning('Wrongly declared PIP requirement')
+				continue
+
+			try:
+				installedVersion = packageVersion(packageName)
+			except PackageNotFoundError:
+				self.logWarning(f'Found missing dependencies: {packageName}')
+				return False
+
+			if not installedVersion or not operator or not version:
+				continue
+
+			version = Version.fromString(version)
+			installedVersion = Version.fromString(installedVersion)
+
+			if (operator == '==' and version != installedVersion) or \
+					(operator == '>=' and installedVersion < version) or \
+					(operator == '>' and (installedVersion < version or installedVersion == version)) or \
+					(operator == '<' and (installedVersion > version or installedVersion == version)):
+
+				self.logWarning(f'Dependency "{packageName}" is not conform with version requirements')
+				return False
+
+		return True
+
+
+	def installDependencies(self) -> bool:
+		self.logInfo('Installing dependencies')
+
+		try:
+			for dep in self.DEPENDENCIES['system']:
+				self.logInfo(f'Installing "{dep}"')
+				self.Commons.runRootSystemCommand(['apt-get', 'install', '-y', dep])
+				self.logInfo(f'Installed!')
+
+			for dep in self.DEPENDENCIES['pip']:
+				self.logInfo(f'Installing "{dep}"')
+				self.Commons.runSystemCommand(['./venv/bin/pip', 'install', dep])
+				self.logInfo(f'Installed!')
+
+			return True
+		except Exception as e:
+			self.logError(f'Installing dependencies failed: {e}')
+			return False
 
 
 	def logInfo(self, msg: str):
@@ -134,11 +197,11 @@ class ProjectAliceObject:
 		pass # Super object function is overriden only if needed
 
 
-	def onHotwordToggleOn(self, siteId: str, session):
+	def onHotwordToggleOn(self):
 		pass # Super object function is overriden only if needed
 
 
-	def onHotwordToggleOff(self, siteId: str, session):
+	def onHotwordToggleOff(self):
 		pass # Super object function is overriden only if needed
 
 
@@ -206,8 +269,8 @@ class ProjectAliceObject:
 
 
 	@property
-	def SnipsServicesManager(self): #NOSONAR
-		return SM.SuperManager.getInstance().snipsServicesManager
+	def WakewordManager(self): #NOSONAR
+		return SM.SuperManager.getInstance().wakewordManager
 
 	@property
 	def AudioServer(self): #NOSONAR
