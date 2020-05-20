@@ -26,7 +26,7 @@ class HotwordDownloadThread(Thread):
 		try:
 			self._logger.logInfo('Cleaning up')
 
-			rootPath = Path(SuperManager.getInstance().commons.rootDir(), 'hotwords')
+			rootPath = Path(SuperManager.getInstance().commons.rootDir(), 'hotwords/snips_hotword')
 			hotwordPath = rootPath / f'{self._hotwordName}'
 			zipPath = hotwordPath.with_suffix('.zip')
 

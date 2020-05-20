@@ -23,6 +23,7 @@ class AudioManager(Manager):
 
 		self._stopPlayingFlag = threading.Event()
 		self._playing = False
+		self._listening = False
 
 		if self.ConfigManager.getAliceConfigByName('disableSoundAndMic'):
 			return
@@ -62,6 +63,14 @@ class AudioManager(Manager):
 
 		if not self.ConfigManager.getAliceConfigByName('disableSoundAndMic'):
 			self._audio.terminate()
+
+
+	def onHotwordToggleOff(self):
+		self._listening = False
+
+
+	def onHotwordToggleOff(self):
+		self._listening = True
 
 
 	def publishAudio(self):
@@ -125,7 +134,11 @@ class AudioManager(Manager):
 				wav.writeframes(frames)
 
 			audioFrames = buffer.getvalue()
-			self.MqttManager.publish(topic=constants.TOPIC_AUDIO_FRAME.format(self.ConfigManager.getAliceConfigByName('deviceName')), payload=bytearray(audioFrames))
+
+			if self._listening:
+				self.MqttManager.publish(topic=constants.TOPIC_AUDIO_FRAME.format(self.ConfigManager.getAliceConfigByName('deviceName')), payload=bytearray(audioFrames))
+			else:
+				self.MqttManager.localPublish(topic=constants.TOPIC_AUDIO_FRAME.format(self.ConfigManager.getAliceConfigByName('deviceName')), payload=bytearray(audioFrames))
 
 
 	def onPlayBytes(self, requestId: str, payload: bytearray, siteId: str, sessionId: str = None):

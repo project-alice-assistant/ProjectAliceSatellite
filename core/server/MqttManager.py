@@ -4,7 +4,6 @@ import traceback
 from typing import Union
 
 import paho.mqtt.client as mqtt
-from paho.mqtt import publish
 
 from core.base.model.Manager import Manager
 from core.base.model.States import State
@@ -16,6 +15,7 @@ class MqttManager(Manager):
 	def __init__(self):
 		super().__init__()
 		self._mqttClient = mqtt.Client()
+		self._mqttLocalClient = mqtt.Client()
 		self._dnd = False
 		self._audioFrameRegex = re.compile(constants.TOPIC_AUDIO_FRAME.replace('{}', '(.*)'))
 
@@ -33,7 +33,7 @@ class MqttManager(Manager):
 		self._mqttClient.message_callback_add(constants.TOPIC_CORE_HEARTBEAT, self.onCoreHeartbeat)
 		self._mqttClient.message_callback_add(constants.TOPIC_HOTWORD_TOGGLE_ON, self.hotwordToggleOn)
 		self._mqttClient.message_callback_add(constants.TOPIC_HOTWORD_TOGGLE_OFF, self.hotwordToggleOff)
-		self._mqttClient.message_callback_add(constants.TOPIC_HOTWORD_DETECTED, self.onHotwordDetected)
+		self._mqttLocalClient.message_callback_add(constants.TOPIC_HOTWORD_DETECTED, self.onHotwordDetected)
 		self._mqttClient.message_callback_add(constants.TOPIC_PLAY_BYTES.format(constants.DEFAULT_SITE_ID), self.topicPlayBytes)
 
 		if self.ConfigManager.getAliceConfigByName('uuid'):
@@ -79,6 +79,7 @@ class MqttManager(Manager):
 		]
 
 		self._mqttClient.subscribe(subscribedEvents)
+		self._mqttLocalClient.subscribe(constants.TOPIC_HOTWORD_DETECTED)
 		self.NetworkManager.tryConnectingToAlice()
 
 
@@ -93,6 +94,9 @@ class MqttManager(Manager):
 		self._mqttClient.connect(self.ConfigManager.getAliceConfigByName('mqttHost'), int(self.ConfigManager.getAliceConfigByName('mqttPort')))
 
 		self._mqttClient.loop_start()
+
+		self._mqttLocalClient.connect(host='127.0.0.1')
+		self._mqttLocalClient.loop_start()
 
 
 	def disconnect(self):
@@ -251,7 +255,6 @@ class MqttManager(Manager):
 
 
 	def onHotwordDetected(self, _client, _data, msg):
-		print('hotword')
 		siteId = self.Commons.parseSiteId(msg)
 		payload = self.Commons.payload(msg)
 
@@ -276,15 +279,13 @@ class MqttManager(Manager):
 		self._mqttClient.publish(topic, payload, qos, retain)
 
 
-	@staticmethod
-	def localPublish(topic: str, payload: Union[dict, str] = None):
+	def localPublish(self, topic: str, payload: Union[dict, str] = None):
 		if isinstance(payload, dict):
 			payload = json.dumps(payload)
 
-		publish.single(
+		self._mqttLocalClient.publish(
 			topic=topic,
-			payload=payload,
-			hostname='localhost'
+			payload=payload
 		)
 
 
