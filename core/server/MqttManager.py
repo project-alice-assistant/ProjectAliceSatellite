@@ -72,7 +72,6 @@ class MqttManager(Manager):
 			(constants.TOPIC_DND, 0),
 			(constants.TOPIC_STOP_DND, 0),
 			(constants.TOPIC_TOGGLE_DND, 0),
-			(constants.TOPIC_HOTWORD_DETECTED, 0),
 			(constants.TOPIC_HOTWORD_TOGGLE_ON, 0),
 			(constants.TOPIC_HOTWORD_TOGGLE_OFF, 0),
 			(constants.TOPIC_PLAY_BYTES.format(constants.DEFAULT_SITE_ID), 0)
@@ -131,11 +130,11 @@ class MqttManager(Manager):
 
 			if uid:
 				if uid != self.ConfigManager.getAliceConfigByName('uuid'):
-					self.logDebug(f'Based on uid **{uid}** the message --{message.topic}-- was filtered out')
+					self.logDebug(f'Based on received uid **{uid}** the message --{message.topic}-- was filtered out')
 					return
 			else:
 				if siteId and siteId != self.ConfigManager.getAliceConfigByName('deviceName'):
-					self.logDebug(f'Based on siteId **{siteId}** the message --{message.topic}-- was filtered out')
+					self.logDebug(f'Based on received siteId **{siteId}** the message --{message.topic}-- was filtered out')
 					return
 
 			if message.topic == constants.TOPIC_ALICE_CONNECTION_ACCEPTED:
@@ -261,6 +260,17 @@ class MqttManager(Manager):
 		user = constants.UNKNOWN_USER
 		if payload['modelType'] == 'personal':
 			user = payload['modelId']
+
+		self.publish(
+			topic=constants.TOPIC_HOTWORD_DETECTED,
+			payload={
+				'siteId': self.ConfigManager.getAliceConfigByName('deviceName'),
+				'modelId': payload['modelId'],
+				'modelVersion': payload['modelVersion'],
+				'modelType': payload['modelType'],
+				'currentSensitivity': payload['currentSensitivity']
+			}
+		)
 
 		if user == constants.UNKNOWN_USER:
 			self.broadcast(method=constants.EVENT_HOTWORD, exceptions=[self.name], propagateToSkills=True, siteId=siteId, user=user)

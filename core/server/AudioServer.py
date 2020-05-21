@@ -69,7 +69,7 @@ class AudioManager(Manager):
 		self._listening = False
 
 
-	def onHotwordToggleOff(self):
+	def onHotwordToggleOn(self):
 		self._listening = True
 
 
