@@ -78,7 +78,6 @@ class NetworkManager(Manager):
 				break
 			except socket.timeout:
 				i += 1
-				pass
 
 		if not data:
 			self.logFatal('The main unit did not answer')
@@ -140,7 +139,6 @@ class NetworkManager(Manager):
 
 		self._state = State.REGISTERED
 		self._tries = 0
-		self.Commons.runRootSystemCommand(['systemctl', 'start', 'snips-satellite'])
 		self.logInfo('Alice answered and accepted the connection')
 
 
@@ -158,7 +156,6 @@ class NetworkManager(Manager):
 			self._state = State.DISCONNECTED
 			self.logInfo('Alice main unit disconnected')
 			self.cancelHeartbeatsTimers()
-			self.Commons.runRootSystemCommand(['systemctl', 'stop', 'snips-satellite'])
 
 
 	def onCoreReconnection(self):

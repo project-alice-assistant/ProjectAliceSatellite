@@ -2,7 +2,6 @@ import os
 import re
 import shutil
 import socket
-import subprocess
 from pathlib import Path
 from threading import Thread
 
@@ -76,7 +75,6 @@ class HotwordDownloadThread(Thread):
 
 			conf.append(f'{hotwordPath}=0.52')
 			SuperManager.getInstance().configManager.updateSnipsConfiguration(parent='snips-hotword', key='model', value=conf, createIfNotExist=True)
-			subprocess.run(['sudo', 'systemctl', 'restart', 'snips-satellite'])
 
 			sock.send(b'0')
 			self._logger.logInfo(f'Sucessfully installed new hotword **{self._hotwordName}**')

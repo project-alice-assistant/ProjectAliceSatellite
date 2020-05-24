@@ -34,7 +34,7 @@ class MqttManager(Manager):
 		self._mqttClient.message_callback_add(constants.TOPIC_HOTWORD_TOGGLE_ON, self.hotwordToggleOn)
 		self._mqttClient.message_callback_add(constants.TOPIC_HOTWORD_TOGGLE_OFF, self.hotwordToggleOff)
 		self._mqttLocalClient.message_callback_add(constants.TOPIC_HOTWORD_DETECTED, self.onHotwordDetected)
-		self._mqttClient.message_callback_add(constants.TOPIC_PLAY_BYTES.format(constants.DEFAULT_SITE_ID), self.topicPlayBytes)
+		self._mqttClient.message_callback_add(constants.TOPIC_PLAY_BYTES.format(self.ConfigManager.getAliceConfigByName('deviceName')), self.topicPlayBytes)
 
 		if self.ConfigManager.getAliceConfigByName('uuid'):
 			self.connect()
@@ -74,7 +74,9 @@ class MqttManager(Manager):
 			(constants.TOPIC_TOGGLE_DND, 0),
 			(constants.TOPIC_HOTWORD_TOGGLE_ON, 0),
 			(constants.TOPIC_HOTWORD_TOGGLE_OFF, 0),
-			(constants.TOPIC_PLAY_BYTES.format(constants.DEFAULT_SITE_ID), 0)
+			(constants.TOPIC_ASR_START_LISTENING, 0),
+			(constants.TOPIC_ASR_STOP_LISTENING, 0),
+			(constants.TOPIC_PLAY_BYTES.format(self.ConfigManager.getAliceConfigByName('deviceName')), 0)
 		]
 
 		self._mqttClient.subscribe(subscribedEvents)
@@ -188,6 +190,12 @@ class MqttManager(Manager):
 					}
 				)
 
+			elif message.topic == constants.TOPIC_ASR_START_LISTENING:
+				self.broadcast(method=constants.EVENT_START_LISTENING, exceptions=[self.name], propagateToSkills=True)
+
+			elif message.topic == constants.TOPIC_ASR_STOP_LISTENING:
+				self.broadcast(method=constants.EVENT_STOP_LISTENING, exceptions=[self.name], propagateToSkills=True)
+
 			if self._dnd:
 				return
 
@@ -239,21 +247,31 @@ class MqttManager(Manager):
 
 	def hotwordToggleOn(self, _client, _data, msg: mqtt.MQTTMessage):
 		siteId = self.Commons.parseSiteId(msg)
-		if siteId != constants.DEFAULT_SITE_ID:
+		if siteId != self.ConfigManager.getAliceConfigByName('deviceName'):
 			return
 
+		self._mqttLocalClient.loop_start()
 		self.broadcast(method=constants.EVENT_HOTWORD_TOGGLE_ON, exceptions=[self.name], propagateToSkills=True, siteId=siteId)
 
 
 	def hotwordToggleOff(self, _client, _data, msg: mqtt.MQTTMessage):
 		siteId = self.Commons.parseSiteId(msg)
-		if siteId != constants.DEFAULT_SITE_ID:
+		if siteId != self.ConfigManager.getAliceConfigByName('deviceName'):
 			return
 
 		self.broadcast(method=constants.EVENT_HOTWORD_TOGGLE_OFF, exceptions=[self.name], propagateToSkills=True, siteId=siteId)
 
 
 	def onHotwordDetected(self, _client, _data, msg):
+		"""
+		Only triggers on local mqtt broker and sends it to Alice broker.
+		:param _client:
+		:param _data:
+		:param msg:
+		:return:
+		"""
+		self._mqttLocalClient.loop_stop()
+
 		siteId = self.Commons.parseSiteId(msg)
 		payload = self.Commons.payload(msg)
 
