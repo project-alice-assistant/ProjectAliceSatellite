@@ -12,9 +12,9 @@ from core.commons import constants
 
 
 class AudioManager(Manager):
-
 	SAMPLERATE = 16000
 	FRAMES_PER_BUFFER = 320
+
 
 	# Inspired by https://github.com/koenvervloesem/hermes-audio-server
 
@@ -75,11 +75,11 @@ class AudioManager(Manager):
 		self._aliceListening = False
 
 
-	def onHotword(self, siteId: str, user: str = constants.UNKNOWN_USER):
+	def onHotword(self, user: str = constants.UNKNOWN_USER):
 		self.onHotwordToggleOff()
 
 
-	def onWakeword(self, siteId: str, user: str = constants.UNKNOWN_USER):
+	def onWakeword(self, user: str = constants.UNKNOWN_USER):
 		self.onHotwordToggleOff()
 
 
@@ -160,13 +160,13 @@ class AudioManager(Manager):
 			audioFrames = buffer.getvalue()
 
 			if self._listening:
-				self.MqttManager.publish(topic=constants.TOPIC_AUDIO_FRAME.format(self.ConfigManager.getAliceConfigByName('deviceName')), payload=bytearray(audioFrames))
-			elif self._aliceListening:
 				self.MqttManager.localPublish(topic=constants.TOPIC_AUDIO_FRAME.format(self.ConfigManager.getAliceConfigByName('deviceName')), payload=bytearray(audioFrames))
+			elif self._aliceListening:
+				self.MqttManager.publish(topic=constants.TOPIC_AUDIO_FRAME.format(self.ConfigManager.getAliceConfigByName('deviceName')), payload=bytearray(audioFrames))
 
 
-	def onPlayBytes(self, requestId: str, payload: bytearray, siteId: str, sessionId: str = None):
-		if siteId != self.ConfigManager.getAliceConfigByName('deviceName') or self.ConfigManager.getAliceConfigByName('disableSoundAndMic'):
+	def onPlayBytes(self, requestId: str, payload: bytearray, sessionId: str = None):
+		if self.ConfigManager.getAliceConfigByName('disableSoundAndMic'):
 			return
 
 		self._playing = True
@@ -178,9 +178,11 @@ class AudioManager(Manager):
 					channels = wav.getnchannels()
 					framerate = wav.getframerate()
 
+
 					def streamCallback(_inData, frameCount, _timeInfo, _status) -> tuple:
 						data = wav.readframes(frameCount)
 						return data, pyaudio.paContinue
+
 
 					audioStream = self._audio.open(
 						format=nFormat,
@@ -190,7 +192,7 @@ class AudioManager(Manager):
 						stream_callback=streamCallback
 					)
 
-					self.logDebug(f'Playing wav stream using **{self._audioOutput["name"]}** on site id **{siteId}**')
+					self.logDebug(f'Playing wav stream using **{self._audioOutput["name"]}**')
 					audioStream.start_stream()
 					while audioStream.is_active():
 						if self._stopPlayingFlag.is_set():
@@ -206,15 +208,6 @@ class AudioManager(Manager):
 			finally:
 				self._stopPlayingFlag.clear()
 				self._playing = False
-
-		# Session id support is not Hermes protocol official
-		self.MqttManager.publish(
-			topic=constants.TOPIC_PLAY_BYTES_FINISHED.format(siteId),
-			payload={
-				'id': requestId,
-				'sessionId': sessionId
-			}
-		)
 
 
 	def stopPlaying(self):

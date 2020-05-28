@@ -30,11 +30,13 @@ TOPIC_HOTWORD_DETECTED = 'hermes/hotword/default/detected'
 TOPIC_PLAY_BYTES = 'hermes/audioServer/{}/playBytes/#'
 TOPIC_ASR_START_LISTENING = 'hermes/asr/startListening'
 TOPIC_ASR_STOP_LISTENING = 'hermes/asr/stopListening'
-
 TOPIC_AUDIO_FRAME = 'hermes/audioServer/{}/audioFrame'
 TOPIC_PLAY_BYTES_FINISHED = 'hermes/audioServer/{}/playFinished'
 TOPIC_VAD_UP = 'hermes/voiceActivity/{}/vadUp'
 TOPIC_VAD_DOWN = 'hermes/voiceActivity/{}/vadDown'
+
+TOPIC_CLEAR_LEDS = 'hermes/leds/clear'
+TOPIC_DND_LEDS = 'hermes/leds/doNotDisturb'
 
 EVENT_FULL_MINUTE = 'fullMinute'
 EVENT_FIVE_MINUTE = 'fiveMinute'

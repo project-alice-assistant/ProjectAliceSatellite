@@ -142,7 +142,7 @@ class MqttManager(Manager):
 			if message.topic == constants.TOPIC_ALICE_CONNECTION_ACCEPTED:
 				self.NetworkManager.onAliceConnectionAccepted()
 				self.publish(
-					topic='hermes/leds/clear',
+					topic=constants.TOPIC_CLEAR_LEDS,
 					payload={
 						'siteId': self.ConfigManager.getAliceConfigByName('deviceName')
 					}
@@ -161,7 +161,7 @@ class MqttManager(Manager):
 
 			if message.topic == constants.TOPIC_STOP_DND:
 				self.publish(
-					topic='hermes/leds/clear',
+					topic=constants.TOPIC_CLEAR_LEDS,
 					payload={
 						'siteId': self.ConfigManager.getAliceConfigByName('deviceName')
 					}
@@ -169,7 +169,7 @@ class MqttManager(Manager):
 				self._dnd = False
 			elif message.topic == constants.TOPIC_DND:
 				self.publish(
-					topic='hermes/leds/doNotDisturb',
+					topic=constants.TOPIC_DND_LEDS,
 					payload={
 						'siteId': self.ConfigManager.getAliceConfigByName('deviceName')
 					}
@@ -177,9 +177,9 @@ class MqttManager(Manager):
 				self._dnd = True
 			elif message.topic == constants.TOPIC_TOGGLE_DND:
 				if self._dnd:
-					topic = 'hermes/leds/clear'
+					topic = constants.TOPIC_CLEAR_LEDS
 				else:
-					topic = 'hermes/leds/doNotDisturb'
+					topic = constants.TOPIC_DND_LEDS
 
 				self._dnd = not self._dnd
 
@@ -241,25 +241,22 @@ class MqttManager(Manager):
 			requestId = msg.topic.rsplit('/')[-1]
 			sessionId = None
 
-		siteId = self.Commons.parseSiteId(msg)
-		self.broadcast(method=constants.EVENT_PLAY_BYTES, exceptions=self.name, propagateToSkills=True, requestId=requestId, payload=msg.payload, siteId=siteId, sessionId=sessionId)
+		self.broadcast(method=constants.EVENT_PLAY_BYTES, exceptions=self.name, propagateToSkills=True, requestId=requestId, payload=msg.payload, sessionId=sessionId)
 
 
 	def hotwordToggleOn(self, _client, _data, msg: mqtt.MQTTMessage):
-		siteId = self.Commons.parseSiteId(msg)
-		if siteId != self.ConfigManager.getAliceConfigByName('deviceName'):
+		if not self.isForMe(msg):
 			return
 
 		self._mqttLocalClient.loop_start()
-		self.broadcast(method=constants.EVENT_HOTWORD_TOGGLE_ON, exceptions=[self.name], propagateToSkills=True, siteId=siteId)
+		self.broadcast(method=constants.EVENT_HOTWORD_TOGGLE_ON, exceptions=[self.name], propagateToSkills=True)
 
 
 	def hotwordToggleOff(self, _client, _data, msg: mqtt.MQTTMessage):
-		siteId = self.Commons.parseSiteId(msg)
-		if siteId != self.ConfigManager.getAliceConfigByName('deviceName'):
+		if not self.isForMe(msg):
 			return
 
-		self.broadcast(method=constants.EVENT_HOTWORD_TOGGLE_OFF, exceptions=[self.name], propagateToSkills=True, siteId=siteId)
+		self.broadcast(method=constants.EVENT_HOTWORD_TOGGLE_OFF, exceptions=[self.name], propagateToSkills=True)
 
 
 	def onHotwordDetected(self, _client, _data, msg):
@@ -271,8 +268,6 @@ class MqttManager(Manager):
 		:return:
 		"""
 		self._mqttLocalClient.loop_stop()
-
-		siteId = self.Commons.parseSiteId(msg)
 		payload = self.Commons.payload(msg)
 
 		user = constants.UNKNOWN_USER
@@ -291,9 +286,9 @@ class MqttManager(Manager):
 		)
 
 		if user == constants.UNKNOWN_USER:
-			self.broadcast(method=constants.EVENT_HOTWORD, exceptions=[self.name], propagateToSkills=True, siteId=siteId, user=user)
+			self.broadcast(method=constants.EVENT_HOTWORD, exceptions=[self.name], propagateToSkills=True, user=user)
 		else:
-			self.broadcast(method=constants.EVENT_WAKEWORD, exceptions=[self.name], propagateToSkills=True, siteId=siteId, user=user)
+			self.broadcast(method=constants.EVENT_WAKEWORD, exceptions=[self.name], propagateToSkills=True, user=user)
 
 
 	def onCoreHeartbeat(self, _client, _userdata, _message: mqtt.MQTTMessage):
@@ -320,3 +315,8 @@ class MqttManager(Manager):
 	@property
 	def mqttClient(self) -> mqtt.Client:
 		return self._mqttClient
+
+
+	def isForMe(self, message: mqtt.MQTTMessage) -> bool:
+		siteId = self.Commons.parseSiteId(message)
+		return siteId == self.ConfigManager.getAliceConfigByName('deviceName')

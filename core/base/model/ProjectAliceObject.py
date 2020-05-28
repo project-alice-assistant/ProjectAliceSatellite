@@ -189,11 +189,11 @@ class ProjectAliceObject:
 		pass # Super object function is overriden only if needed
 
 
-	def onWakeword(self, siteId: str, user: str = constants.UNKNOWN_USER):
+	def onWakeword(self, user: str = constants.UNKNOWN_USER):
 		pass # Super object function is overriden only if needed
 
 
-	def onHotword(self, siteId: str, user: str = constants.UNKNOWN_USER):
+	def onHotword(self, user: str = constants.UNKNOWN_USER):
 		pass # Super object function is overriden only if needed
 
 
@@ -205,11 +205,11 @@ class ProjectAliceObject:
 		pass # Super object function is overriden only if needed
 
 
-	def onPlayBytes(self, requestId: str, payload: bytearray, siteId: str, sessionId: str = None):
+	def onPlayBytes(self, requestId: str, payload: bytearray, sessionId: str = None):
 		pass # Super object function is overriden only if needed
 
 
-	def onPlayBytesFinished(self, requestId: str, siteId: str, sessionId: str = None):
+	def onPlayBytesFinished(self, requestId: str, sessionId: str = None):
 		pass # Super object function is overriden only if needed
 
 
