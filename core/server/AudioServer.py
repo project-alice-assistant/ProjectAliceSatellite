@@ -13,7 +13,7 @@ from core.commons import constants
 
 class AudioManager(Manager):
 	SAMPLERATE = 16000
-	FRAMES_PER_BUFFER = 320
+	FRAMES_PER_BUFFER = 480
 
 
 	# Inspired by https://github.com/koenvervloesem/hermes-audio-server
@@ -52,7 +52,7 @@ class AudioManager(Manager):
 
 	def onStart(self):
 		super().onStart()
-		self.MqttManager.mqttClient.subscribe(constants.TOPIC_AUDIO_FRAME.format(self.ConfigManager.getAliceConfigByName('deviceName')))
+		self.MqttManager.mqttLocalClient.subscribe(constants.TOPIC_AUDIO_FRAME.format(self.ConfigManager.getAliceConfigByName('deviceName')))
 
 		if not self.ConfigManager.getAliceConfigByName('disableSoundAndMic'):
 			self.ThreadManager.newThread(name='audioPublisher', target=self.publishAudio)
@@ -60,7 +60,7 @@ class AudioManager(Manager):
 
 	def onStop(self):
 		super().onStop()
-		self.MqttManager.mqttClient.unsubscribe(constants.TOPIC_AUDIO_FRAME.format(self.ConfigManager.getAliceConfigByName('deviceName')))
+		self.MqttManager.mqttLocalClient.unsubscribe(constants.TOPIC_AUDIO_FRAME.format(self.ConfigManager.getAliceConfigByName('deviceName')))
 
 		if not self.ConfigManager.getAliceConfigByName('disableSoundAndMic'):
 			self._audio.terminate()
@@ -115,6 +115,7 @@ class AudioManager(Manager):
 
 			try:
 				frames = audioStream.read(num_frames=self.FRAMES_PER_BUFFER, exception_on_overflow=False)
+
 				if self._vad.is_speech(frames, self.SAMPLERATE):
 					if not speech and speechFrames < minSpeechFrames:
 						speechFrames += 1

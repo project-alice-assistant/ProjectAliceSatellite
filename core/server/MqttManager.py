@@ -24,6 +24,7 @@ class MqttManager(Manager):
 		super().onStart()
 
 		self._mqttClient.on_message = self.onMqttMessage
+		self._mqttLocalClient.on_message = self.onMqttMessage
 		self._mqttClient.on_connect = self.onConnect
 		self._mqttClient.on_log = self.onLog
 
@@ -81,6 +82,7 @@ class MqttManager(Manager):
 
 		self._mqttClient.subscribe(subscribedEvents)
 		self._mqttLocalClient.subscribe(constants.TOPIC_HOTWORD_DETECTED)
+
 		self.NetworkManager.tryConnectingToAlice()
 
 
@@ -315,6 +317,11 @@ class MqttManager(Manager):
 	@property
 	def mqttClient(self) -> mqtt.Client:
 		return self._mqttClient
+
+
+	@property
+	def mqttLocalClient(self) -> mqtt.Client:
+		return self._mqttLocalClient
 
 
 	def isForMe(self, message: mqtt.MQTTMessage) -> bool:
