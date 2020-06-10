@@ -1,5 +1,4 @@
 import json
-import re
 import traceback
 from typing import Union
 
@@ -17,7 +16,7 @@ class MqttManager(Manager):
 		self._mqttClient = mqtt.Client()
 		self._mqttLocalClient = mqtt.Client()
 		self._dnd = False
-		self._audioFrameRegex = re.compile(constants.TOPIC_AUDIO_FRAME.replace('{}', '(.*)'))
+		self._audioFrameTopic = constants.TOPIC_AUDIO_FRAME.replace('{}', self.ConfigManager.getAliceConfigByName('deviceName'))
 
 
 	def onStart(self):
@@ -77,7 +76,8 @@ class MqttManager(Manager):
 			(constants.TOPIC_HOTWORD_TOGGLE_OFF, 0),
 			(constants.TOPIC_ASR_START_LISTENING, 0),
 			(constants.TOPIC_ASR_STOP_LISTENING, 0),
-			(constants.TOPIC_PLAY_BYTES.format(self.ConfigManager.getAliceConfigByName('deviceName')), 0)
+			(constants.TOPIC_PLAY_BYTES.format(self.ConfigManager.getAliceConfigByName('deviceName')), 0),
+			(self._audioFrameTopic, 0)
 		]
 
 		self._mqttClient.subscribe(subscribedEvents)
@@ -118,7 +118,7 @@ class MqttManager(Manager):
 
 	def onMqttMessage(self, _client, _userdata, message: mqtt.MQTTMessage):
 		try:
-			if self._audioFrameRegex.match(message.topic):
+			if message.topic == self._audioFrameTopic:
 				self.broadcast(
 					method=constants.EVENT_AUDIO_FRAME,
 					exceptions=[self.name],

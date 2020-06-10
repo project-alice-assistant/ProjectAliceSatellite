@@ -43,8 +43,7 @@ class PorcupineWakeword(WakewordEngine):
 	def onBooted(self):
 		super().onBooted()
 		if self._enabled:
-			self._working.set()
-			self._hotwordThread = self.ThreadManager.newThread(name='HotwordThread', target=self.worker)
+			self.onHotwordToggleOn()
 
 
 	def onStop(self):
@@ -58,6 +57,7 @@ class PorcupineWakeword(WakewordEngine):
 		if self._enabled:
 			self._working.clear()
 			self._buffer = queue.Queue()
+			self._hotwordThread.join(timeout=2)
 
 
 	def onHotwordToggleOn(self):
@@ -84,7 +84,7 @@ class PorcupineWakeword(WakewordEngine):
 
 
 	def worker(self):
-		while True:
+		while self._working.is_set():
 			stream = self.audioStream()
 			for data in stream:
 				if not self._working.is_set():

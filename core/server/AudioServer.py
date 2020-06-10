@@ -116,31 +116,31 @@ class AudioManager(Manager):
 			try:
 				frames = audioStream.read(num_frames=self.FRAMES_PER_BUFFER, exception_on_overflow=False)
 
-				if self._vad.is_speech(frames, self.SAMPLERATE):
-					if not speech and speechFrames < minSpeechFrames:
-						speechFrames += 1
-					elif speechFrames >= minSpeechFrames:
-						speech = True
-						self.MqttManager.publish(
-							topic=constants.TOPIC_VAD_UP.format(self.ConfigManager.getAliceConfigByName('deviceName')),
-							payload={
-								'siteId': self.ConfigManager.getAliceConfigByName('deviceName')
-							})
-						silence = self.SAMPLERATE / self.FRAMES_PER_BUFFER
-						speechFrames = 0
-				else:
-					if speech:
-						if silence > 0:
-							silence -= 1
-						else:
-							speech = False
-							self.MqttManager.publish(
-								topic=constants.TOPIC_VAD_DOWN.format(self.ConfigManager.getAliceConfigByName('deviceName')),
-								payload={
-									'siteId': self.ConfigManager.getAliceConfigByName('deviceName')
-								})
-					else:
-						speechFrames = 0
+				# if self._vad.is_speech(frames, self.SAMPLERATE):
+				# 	if not speech and speechFrames < minSpeechFrames:
+				# 		speechFrames += 1
+				# 	elif speechFrames >= minSpeechFrames:
+				# 		speech = True
+				# 		self.MqttManager.publish(
+				# 			topic=constants.TOPIC_VAD_UP.format(self.ConfigManager.getAliceConfigByName('deviceName')),
+				# 			payload={
+				# 				'siteId': self.ConfigManager.getAliceConfigByName('deviceName')
+				# 			})
+				# 		silence = self.SAMPLERATE / self.FRAMES_PER_BUFFER
+				# 		speechFrames = 0
+				# else:
+				# 	if speech:
+				# 		if silence > 0:
+				# 			silence -= 1
+				# 		else:
+				# 			speech = False
+				# 			self.MqttManager.publish(
+				# 				topic=constants.TOPIC_VAD_DOWN.format(self.ConfigManager.getAliceConfigByName('deviceName')),
+				# 				payload={
+				# 					'siteId': self.ConfigManager.getAliceConfigByName('deviceName')
+				# 				})
+				# 	else:
+				# 		speechFrames = 0
 
 				self.publishAudioFrames(frames)
 			except Exception as e:
