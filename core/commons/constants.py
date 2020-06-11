@@ -38,6 +38,8 @@ TOPIC_VAD_DOWN = 'hermes/voiceActivity/{}/vadDown'
 TOPIC_CLEAR_LEDS = 'hermes/leds/clear'
 TOPIC_DND_LEDS = 'hermes/leds/doNotDisturb'
 
+TOPIC_DEVICE_STATUS = 'projectalice/devices/status'
+
 EVENT_FULL_MINUTE = 'fullMinute'
 EVENT_FIVE_MINUTE = 'fiveMinute'
 EVENT_QUARTER_HOUR = 'quarterHour'
