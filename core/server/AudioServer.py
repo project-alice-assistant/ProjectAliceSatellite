@@ -52,7 +52,6 @@ class AudioManager(Manager):
 
 	def onStart(self):
 		super().onStart()
-		self.MqttManager.mqttLocalClient.subscribe(constants.TOPIC_AUDIO_FRAME.format(self.ConfigManager.getAliceConfigByName('deviceName')))
 
 		if not self.ConfigManager.getAliceConfigByName('disableSoundAndMic'):
 			self.ThreadManager.newThread(name='audioPublisher', target=self.publishAudio)
@@ -60,7 +59,6 @@ class AudioManager(Manager):
 
 	def onStop(self):
 		super().onStop()
-		self.MqttManager.mqttLocalClient.unsubscribe(constants.TOPIC_AUDIO_FRAME.format(self.ConfigManager.getAliceConfigByName('deviceName')))
 
 		if not self.ConfigManager.getAliceConfigByName('disableSoundAndMic'):
 			self._audio.terminate()
@@ -68,11 +66,13 @@ class AudioManager(Manager):
 
 	def onHotwordToggleOff(self):
 		self._listening = False
+		self.MqttManager.mqttLocalClient.loop_stop()
 
 
 	def onHotwordToggleOn(self):
 		self._listening = True
 		self._aliceListening = False
+		self.MqttManager.mqttLocalClient.loop_start()
 
 
 	def onHotword(self, user: str = constants.UNKNOWN_USER):
@@ -116,31 +116,31 @@ class AudioManager(Manager):
 			try:
 				frames = audioStream.read(num_frames=self.FRAMES_PER_BUFFER, exception_on_overflow=False)
 
-				# if self._vad.is_speech(frames, self.SAMPLERATE):
-				# 	if not speech and speechFrames < minSpeechFrames:
-				# 		speechFrames += 1
-				# 	elif speechFrames >= minSpeechFrames:
-				# 		speech = True
-				# 		self.MqttManager.publish(
-				# 			topic=constants.TOPIC_VAD_UP.format(self.ConfigManager.getAliceConfigByName('deviceName')),
-				# 			payload={
-				# 				'siteId': self.ConfigManager.getAliceConfigByName('deviceName')
-				# 			})
-				# 		silence = self.SAMPLERATE / self.FRAMES_PER_BUFFER
-				# 		speechFrames = 0
-				# else:
-				# 	if speech:
-				# 		if silence > 0:
-				# 			silence -= 1
-				# 		else:
-				# 			speech = False
-				# 			self.MqttManager.publish(
-				# 				topic=constants.TOPIC_VAD_DOWN.format(self.ConfigManager.getAliceConfigByName('deviceName')),
-				# 				payload={
-				# 					'siteId': self.ConfigManager.getAliceConfigByName('deviceName')
-				# 				})
-				# 	else:
-				# 		speechFrames = 0
+				if self._vad.is_speech(frames, self.SAMPLERATE):
+					if not speech and speechFrames < minSpeechFrames:
+						speechFrames += 1
+					elif speechFrames >= minSpeechFrames:
+						speech = True
+						self.MqttManager.publish(
+							topic=constants.TOPIC_VAD_UP.format(self.ConfigManager.getAliceConfigByName('deviceName')),
+							payload={
+								'siteId': self.ConfigManager.getAliceConfigByName('deviceName')
+							})
+						silence = self.SAMPLERATE / self.FRAMES_PER_BUFFER
+						speechFrames = 0
+				else:
+					if speech:
+						if silence > 0:
+							silence -= 1
+						else:
+							speech = False
+							self.MqttManager.publish(
+								topic=constants.TOPIC_VAD_DOWN.format(self.ConfigManager.getAliceConfigByName('deviceName')),
+								payload={
+									'siteId': self.ConfigManager.getAliceConfigByName('deviceName')
+								})
+					else:
+						speechFrames = 0
 
 				self.publishAudioFrames(frames)
 			except Exception as e:

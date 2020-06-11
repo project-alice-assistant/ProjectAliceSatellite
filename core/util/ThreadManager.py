@@ -45,38 +45,38 @@ class ThreadManager(Manager):
 		kwargs = kwargs or dict()
 
 		threadTimer = ThreadTimer(callback=func, args=args, kwargs=kwargs)
-		t = threading.Timer(interval=interval, function=self.onTimerEnd, args=[threadTimer])
-		t.daemon = True
-		threadTimer.timer = t
+		thread = threading.Timer(interval=interval, function=self.onTimerEnd, args=[threadTimer])
+		thread.daemon = True
+		threadTimer.timer = thread
 		self._timers.append(threadTimer)
 
 		if autoStart:
-			t.start()
+			thread.start()
 
-		return t
+		return thread
 
 
 	def doLater(self, interval: float, func: Callable, args: list = None, kwargs: dict = None):
 		self.newTimer(interval=interval, func=func, args=args, kwargs=kwargs)
 
 
-	def onTimerEnd(self, t: ThreadTimer):
-		if not t or not t.callback:
+	def onTimerEnd(self, timer: ThreadTimer):
+		if not timer or not timer.callback:
 			return
 
-		t.callback(*t.args, **t.kwargs)
-		self.removeTimer(t)
+		timer.callback(*timer.args, **timer.kwargs)
+		self.removeTimer(timer)
 
 
-	def removeTimer(self, t: ThreadTimer):
-		if not t or not t.callback:
+	def removeTimer(self, timer: ThreadTimer):
+		if not timer or not timer.callback:
 			return
 
-		if t.timer.is_alive():
-			t.timer.cancel()
+		if timer.timer.is_alive():
+			timer.timer.cancel()
 
-		if t in self._timers:
-			self._timers.remove(t)
+		if timer in self._timers:
+			self._timers.remove(timer)
 
 
 	def newThread(self, name: str, target: Callable, autostart: bool = True, args: list = None, kwargs: dict = None) -> threading.Thread:

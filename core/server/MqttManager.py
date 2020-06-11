@@ -26,6 +26,7 @@ class MqttManager(Manager):
 		self._mqttLocalClient.on_message = self.onMqttMessage
 		self._mqttClient.on_connect = self.onConnect
 		self._mqttClient.on_log = self.onLog
+		self._mqttLocalClient.on_log = self.onLog
 
 		self._mqttClient.message_callback_add(constants.TOPIC_NEW_HOTWORD, self.onNewHotword)
 		self._mqttClient.message_callback_add(constants.TOPIC_CORE_DISCONNECTION, self.onCoreDisconnection)
@@ -34,6 +35,7 @@ class MqttManager(Manager):
 		self._mqttClient.message_callback_add(constants.TOPIC_HOTWORD_TOGGLE_ON, self.hotwordToggleOn)
 		self._mqttClient.message_callback_add(constants.TOPIC_HOTWORD_TOGGLE_OFF, self.hotwordToggleOff)
 		self._mqttLocalClient.message_callback_add(constants.TOPIC_HOTWORD_DETECTED, self.onHotwordDetected)
+		self._mqttLocalClient.message_callback_add(self._audioFrameTopic, self.onAudioFrameTopic)
 		self._mqttClient.message_callback_add(constants.TOPIC_PLAY_BYTES.format(self.ConfigManager.getAliceConfigByName('deviceName')), self.topicPlayBytes)
 
 		if self.ConfigManager.getAliceConfigByName('uuid'):
@@ -76,12 +78,12 @@ class MqttManager(Manager):
 			(constants.TOPIC_HOTWORD_TOGGLE_OFF, 0),
 			(constants.TOPIC_ASR_START_LISTENING, 0),
 			(constants.TOPIC_ASR_STOP_LISTENING, 0),
-			(constants.TOPIC_PLAY_BYTES.format(self.ConfigManager.getAliceConfigByName('deviceName')), 0),
-			(self._audioFrameTopic, 0)
+			(constants.TOPIC_PLAY_BYTES.format(self.ConfigManager.getAliceConfigByName('deviceName')), 0)
 		]
 
 		self._mqttClient.subscribe(subscribedEvents)
 		self._mqttLocalClient.subscribe(constants.TOPIC_HOTWORD_DETECTED)
+		self._mqttLocalClient.subscribe(self._audioFrameTopic)
 
 		self.NetworkManager.tryConnectingToAlice()
 
@@ -95,7 +97,6 @@ class MqttManager(Manager):
 			self._mqttClient.tls_insecure_set(False)
 
 		self._mqttClient.connect(self.ConfigManager.getAliceConfigByName('mqttHost'), int(self.ConfigManager.getAliceConfigByName('mqttPort')))
-
 		self._mqttClient.loop_start()
 
 		self._mqttLocalClient.connect(host='127.0.0.1')
@@ -106,6 +107,9 @@ class MqttManager(Manager):
 		try:
 			self._mqttClient.loop_stop()
 			self._mqttClient.disconnect()
+
+			self._mqttLocalClient.loop_stop()
+			self._mqttLocalClient.disconnect()
 		except:
 			# Do nothing, we are certainly not connected
 			pass
@@ -243,6 +247,16 @@ class MqttManager(Manager):
 			payload={
 				'siteId': self.ConfigManager.getAliceConfigByName('deviceName')
 			}
+		)
+
+
+	def onAudioFrameTopic(self, _client, _data, msg: mqtt.MQTTMessage):
+		self.broadcast(
+			method=constants.EVENT_AUDIO_FRAME,
+			exceptions=[self.name],
+			propagateToSkills=True,
+			message=msg,
+			siteId=msg.topic.replace('hermes/audioServer/', '').replace('/audioFrame', '')
 		)
 
 

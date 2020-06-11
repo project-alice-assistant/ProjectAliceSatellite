@@ -1,5 +1,7 @@
 import socket
 import time
+from threading import Thread
+from typing import Optional
 
 from core.base.model.Manager import Manager
 from core.base.model.States import State
@@ -13,9 +15,9 @@ class NetworkManager(Manager):
 		self._tries = 0
 		self._greetingTimer = None
 		self._state = State.BOOTING
-		self._heartbeatTimer = None
+		self._heartbeats = self.ThreadManager.newEvent('heartbeats')
 		self._coreLastHeartbeat = 0
-		self._checkCoreHeartbeatTimer = None
+		self._heartbeatsThread: Optional[Thread] = None
 
 
 	def onStop(self):
@@ -26,6 +28,7 @@ class NetworkManager(Manager):
 				'uid': self.ConfigManager.getAliceConfigByName('uuid'),
 			}
 		)
+		self._heartbeats.clear()
 
 
 	def setupSatellite(self):
@@ -167,15 +170,24 @@ class NetworkManager(Manager):
 
 
 	def cancelHeartbeatsTimers(self, restart: bool = False):
-		if self._heartbeatTimer and self._heartbeatTimer.is_alive():
-			self._heartbeatTimer.cancel()
-
-		if self._checkCoreHeartbeatTimer and self._checkCoreHeartbeatTimer.is_alive():
-			self._checkCoreHeartbeatTimer.cancel()
+		self._heartbeats.clear()
+		if self._heartbeatsThread and self._heartbeatsThread.is_alive():
+			self.ThreadManager.terminateThread('heartbeats')
 
 		if restart:
-			self._heartbeatTimer = self.ThreadManager.newTimer(interval=0.5, func=self.sendHeartbeat)
-			self._checkCoreHeartbeatTimer = self.ThreadManager.newTimer(interval=3, func=self.checkCoreHeartbeat)
+			self._heartbeatsThread = self.ThreadManager.newThread(
+				name='heartbearts',
+				target=self._heartbeatsThread
+			)
+
+
+	def heartbeatsThread(self):
+		self.sendHeartbeat()
+		self._heartbeats.set()
+		while self._heartbeats.is_set():
+			self.sendHeartbeat()
+			self.checkCoreHeartbeat()
+			time.sleep(2.5)
 
 
 	def sendHeartbeat(self):
@@ -186,7 +198,6 @@ class NetworkManager(Manager):
 				'siteId': self.ConfigManager.getAliceConfigByName('deviceName')
 			}
 		)
-		self._heartbeatTimer = self.ThreadManager.newTimer(interval=2, func=self.sendHeartbeat)
 
 
 	def checkCoreHeartbeat(self):
