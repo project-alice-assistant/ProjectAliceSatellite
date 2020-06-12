@@ -122,8 +122,8 @@ class MqttManager(Manager):
 
 	def onMqttMessage(self, _client, _userdata, message: mqtt.MQTTMessage):
 		try:
-			statusname = ""
-			statusvalue = ""
+			statusName = ''
+			statusValue = ''
 			if message.topic == self._audioFrameTopic:
 				self.broadcast(
 					method=constants.EVENT_AUDIO_FRAME,
@@ -175,8 +175,8 @@ class MqttManager(Manager):
 					}
 				)
 				self._dnd = False
-				statusname = 'dnd'
-				statusvalue = False
+				statusName = 'dnd'
+				statusValue = False
 			elif message.topic == constants.TOPIC_DND:
 				self.publish(
 					topic=constants.TOPIC_DND_LEDS,
@@ -185,8 +185,8 @@ class MqttManager(Manager):
 					}
 				)
 				self._dnd = True
-				statusname = 'dnd'
-				statusvalue = True
+				statusName = 'dnd'
+				statusValue = True
 			elif message.topic == constants.TOPIC_TOGGLE_DND:
 				if self._dnd:
 					topic = constants.TOPIC_CLEAR_LEDS
@@ -195,8 +195,8 @@ class MqttManager(Manager):
 
 				self._dnd = not self._dnd
 
-				statusname = 'dnd'
-				statusvalue = self._dnd
+				statusName = 'dnd'
+				statusValue = self._dnd
 
 				self.publish(
 					topic=topic,
@@ -211,13 +211,13 @@ class MqttManager(Manager):
 			elif message.topic == constants.TOPIC_ASR_STOP_LISTENING:
 				self.broadcast(method=constants.EVENT_STOP_LISTENING, exceptions=[self.name], propagateToSkills=True)
 
-			if statusname:
+			if statusName:
 				self.publish(
 					topic=constants.TOPIC_DEVICE_STATUS,
 					payload={
 						'siteId': self.ConfigManager.getAliceConfigByName('deviceName'),
 						'uid': self.ConfigManager.getAliceConfigByName('uuid'),
-						statusname: statusvalue
+						statusName: statusValue
 					}
 				)
 
