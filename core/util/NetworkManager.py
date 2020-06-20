@@ -177,7 +177,8 @@ class NetworkManager(Manager):
 		if restart:
 			self._heartbeatsThread = self.ThreadManager.newThread(
 				name='heartbearts',
-				target=self._heartbeatsThread
+				target=self.heartbeatsThread
+
 			)
 
 

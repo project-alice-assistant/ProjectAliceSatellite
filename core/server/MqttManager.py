@@ -71,6 +71,7 @@ class MqttManager(Manager):
 			(constants.TOPIC_ALICE_CONNECTION_REFUSED, 0),
 			(constants.TOPIC_CORE_RECONNECTION, 0),
 			(constants.TOPIC_CORE_DISCONNECTION, 0),
+			(constants.TOPIC_CORE_HEARTBEAT, 0),
 			(constants.TOPIC_DND, 0),
 			(constants.TOPIC_STOP_DND, 0),
 			(constants.TOPIC_TOGGLE_DND, 0),
