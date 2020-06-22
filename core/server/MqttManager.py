@@ -78,6 +78,7 @@ class MqttManager(Manager):
 			(constants.TOPIC_HOTWORD_TOGGLE_OFF, 0),
 			(constants.TOPIC_ASR_START_LISTENING, 0),
 			(constants.TOPIC_ASR_STOP_LISTENING, 0),
+			(constants.TOPIC_CORE_HEARTBEAT, 0),
 			(constants.TOPIC_PLAY_BYTES.format(self.ConfigManager.getAliceConfigByName('deviceName')), 0)
 		]
 

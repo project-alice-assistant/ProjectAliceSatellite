@@ -176,13 +176,12 @@ class NetworkManager(Manager):
 
 		if restart:
 			self._heartbeatsThread = self.ThreadManager.newThread(
-				name='heartbearts',
-				target=self._heartbeatsThread
+				name='heartbeats',
+				target=self.heartbeatsThread
 			)
 
 
 	def heartbeatsThread(self):
-		self.sendHeartbeat()
 		self._heartbeats.set()
 		while self._heartbeats.is_set():
 			self.sendHeartbeat()
