@@ -221,6 +221,14 @@ class ProjectAliceObject:
 		pass # Super object function is overriden only if needed
 
 
+	def onDndOn(self):
+		pass # Super object function is overriden only if needed
+
+
+	def onDndOff(self):
+		pass # Super object function is overriden only if needed
+
+
 	@property
 	def ProjectAlice(self): #NOSONAR
 		return SM.SuperManager.getInstance().projectAlice

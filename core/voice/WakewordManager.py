@@ -29,7 +29,7 @@ class WakewordManager(Manager):
 
 
 	def onAudioFrame(self, message: MQTTMessage, siteId: str):
-		if self._engine:
+		if self._engine and self._engine.enabled:
 			self._engine.onAudioFrame(message=message, siteId=siteId)
 
 
@@ -71,6 +71,14 @@ class WakewordManager(Manager):
 	@property
 	def wakewordEngine(self) -> WakewordEngine:
 		return self._engine
+
+
+	def onDndOn(self):
+		self.disableEngine()
+
+
+	def onDndOff(self):
+		self.enableEngine()
 
 
 	def disableEngine(self):

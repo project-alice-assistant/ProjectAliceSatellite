@@ -126,7 +126,7 @@ class MqttManager(Manager):
 		try:
 			statusName = ''
 			statusValue = ''
-			if message.topic == self._audioFrameTopic:
+			if message.topic == self._audioFrameTopic and not self._dnd:
 				self.broadcast(
 					method=constants.EVENT_AUDIO_FRAME,
 					exceptions=[self.name],
@@ -179,6 +179,7 @@ class MqttManager(Manager):
 				self._dnd = False
 				statusName = 'dnd'
 				statusValue = False
+				self.broadcast(method=constants.EVENT_DND_OFF, exceptions=self.name, propagateToSkills=True)
 			elif message.topic == constants.TOPIC_DND:
 				self.publish(
 					topic=constants.TOPIC_DND_LEDS,
@@ -189,11 +190,14 @@ class MqttManager(Manager):
 				self._dnd = True
 				statusName = 'dnd'
 				statusValue = True
+				self.broadcast(method=constants.EVENT_DND_ON, exceptions=self.name, propagateToSkills=True)
 			elif message.topic == constants.TOPIC_TOGGLE_DND:
 				if self._dnd:
 					topic = constants.TOPIC_CLEAR_LEDS
+					self.broadcast(method=constants.EVENT_DND_OFF, exceptions=self.name, propagateToSkills=True)
 				else:
 					topic = constants.TOPIC_DND_LEDS
+					self.broadcast(method=constants.EVENT_DND_ON, exceptions=self.name, propagateToSkills=True)
 
 				self._dnd = not self._dnd
 
