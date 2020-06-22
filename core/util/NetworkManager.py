@@ -182,6 +182,7 @@ class NetworkManager(Manager):
 
 
 	def heartbeatsThread(self):
+		self.sendHeartbeat()
 		self._heartbeats.set()
 		while self._heartbeats.is_set():
 			self.sendHeartbeat()
