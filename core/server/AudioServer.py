@@ -122,9 +122,9 @@ class AudioManager(Manager):
 					elif speechFrames >= minSpeechFrames:
 						speech = True
 						self.MqttManager.publish(
-							topic=constants.TOPIC_VAD_UP.format(self.ConfigManager.getAliceConfigByName('deviceName')),
+							topic=constants.TOPIC_VAD_UP.format(self.ConfigManager.getAliceConfigByName('uuid')),
 							payload={
-								'siteId': self.ConfigManager.getAliceConfigByName('deviceName')
+								'siteId': self.ConfigManager.getAliceConfigByName('uuid')
 							})
 						silence = self.SAMPLERATE / self.FRAMES_PER_BUFFER
 						speechFrames = 0
@@ -135,9 +135,9 @@ class AudioManager(Manager):
 						else:
 							speech = False
 							self.MqttManager.publish(
-								topic=constants.TOPIC_VAD_DOWN.format(self.ConfigManager.getAliceConfigByName('deviceName')),
+								topic=constants.TOPIC_VAD_DOWN.format(self.ConfigManager.getAliceConfigByName('uuid')),
 								payload={
-									'siteId': self.ConfigManager.getAliceConfigByName('deviceName')
+									'siteId': self.ConfigManager.getAliceConfigByName('uuid')
 								})
 					else:
 						speechFrames = 0
@@ -161,9 +161,9 @@ class AudioManager(Manager):
 			audioFrames = buffer.getvalue()
 
 			if self._listening:
-				self.MqttManager.localPublish(topic=constants.TOPIC_AUDIO_FRAME.format(self.ConfigManager.getAliceConfigByName('deviceName')), payload=bytearray(audioFrames))
+				self.MqttManager.localPublish(topic=constants.TOPIC_AUDIO_FRAME.format(self.ConfigManager.getAliceConfigByName('uuid')), payload=bytearray(audioFrames))
 			elif self._aliceListening:
-				self.MqttManager.publish(topic=constants.TOPIC_AUDIO_FRAME.format(self.ConfigManager.getAliceConfigByName('deviceName')), payload=bytearray(audioFrames))
+				self.MqttManager.publish(topic=constants.TOPIC_AUDIO_FRAME.format(self.ConfigManager.getAliceConfigByName('uuid')), payload=bytearray(audioFrames))
 
 
 	def onPlayBytes(self, requestId: str, payload: bytearray, sessionId: str = None):

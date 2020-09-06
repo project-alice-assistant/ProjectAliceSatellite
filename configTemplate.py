@@ -1,11 +1,4 @@
 settings = {
-	'deviceName': {
-		'defaultValue': '',
-		'dataType'    : 'string',
-		'isSensitive' : False,
-		'description' : 'This device name. It is of good practice to name it after the room it is placed in',
-		'onUpdate'    : 'updateDeviceName'
-	},
 	'disableSoundAndMic'      : {
 		'defaultValue': False,
 		'dataType'    : 'boolean',
@@ -19,7 +12,8 @@ settings = {
 		'dataType'    : 'string',
 		'isSensitive' : False,
 		'hidden'      : True,
-		'description' : 'Attributed device uuid'
+		'description' : 'Attributed device uuid',
+		'category'    : 'device'
 	},
 	'mainUnitBroadcastPort': {
 		'defaultValue': 12354,

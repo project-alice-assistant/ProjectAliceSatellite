@@ -240,7 +240,7 @@ class ConfigManager(Manager):
 
 
 	def updateDeviceName(self):
-		self.ConfigManager.updateSnipsConfiguration('snips-audio-server', 'bind', f'{self.getAliceConfigByName("deviceName")}@mqtt', True)
+		self.ConfigManager.updateSnipsConfiguration('snips-audio-server', 'bind', f'{self.getAliceConfigByName("uuid")}@mqtt', True)
 
 
 	@property

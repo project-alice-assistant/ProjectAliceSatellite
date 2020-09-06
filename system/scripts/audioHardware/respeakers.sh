@@ -11,6 +11,7 @@ git clone https://github.com/respeaker/seeed-voicecard.git /home/$(logname)/seee
 sed -i -e 's/  install_kernel/#  install_kernel/' /home/$(logname)/seeed-voicecard/install.sh
 sed -i -e 's/  check_kernel_headers/#  check_kernel_headers/' /home/$(logname)/seeed-voicecard/install.sh
 
+
 chmod +x /home/$(logname)/seeed-voicecard/install.sh
 ./home/$(logname)/seeed-voicecard/install.sh
 

@@ -24,7 +24,7 @@ class NetworkManager(Manager):
 		self.MqttManager.publish(
 			topic=constants.TOPIC_DISCONNECTING,
 			payload={
-				'siteId': self.ConfigManager.getAliceConfigByName('deviceName'),
+				'siteId': self.ConfigManager.getAliceConfigByName('uuid'),
 				'uid': self.ConfigManager.getAliceConfigByName('uuid'),
 			}
 		)
@@ -92,7 +92,6 @@ class NetworkManager(Manager):
 
 		# Save everything and let's continue!
 		self.ConfigManager.updateAliceConfiguration(key='mqttHost', value=mainUnitIp)
-		self.ConfigManager.updateAliceConfiguration(key='deviceName', value=attributedRoom.replace('_', ' '))
 		self.ConfigManager.updateAliceConfiguration(key='uuid', value=attributedUid)
 		self._state = State.ACCEPTED
 
@@ -119,7 +118,7 @@ class NetworkManager(Manager):
 		self.MqttManager.publish(
 			topic=constants.TOPIC_ALICE_GREETING,
 			payload={
-				'siteId': self.ConfigManager.getAliceConfigByName('deviceName'),
+				'siteId': self.ConfigManager.getAliceConfigByName('uuid'),
 				'uid': self.ConfigManager.getAliceConfigByName('uuid'),
 			}
 		)
@@ -147,7 +146,7 @@ class NetworkManager(Manager):
 		self.MqttManager.publish(
 			topic=constants.TOPIC_CLEAR_LEDS,
 			payload={
-				'siteId': self.ConfigManager.getAliceConfigByName('deviceName')
+				'siteId': self.ConfigManager.getAliceConfigByName('uuid')
 			}
 		)
 
@@ -201,7 +200,7 @@ class NetworkManager(Manager):
 			topic=constants.TOPIC_DEVICE_HEARTBEAT,
 			payload={
 				'uid': self.ConfigManager.getAliceConfigByName('uuid'),
-				'siteId': self.ConfigManager.getAliceConfigByName('deviceName')
+				'siteId': self.ConfigManager.getAliceConfigByName('uuid')
 			}
 		)
 
