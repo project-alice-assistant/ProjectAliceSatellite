@@ -148,6 +148,10 @@ class MqttManager(Manager):
 				if siteId and siteId != self.ConfigManager.getAliceConfigByName('uuid'):
 					self.logDebug(f'Based on received siteId **{siteId}** the message --{message.topic}-- was filtered out')
 					return
+			if not uid and not siteId:
+					self.logDebug(f'Neither uid nor siteId provided, the message --{message.topic}-- was filtered out')
+					return
+
 
 			if message.topic == constants.TOPIC_ALICE_CONNECTION_ACCEPTED:
 				self.NetworkManager.onAliceConnectionAccepted()
