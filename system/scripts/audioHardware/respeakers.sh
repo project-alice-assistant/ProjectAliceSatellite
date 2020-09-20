@@ -13,7 +13,7 @@ sed -i -e 's/  check_kernel_headers/#  check_kernel_headers/' /home/$(logname)/s
 
 
 chmod +x /home/$(logname)/seeed-voicecard/install.sh
-./home/$(logname)/seeed-voicecard/install.sh
+/home/$(logname)/seeed-voicecard/install.sh --compat-kernel
 
 sleep 1
 
