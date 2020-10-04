@@ -1,12 +1,11 @@
 import getpass
 import importlib
 import json
+import requests
 import socket
 import subprocess
 import time
 from pathlib import Path
-
-import requests
 
 from core.base.model.Version import Version
 
@@ -291,7 +290,7 @@ network={
 		if definedSource == 'master':
 			return updateSource
 
-		req = requests.get('https://api.github.com/repos/project-alice-assistant/ProjectAlice/branches')
+		req = requests.get('https://api.github.com/repos/project-alice-assistant/ProjectAliceSatellite/branches')
 		result = req.json()
 
 		versions = list()
