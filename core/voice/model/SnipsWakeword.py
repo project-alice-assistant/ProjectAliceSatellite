@@ -16,7 +16,7 @@ class SnipsWakeword(WakewordEngine):
 		super().onBooted()
 		result = self.Commons.runRootSystemCommand(['systemctl', 'start', 'snips-hotword'])
 		if result.returncode:
-			self.logWarning(f'Error: {result.stderr}')
+			self.logWarning(f'Error : {result.stderr}')
 
 
 	def onStop(self):
