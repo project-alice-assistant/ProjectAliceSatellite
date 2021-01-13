@@ -7,12 +7,12 @@ settings = {
 		'onUpdate'    : 'enableDisableSoundInSnips',
 		'category'    : 'device'
 	},
-	'uuid': {
+	'uid': {
 		'defaultValue': '',
 		'dataType'    : 'string',
 		'isSensitive' : False,
 		'hidden'      : True,
-		'description' : 'Attributed device uuid',
+		'description' : 'Attributed device uid',
 		'category'    : 'device'
 	},
 	'mainUnitBroadcastPort': {

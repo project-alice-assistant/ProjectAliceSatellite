@@ -24,8 +24,8 @@ class NetworkManager(Manager):
 		self.MqttManager.publish(
 			topic=constants.TOPIC_DISCONNECTING,
 			payload={
-				'siteId': self.ConfigManager.getAliceConfigByName('uuid'),
-				'uid': self.ConfigManager.getAliceConfigByName('uuid'),
+				'siteId': self.ConfigManager.getAliceConfigByName('uid'),
+				'uid': self.ConfigManager.getAliceConfigByName('uid'),
 			}
 		)
 		self._heartbeats.clear()
@@ -59,8 +59,7 @@ class NetworkManager(Manager):
 			data = data.decode()
 			mainUnitIp = str(data.split(':')[0])
 			mainUnitListenPort = int(data.split(':')[1])
-			attributedRoom = str(data.split(':')[2])
-			attributedUid = str(data.split(':')[3])
+			attributedUid = str(data.split(':')[2])
 		except:
 			self.logFatal('Bad formatting in the main unit return data')
 			return
@@ -92,7 +91,7 @@ class NetworkManager(Manager):
 
 		# Save everything and let's continue!
 		self.ConfigManager.updateAliceConfiguration(key='mqttHost', value=mainUnitIp)
-		self.ConfigManager.updateAliceConfiguration(key='uuid', value=attributedUid)
+		self.ConfigManager.updateAliceConfiguration(key='uid', value=attributedUid)
 		self._state = State.ACCEPTED
 
 
@@ -118,8 +117,8 @@ class NetworkManager(Manager):
 		self.MqttManager.publish(
 			topic=constants.TOPIC_ALICE_GREETING,
 			payload={
-				'siteId': self.ConfigManager.getAliceConfigByName('uuid'),
-				'uid': self.ConfigManager.getAliceConfigByName('uuid'),
+				'siteId': self.ConfigManager.getAliceConfigByName('uid'),
+				'uid': self.ConfigManager.getAliceConfigByName('uid'),
 			}
 		)
 
@@ -146,7 +145,7 @@ class NetworkManager(Manager):
 		self.MqttManager.publish(
 			topic=constants.TOPIC_CLEAR_LEDS,
 			payload={
-				'siteId': self.ConfigManager.getAliceConfigByName('uuid')
+				'siteId': self.ConfigManager.getAliceConfigByName('uid')
 			}
 		)
 
@@ -199,8 +198,8 @@ class NetworkManager(Manager):
 		self.MqttManager.publish(
 			topic=constants.TOPIC_DEVICE_HEARTBEAT,
 			payload={
-				'uid': self.ConfigManager.getAliceConfigByName('uuid'),
-				'siteId': self.ConfigManager.getAliceConfigByName('uuid')
+				'uid': self.ConfigManager.getAliceConfigByName('uid'),
+				'siteId': self.ConfigManager.getAliceConfigByName('uid')
 			}
 		)
 

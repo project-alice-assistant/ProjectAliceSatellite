@@ -1,15 +1,14 @@
+import difflib
+import importlib
 import json
 import logging
+import typing
 from pathlib import Path
 
 import configTemplate
-from core.base.model.TomlFile import TomlFile
-
-import difflib
-import importlib
-import typing
 from core.ProjectAliceExceptions import ConfigurationUpdateFailed
 from core.base.model.Manager import Manager
+from core.base.model.TomlFile import TomlFile
 
 
 class ConfigManager(Manager):
@@ -238,7 +237,7 @@ class ConfigManager(Manager):
 
 
 	def updateDeviceName(self):
-		self.ConfigManager.updateSnipsConfiguration('snips-audio-server', 'bind', f'{self.getAliceConfigByName("uuid")}@mqtt', True)
+		self.ConfigManager.updateSnipsConfiguration('snips-audio-server', 'bind', f'{self.getAliceConfigByName("uid")}@mqtt', True)
 
 
 	@property
