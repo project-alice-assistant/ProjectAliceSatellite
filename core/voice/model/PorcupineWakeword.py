@@ -97,7 +97,7 @@ class PorcupineWakeword(WakewordEngine):
 					self.MqttManager.localPublish(
 						topic=constants.TOPIC_HOTWORD_DETECTED.format('default'),
 						payload={
-							'siteId': self.ConfigManager.getAliceConfigByName('uuid'),
+							'siteId': self.ConfigManager.getAliceConfigByName('uid'),
 							'modelId': f'porcupine_{result}',
 							'modelVersion': self._handler.version,
 							'modelType': 'universal',

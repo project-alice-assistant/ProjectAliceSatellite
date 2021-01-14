@@ -71,7 +71,7 @@ class CommonsManager(Manager):
 			return data['siteId'].replace('_', ' ')
 		else:
 			from core.base.SuperManager import SuperManager
-			return data.get('IPAddress', SuperManager.getInstance().configManager.getAliceConfigByName('uuid'))
+			return data.get('IPAddress', SuperManager.getInstance().configManager.getAliceConfigByName('uid'))
 
 
 	@staticmethod

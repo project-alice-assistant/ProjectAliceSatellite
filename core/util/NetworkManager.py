@@ -24,8 +24,7 @@ class NetworkManager(Manager):
 		self.MqttManager.publish(
 			topic=constants.TOPIC_DISCONNECTING,
 			payload={
-				'siteId': self.ConfigManager.getAliceConfigByName('uid'),
-				'uid': self.ConfigManager.getAliceConfigByName('uid'),
+				'uid': self.ConfigManager.getAliceConfigByName('uid')
 			}
 		)
 		self._heartbeats.clear()
@@ -117,8 +116,7 @@ class NetworkManager(Manager):
 		self.MqttManager.publish(
 			topic=constants.TOPIC_ALICE_GREETING,
 			payload={
-				'siteId': self.ConfigManager.getAliceConfigByName('uid'),
-				'uid': self.ConfigManager.getAliceConfigByName('uid'),
+				'uid': self.ConfigManager.getAliceConfigByName('uid')
 			}
 		)
 
@@ -145,7 +143,7 @@ class NetworkManager(Manager):
 		self.MqttManager.publish(
 			topic=constants.TOPIC_CLEAR_LEDS,
 			payload={
-				'siteId': self.ConfigManager.getAliceConfigByName('uid')
+				'uid': self.ConfigManager.getAliceConfigByName('uid')
 			}
 		)
 
@@ -198,8 +196,7 @@ class NetworkManager(Manager):
 		self.MqttManager.publish(
 			topic=constants.TOPIC_DEVICE_HEARTBEAT,
 			payload={
-				'uid': self.ConfigManager.getAliceConfigByName('uid'),
-				'siteId': self.ConfigManager.getAliceConfigByName('uid')
+				'uid': self.ConfigManager.getAliceConfigByName('uid')
 			}
 		)
 
