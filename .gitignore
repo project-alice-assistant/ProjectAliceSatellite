@@ -117,3 +117,4 @@ config.json
 
 var/logs/*
 !var/logs/.gitkeep
+/system/database/data.db
