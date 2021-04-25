@@ -17,13 +17,30 @@
 import logging.handlers
 import os
 import signal
+import subprocess
 import sys
 import time
 import traceback
 from datetime import datetime
 from pathlib import Path
 
-import psutil
+PIP = './venv/bin/pip'
+try:
+	import psutil
+except:
+	subprocess.run([PIP, 'install', 'psutil'])
+	import psutil
+
+try:
+	import requests
+except:
+	subprocess.run([PIP, 'install', 'requests'])
+
+try:
+	import importlib_metadata
+except:
+	subprocess.run([PIP, 'install', 'importlib_metadata'])
+
 
 from core.Initializer import Initializer
 from core.util.model import BashFormatting, FileFormatting, HtmlFormatting

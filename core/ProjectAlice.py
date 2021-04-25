@@ -1,3 +1,5 @@
+import subprocess
+
 import requests
 
 from core.base.SuperManager import SuperManager
@@ -17,16 +19,20 @@ class ProjectAlice(Singleton):
 		self._logger = Logger(prepend='[Project Alice]')
 		self._logger.logInfo('Starting Alice satellite unit')
 		self._booted = False
+		self._isUpdating = False
+		self._shuttingDown = False
 		with Stopwatch() as stopWatch:
 			self._restart = False
 			self._restartHandler = restartHandler
+
 			self._superManager = SuperManager(self)
 
 			self._superManager.initManagers()
-			self._superManager.onStart()
 
 			if self._superManager.configManager.getAliceConfigByName('useHLC'):
 				self._superManager.commons.runRootSystemCommand(['systemctl', 'start', 'hermesledcontrol'])
+
+			self._superManager.onStart()
 
 			self._superManager.onBooted()
 
@@ -59,18 +65,31 @@ class ProjectAlice(Singleton):
 		self.onStop()
 
 
-	def onStop(self):
+	def onStop(self, withReboot: bool = False):
 		self._logger.logInfo('Shutting down')
+		self._shuttingDown = True
 		self._superManager.onStop()
 		if self._superManager.configManager.getAliceConfigByName('useHLC'):
 			self._superManager.commons.runRootSystemCommand(['systemctl', 'stop', 'hermesledcontrol'])
 
+		self._booted = False
 		self.INSTANCE = None
-		self._restartHandler()
+
+		if withReboot:
+			subprocess.run(['sudo', 'shutdown', '-r', 'now'])
+		else:
+			self._restartHandler()
+
+
+	def onFullHour(self):
+		if not self._superManager.configManager.getAliceConfigByName('aliceAutoUpdate'):
+			return
+		self.updateProjectAlice()
 
 
 	def updateProjectAlice(self):
 		self._logger.logInfo('Checking for satellite updates')
+		self._isUpdating = True
 		req = requests.get(url=f'{constants.GITHUB_API_URL}/ProjectAliceSatellite/branches', auth=SuperManager.getInstance().configManager.getGithubAuth())
 		if req.status_code != 200:
 			self._logger.logWarning('Failed checking for updates')
@@ -96,7 +115,28 @@ class ProjectAlice(Singleton):
 
 		self._logger.logInfo(f'Checking on "{str(candidate)}" update channel')
 		commons = SuperManager.getInstance().commons
+
+		currentHash = subprocess.check_output(['git', 'rev-parse', '--short HEAD'])
+
 		commons.runSystemCommand(['git', '-C', commons.rootDir(), 'stash'])
 		commons.runSystemCommand(['git', '-C', commons.rootDir(), 'clean', '-df'])
 		commons.runSystemCommand(['git', '-C', commons.rootDir(), 'checkout', str(candidate)])
 		commons.runSystemCommand(['git', '-C', commons.rootDir(), 'pull'])
+
+		newHash = subprocess.check_output(['git', 'rev-parse', '--short HEAD'])
+
+		if currentHash != newHash:
+			self._logger.logWarning('New satellite version installed, need to restart...')
+			self.doRestart()
+
+		self._isUpdating = False
+
+
+	@property
+	def updating(self) -> bool:
+		return self._isUpdating
+
+
+	@property
+	def shuttingDown(self) -> bool:
+		return self._shuttingDown

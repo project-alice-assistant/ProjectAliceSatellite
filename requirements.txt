@@ -2,3 +2,6 @@ requests==2.23.0
 psutil==5.7.0
 pyyaml==5.3.1
 paho-mqtt==1.5.0
+PyAudio==0.2.11
+webrtcvad==2.0.10
+importlib_metadata==1.6.0

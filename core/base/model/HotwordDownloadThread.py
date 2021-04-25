@@ -2,7 +2,6 @@ import os
 import re
 import shutil
 import socket
-import subprocess
 from pathlib import Path
 from threading import Thread
 
@@ -26,7 +25,7 @@ class HotwordDownloadThread(Thread):
 		try:
 			self._logger.logInfo('Cleaning up')
 
-			rootPath = Path(SuperManager.getInstance().commons.rootDir(), 'hotwords')
+			rootPath = Path(SuperManager.getInstance().commons.rootDir(), 'hotwords/snips_hotword')
 			hotwordPath = rootPath / f'{self._hotwordName}'
 			zipPath = hotwordPath.with_suffix('.zip')
 
@@ -69,21 +68,13 @@ class HotwordDownloadThread(Thread):
 			if not isinstance(conf, list):
 				conf = list()
 
-			addSnips = True
-			regex = re.compile(f'.*/{hotwordPath}=[0-9.]+$')
-			copy = conf.copy()
-			for i, hotword in enumerate(copy):
-				if hotword.find('/snips_hotword='):
-					addSnips = False
-				elif regex.match(hotword):
+			wakewordRegex = re.compile(f'^{hotwordPath}=[0-9.]+$')
+			for i, hotword in enumerate(conf.copy()):
+				if wakewordRegex.match(hotword):
 					conf.pop(i)
-
-			if addSnips:
-				conf.append(str(rootPath / 'snips_hotword=0.53'))
 
 			conf.append(f'{hotwordPath}=0.52')
 			SuperManager.getInstance().configManager.updateSnipsConfiguration(parent='snips-hotword', key='model', value=conf, createIfNotExist=True)
-			subprocess.run(['sudo', 'systemctl', 'restart', 'snips-satellite'])
 
 			sock.send(b'0')
 			self._logger.logInfo(f'Sucessfully installed new hotword **{self._hotwordName}**')

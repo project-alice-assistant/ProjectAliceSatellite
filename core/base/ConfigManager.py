@@ -1,26 +1,21 @@
+import difflib
+import importlib
 import json
 import logging
+import typing
 from pathlib import Path
 
 import configTemplate
-from core.base.model.TomlFile import TomlFile
-
-try:
-	# noinspection PyUnresolvedReferences,PyPackageRequirements
-	import config
-
-	configFileExist = True
-except ModuleNotFoundError:
-	configFileNotExist = False
-
-import difflib
-import importlib
-import typing
 from core.ProjectAliceExceptions import ConfigurationUpdateFailed
 from core.base.model.Manager import Manager
+from core.base.model.TomlFile import TomlFile
 
 
 class ConfigManager(Manager):
+
+	CONFIG_FILE = Path('config.json')
+	TEMPLATE_FILE = Path('configTemplate.json')
+	SNIPS_CONF = Path('/etc/snips.toml')
 
 	def __init__(self):
 		super().__init__()
@@ -37,13 +32,16 @@ class ConfigManager(Manager):
 	def _loadCheckAndUpdateAliceConfigFile(self) -> dict:
 		self.logInfo('Checking Alice configuration file')
 
-		if not configFileExist:
+		try:
+			aliceConfigs = self.loadJsonFromFile(self.CONFIG_FILE)
+		except Exception:
+			self.logInfo(f'No {str(self.CONFIG_FILE)} found.')
+			aliceConfigs = self.migrateConfigToJson()
+
+		if not aliceConfigs:
 			self.logInfo('Creating config file from config template')
-			confs = {configName: configData['values'] if 'dataType' in configData and configData['dataType'] == 'list' else configData['defaultValue'] if 'defaultValue' in configData else configData for configName, configData in configTemplate.settings.items()}
-			Path('config.py').write_text(f'settings = {json.dumps(confs, indent=4)}')
-			aliceConfigs = importlib.import_module('config.py').settings.copy()
-		else:
-			aliceConfigs = config.settings.copy()
+			aliceConfigs = {configName: configData['defaultValue'] if 'defaultValue' in configData else configData for configName, configData in self._aliceTemplateConfigurations.items()}
+			self.CONFIG_FILE.write_text(json.dumps(aliceConfigs, indent=4))
 
 		changes = False
 		for setting, definition in configTemplate.settings.items():
@@ -112,18 +110,18 @@ class ConfigManager(Manager):
 				self.doConfigUpdatePostProcessing(functions={post})
 
 
-	def writeToAliceConfigurationFile(self, confs: dict):
+	def writeToAliceConfigurationFile(self, confs: dict = None):
 		"""
-		Saves the given configuration into config.py
+		Saves the given configuration into config.json
 		:param confs: the dict to save
 		"""
+		confs = confs if confs else self._aliceConfigurations
+
 		sort = dict(sorted(confs.items()))
 		self._aliceConfigurations = sort
 
 		try:
-			confString = json.dumps(sort, indent=4).replace('false', 'False').replace('true', 'True')
-			Path('config.py').write_text(f'settings = {confString}')
-			importlib.reload(config)
+			self.CONFIG_FILE.write_text(json.dumps(sort, indent=4))
 		except Exception:
 			raise ConfigurationUpdateFailed()
 
@@ -131,14 +129,13 @@ class ConfigManager(Manager):
 	def loadSnipsConfigurations(self) -> TomlFile:
 		self.logInfo('Loading Snips configuration file')
 
-		snipsConfigPath = Path('/etc/snips.toml')
 		snipsConfigTemplatePath = Path(self.Commons.rootDir(), 'system/snips/snips.toml')
 
-		if not snipsConfigPath.exists():
+		if not self.SNIPS_CONF.exists():
 			self.Commons.runRootSystemCommand(['cp', snipsConfigTemplatePath, '/etc/snips.toml'])
-			snipsConfigPath = snipsConfigTemplatePath
+			SNIPS_CONF = snipsConfigTemplatePath
 
-		snipsConfig = TomlFile.loadToml(snipsConfigPath)
+		snipsConfig = TomlFile.loadToml(self.SNIPS_CONF)
 
 		return snipsConfig
 
@@ -175,7 +172,7 @@ class ConfigManager(Manager):
 		if config is None:
 			self.logWarning(f'Tried to get "{parent}/{key}" in snips configuration but key was not found')
 
-		return config
+		return config.value
 
 
 	def configAliceExists(self, configName: str) -> bool:
@@ -240,7 +237,7 @@ class ConfigManager(Manager):
 
 
 	def updateDeviceName(self):
-		self.ConfigManager.updateSnipsConfiguration('snips-audio-server', 'bind', f'{self.getAliceConfigByName("deviceName")}@mqtt', True)
+		self.ConfigManager.updateSnipsConfiguration('snips-audio-server', 'bind', f'{self.getAliceConfigByName("uid")}@mqtt', True)
 
 
 	@property
@@ -256,3 +253,26 @@ class ConfigManager(Manager):
 	@property
 	def aliceTemplateConfigurations(self) -> dict:
 		return self._aliceTemplateConfigurations
+
+
+	#todo remove this method in a few month 01092020
+	def migrateConfigToJson(self):
+		try:
+			# noinspection PyUnresolvedReferences,PyPackageRequirements
+			import config
+
+			self.CONFIG_FILE.write_text(json.dumps(config.settings, indent=4))
+			self.logInfo('Migrated from old config.py')
+			return config.settings.copy()
+		except ModuleNotFoundError:
+			self.logWarning(f'No old config.py found!')
+			return None
+
+
+	@staticmethod
+	def loadJsonFromFile(jsonFile: Path) -> dict:
+		try:
+			return json.loads(jsonFile.read_text())
+		except:
+			# Prevents failing for caller
+			raise

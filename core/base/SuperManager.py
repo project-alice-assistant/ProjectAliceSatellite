@@ -29,8 +29,11 @@ class SuperManager:
 		self.mqttManager = None
 		self.timeManager = None
 		self.networkManager = None
-		self.snipsServicesManager = None
 		self.hotwordManager = None
+		self.skillManager = None
+		self.internetManager = None
+		self.audioManager = None
+		self.wakewordManager = None
 
 
 	def onStart(self):
@@ -40,11 +43,11 @@ class SuperManager:
 		configManager = self._managers.pop('ConfigManager')
 		configManager.onStart()
 
+		internetManager = self._managers.pop('InternetManager')
+		internetManager.onStart()
+
 		databaseManager = self._managers.pop('DatabaseManager')
 		databaseManager.onStart()
-
-		snipsServicesManager = self._managers.pop('SnipsServicesManager')
-		snipsServicesManager.onStart()
 
 		networkManager = self._managers.pop('NetworkManager')
 		networkManager.onStart()
@@ -60,8 +63,8 @@ class SuperManager:
 		self._managers[configManager.name] = configManager
 		self._managers[databaseManager.name] = databaseManager
 		self._managers[mqttManager.name] = mqttManager
-		self._managers[snipsServicesManager.name] = snipsServicesManager
 		self._managers[networkManager.name] = networkManager
+		self._managers[internetManager.name] = internetManager
 
 
 	def onBooted(self):
@@ -83,8 +86,11 @@ class SuperManager:
 		from core.util.ThreadManager import ThreadManager
 		from core.util.TimeManager import TimeManager
 		from core.util.NetworkManager import NetworkManager
-		from core.snips.SnipsServicesManager import SnipsServicesManager
 		from core.util.HotwordManager import HotwordManager
+		from core.base.SkillManager import SkillManager
+		from core.util.InternetManager import InternetManager
+		from core.server.AudioServer import AudioManager
+		from core.voice.WakewordManager import WakewordManager
 
 		self.commonsManager = CommonsManager()
 		self.commons = self.commonsManager
@@ -94,8 +100,11 @@ class SuperManager:
 		self.mqttManager = MqttManager()
 		self.timeManager = TimeManager()
 		self.networkManager = NetworkManager()
-		self.snipsServicesManager = SnipsServicesManager()
 		self.hotwordManager = HotwordManager()
+		self.skillManager = SkillManager()
+		self.internetManager = InternetManager()
+		self.audioManager = AudioManager()
+		self.wakewordManager = WakewordManager()
 
 		self._managers = {name[0].upper() + name[1:]: manager for name, manager in self.__dict__.items() if name.endswith('Manager')}
 

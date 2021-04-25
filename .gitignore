@@ -111,8 +111,10 @@ venv.bak/
 
 .DS_Store
 config.py
+config.json
 *.pyc
 *Config.h
 
 var/logs/*
 !var/logs/.gitkeep
+/system/database/data.db

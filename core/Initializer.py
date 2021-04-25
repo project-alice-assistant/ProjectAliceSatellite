@@ -172,11 +172,11 @@ network={
 			subprocess.run([PIP, 'install', '-r', str(Path(self._rootDir, 'requirements.txt'))])
 
 			subprocess.run(['sudo', 'apt', 'install', './system/snips/snips-platform-common_0.64.0_armhf.deb', '-y'])
-			subprocess.run(['sudo', 'apt', 'install', './system/snips/snips-satellite_0.64.0_armhf.deb', '-y'])
+			subprocess.run(['sudo', 'apt', 'install', './system/snips/snips-hotword_0.64.0_armhf.deb', '-y'])
 			subprocess.run(['sudo', 'apt', 'install', './system/snips/snips-hotword-model-heysnipsv4_0.64.0_armhf.deb', '-y'])
 
-			subprocess.run(['sudo', 'systemctl', 'stop', 'snips-satellite'])
-			subprocess.run(['sudo', 'systemctl', 'disable', 'snips-satellite'])
+			subprocess.run(['sudo', 'systemctl', 'stop', 'snips-hotword'])
+			subprocess.run(['sudo', 'systemctl', 'disable', 'snips-hotword'])
 
 		confs['ssid'] = initConfs['wifiNetworkName']
 		confs['wifipassword'] = str(initConfs['wifiWPAPass'])
@@ -275,7 +275,7 @@ network={
 			importlib.reload(config)
 
 		if initConfs['keepYAMLBackup']:
-			subprocess.run(['sudo', 'mv', Path(YAML), Path('/boot/ProjectAlice.yaml.bak')])
+			subprocess.run(['sudo', 'mv', Path(YAML), Path('/boot/ProjectAliceSatellite.yaml.bak')])
 		else:
 			subprocess.run(['sudo', 'rm', Path(YAML)])
 

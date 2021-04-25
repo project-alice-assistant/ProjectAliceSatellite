@@ -1,17 +1,19 @@
 settings = {
-	'deviceName': {
-		'defaultValue': '',
-		'dataType'    : 'string',
+	'disableSoundAndMic'      : {
+		'defaultValue': False,
+		'dataType'    : 'boolean',
 		'isSensitive' : False,
-		'description' : 'This device name. It is of good practice to name it after the room it is placed in',
-		'onUpdate'    : 'updateDeviceName'
+		'description' : 'If this device is a server without sound and mic, turn this to True',
+		'onUpdate'    : 'enableDisableSoundInSnips',
+		'category'    : 'device'
 	},
-	'uuid': {
+	'uid': {
 		'defaultValue': '',
 		'dataType'    : 'string',
 		'isSensitive' : False,
 		'hidden'      : True,
-		'description' : 'Attributed device uuid'
+		'description' : 'Attributed device uid',
+		'category'    : 'device'
 	},
 	'mainUnitBroadcastPort': {
 		'defaultValue': 12354,
@@ -102,5 +104,23 @@ settings = {
 		'dataType'    : 'string',
 		'isSensitive' : False,
 		'display'     : 'hidden'
-	}
+	},
+	'wakewordEngine'     : {
+		'defaultValue': 'snips',
+		'dataType'    : 'list',
+		'isSensitive' : False,
+		'values'      : ['porcupine', 'snips', 'precise'],
+		'description' : 'Wakeword engine to use',
+		'category'    : 'wakeword'
+	},
+	'wakewordSensitivity': {
+		'defaultValue': 0.5,
+		'dataType'    : 'range',
+		'min'         : 0,
+		'max'         : 1,
+		'step'        : 0.01,
+		'isSensitive' : False,
+		'description' : 'Default wakeword sensitivity',
+		'category'    : 'wakeword'
+	},
 }
