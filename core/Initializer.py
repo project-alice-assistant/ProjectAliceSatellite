@@ -1,5 +1,4 @@
 import getpass
-import importlib
 import json
 import socket
 import subprocess
@@ -21,7 +20,6 @@ except:
 	subprocess.run([PIP, 'install', 'pyyaml'])
 	import yaml
 
-import configTemplate
 from core.base.model.ProjectAliceObject import ProjectAliceObject
 
 
@@ -61,8 +59,8 @@ network={
 
 		self._rootDir = Path(__file__).resolve().parent.parent
 
-		self._confsFile = Path(self._rootDir, 'config.py')
-		self._confsSample = Path(self._rootDir, 'configTemplate.py')
+		self._confsFile = Path(self._rootDir, 'config.json')
+		self._confsSample = Path(self._rootDir, 'configTemplate.json')
 		self._initFile = Path(YAML)
 		self._latest = 1.01
 
@@ -145,8 +143,7 @@ network={
 
 		elif not self._confsFile.exists() and self._confsSample.exists():
 			self.logWarning('No config file found, creating it from sample file')
-			confs = self.newConfs()
-			self._confsFile.write_text(f"settings = {json.dumps(confs, indent=4).replace('false', 'False').replace('true', 'True')}")
+			self.newConfs()
 
 		elif self._confsFile.exists() and not initConfs['forceRewrite']:
 			self.logWarning('Config file already existing and user not wanting to rewrite, aborting')
@@ -155,8 +152,7 @@ network={
 		elif self._confsFile.exists() and initConfs['forceRewrite']:
 			self.logWarning('Config file found and force rewrite specified, let\'s restart all this!')
 			self._confsFile.unlink()
-			confs = self.newConfs()
-			self._confsFile.write_text(f"settings = {json.dumps(confs, indent=4).replace('false', 'False').replace('true', 'True')}")
+			self.newConfs()
 
 
 		subprocess.run(['sudo', 'apt-get', 'update'])
@@ -164,8 +160,7 @@ network={
 		reqs = [line.rstrip('\n') for line in open(Path(self._rootDir, 'sysrequirements.txt'))]
 		subprocess.run(['sudo', 'apt-get', 'install', '-y', '--allow-unauthenticated'] + reqs)
 
-		config = importlib.import_module('config')
-		confs = config.settings.copy()
+		confs = json.loads(self._confsFile.read_text())
 
 		# Do some installation if wanted by the user
 		if 'doGroundInstall' not in initConfs or initConfs['doGroundInstall']:
@@ -267,12 +262,9 @@ network={
 		sort = dict(sorted(confs.items()))
 
 		try:
-			confString = json.dumps(sort, indent=4).replace('false', 'False').replace('true', 'True')
-			self._confsFile.write_text(f'settings = {confString}')
+			self._confsFile.write_text(json.dumps(sort, ensure_ascii=False, indent='\t'))
 		except Exception as e:
-			self.logFatal(f'An error occured while writting final configuration file: {e}')
-		else:
-			importlib.reload(config)
+			self.logFatal(f'An error occurred while writing final configuration file: {e}')
 
 		if initConfs['keepYAMLBackup']:
 			subprocess.run(['sudo', 'mv', Path(YAML), Path('/boot/ProjectAliceSatellite.yaml.bak')])
@@ -313,6 +305,5 @@ network={
 		return str(updateSource)
 
 
-	@staticmethod
-	def newConfs():
-		return {configName: configData['values'] if 'dataType' in configData and configData['dataType'] == 'list' else configData['defaultValue'] if 'defaultValue' in configData else configData for configName, configData in configTemplate.settings.items()}
+	def newConfs(self):
+		self._confsFile.write_text(json.dumps({configName: configData['defaultValue'] for configName, configData in json.loads(self._confsSample.read_text()).items()}, indent='\t', ensure_ascii=False))

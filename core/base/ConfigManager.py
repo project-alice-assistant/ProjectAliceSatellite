@@ -1,11 +1,9 @@
 import difflib
-import importlib
 import json
 import logging
 import typing
 from pathlib import Path
 
-import configTemplate
 from core.ProjectAliceExceptions import ConfigurationUpdateFailed
 from core.base.model.Manager import Manager
 from core.base.model.TomlFile import TomlFile
@@ -21,7 +19,7 @@ class ConfigManager(Manager):
 		super().__init__()
 
 		self._aliceConfigurations: typing.Dict[str, typing.Any] = self._loadCheckAndUpdateAliceConfigFile()
-		self._aliceTemplateConfigurations: typing.Dict[str, dict] = configTemplate.settings
+		self._aliceTemplateConfigurations: typing.Dict[str, dict] = json.loads(self.TEMPLATE_FILE.read_text())
 		self._snipsConfigurations = self.loadSnipsConfigurations()
 
 
@@ -44,7 +42,7 @@ class ConfigManager(Manager):
 			self.CONFIG_FILE.write_text(json.dumps(aliceConfigs, indent=4))
 
 		changes = False
-		for setting, definition in configTemplate.settings.items():
+		for setting, definition in self._aliceTemplateConfigurations.items():
 			if setting not in aliceConfigs:
 				self.logInfo(f'- New configuration found: {setting}')
 				changes = True
@@ -57,12 +55,12 @@ class ConfigManager(Manager):
 					if not isinstance(aliceConfigs[setting], type(definition['defaultValue'])):
 						changes = True
 						try:
-							# First try to cast the seting we have to the new type
+							# First try to cast the setting we have to the new type
 							aliceConfigs[setting] = type(definition['defaultValue'])(aliceConfigs[setting])
-							self.logInfo(f'- Existing configuration type missmatch: {setting}, cast variable to template configuration type')
+							self.logInfo(f'- Existing configuration type mismatch: {setting}, cast variable to template configuration type')
 						except Exception:
 							# If casting failed let's fall back to the new default value
-							self.logInfo(f'- Existing configuration type missmatch: {setting}, replaced with template configuration')
+							self.logInfo(f'- Existing configuration type mismatch: {setting}, replaced with template configuration')
 							aliceConfigs[setting] = definition['defaultValue']
 				else:
 					values = definition['values'].values() if isinstance(definition['values'], dict) else definition['values']
@@ -79,7 +77,7 @@ class ConfigManager(Manager):
 		temp = aliceConfigs.copy()
 
 		for k, v in temp.items():
-			if k not in configTemplate.settings:
+			if k not in self._aliceTemplateConfigurations:
 				self.logInfo(f'- Deprecated configuration: {k}')
 				changes = True
 				del aliceConfigs[k]
@@ -92,7 +90,7 @@ class ConfigManager(Manager):
 
 	def updateAliceConfiguration(self, key: str, value: typing.Any, doPreAndPostProcessing: bool = True):
 		if key not in self._aliceConfigurations:
-			self.logWarning(f'Was asked to update {key} but key doesn\'t exist')
+			self.logWarning(f"'Was asked to update {key} but key doesn't exist'")
 			raise ConfigurationUpdateFailed()
 
 		if doPreAndPostProcessing:
@@ -121,7 +119,7 @@ class ConfigManager(Manager):
 		self._aliceConfigurations = sort
 
 		try:
-			self.CONFIG_FILE.write_text(json.dumps(sort, indent=4))
+			self.CONFIG_FILE.write_text(json.dumps(sort, indent='\t'))
 		except Exception:
 			raise ConfigurationUpdateFailed()
 
