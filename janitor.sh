@@ -29,8 +29,6 @@ rm /boot/ProjectAliceSatellite.yaml
 rm /boot/ProjectAliceSatellite.yaml.bak
 cp /home/"$(logname)"/ProjectAlice/ProjectAliceSatellite.yaml /boot/ProjectAliceSatellite.yaml
 rm /etc/wpa_supplicant/wpa_supplicant.conf
-rm /etc/snips.toml
-cp /home/"$(logname)"/ProjectAlice/system/snips/snips.toml /etc/snips.toml
 rm /etc/systemd/system/hermesledcontrol.service
 systemctl daemon-reload
 systemctl enable ProjectAlice
