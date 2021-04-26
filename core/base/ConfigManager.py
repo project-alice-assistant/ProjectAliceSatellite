@@ -16,8 +16,8 @@ class ConfigManager(Manager):
 	def __init__(self):
 		super().__init__()
 
-		self._aliceConfigurations: typing.Dict[str, typing.Any] = self._loadCheckAndUpdateAliceConfigFile()
 		self._aliceTemplateConfigurations: typing.Dict[str, dict] = json.loads(self.TEMPLATE_FILE.read_text())
+		self._aliceConfigurations: typing.Dict[str, typing.Any] = self._loadCheckAndUpdateAliceConfigFile()
 
 
 	def onStart(self):

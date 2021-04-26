@@ -51,7 +51,7 @@ class SnipsWakeword(WakewordEngine):
 		if self.ConfigManager.getAliceConfigByName('monoWakewordEngine'):
 			cmd += ' --audio +@mqtt'
 		else:
-			cmd += f' --audio {self.ConfigManager.getAliceConfigByName("uuid")}@mqtt'
+			cmd += f' --audio {self.ConfigManager.getAliceConfigByName("uid")}@mqtt'
 
 		if self.ConfigManager.getAliceConfigByName('mqttUser'):
 			cmd += f' --mqtt-username {self.ConfigManager.getAliceConfigByName("mqttUser")} --mqtt-password {self.ConfigManager.getAliceConfigByName("mqttPassword")}'
