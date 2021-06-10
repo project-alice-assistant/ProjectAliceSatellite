@@ -34,6 +34,7 @@ class SuperManager:
 		self.internetManager = None
 		self.audioManager = None
 		self.wakewordManager = None
+		self.subprocessManager = None
 
 
 	def onStart(self):
@@ -42,6 +43,9 @@ class SuperManager:
 
 		configManager = self._managers.pop('ConfigManager')
 		configManager.onStart()
+
+		subprocessManager = self._managers.pop('SubprocessManager')
+		subprocessManager.onStart()
 
 		internetManager = self._managers.pop('InternetManager')
 		internetManager.onStart()
@@ -61,6 +65,7 @@ class SuperManager:
 
 		self._managers[commons.name] = commons
 		self._managers[configManager.name] = configManager
+		self._managers[subprocessManager.name] = subprocessManager
 		self._managers[databaseManager.name] = databaseManager
 		self._managers[mqttManager.name] = mqttManager
 		self._managers[networkManager.name] = networkManager
@@ -89,6 +94,7 @@ class SuperManager:
 		from core.util.HotwordManager import HotwordManager
 		from core.base.SkillManager import SkillManager
 		from core.util.InternetManager import InternetManager
+		from core.util.SubprocessManager import SubprocessManager
 		from core.server.AudioServer import AudioManager
 		from core.voice.WakewordManager import WakewordManager
 
@@ -105,6 +111,7 @@ class SuperManager:
 		self.internetManager = InternetManager()
 		self.audioManager = AudioManager()
 		self.wakewordManager = WakewordManager()
+		self.subprocessManager = SubprocessManager()
 
 		self._managers = {name[0].upper() + name[1:]: manager for name, manager in self.__dict__.items() if name.endswith('Manager')}
 

@@ -14,7 +14,6 @@ import requests
 from paho.mqtt.client import MQTTMessage
 
 from core.base.model.Manager import Manager
-from core.commons import constants
 
 
 class CommonsManager(Manager):

@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 import json
 import re
 from copy import copy
+from typing import TYPE_CHECKING
 
 from importlib_metadata import PackageNotFoundError, version as packageVersion
 
@@ -8,6 +11,19 @@ import core.base.SuperManager as SM
 from core.base.model.Version import Version
 from core.commons import constants
 from core.util.model.Logger import Logger
+
+if TYPE_CHECKING:
+	from core.ProjectAlice import ProjectAlice
+	from core.base.ConfigManager import ConfigManager
+	from core.commons.CommonsManager import CommonsManager
+	from core.server.AudioServer import AudioManager
+	from core.server.MqttManager import MqttManager
+	from core.util.DatabaseManager import DatabaseManager
+	from core.util.InternetManager import InternetManager
+	from core.util.ThreadManager import ThreadManager
+	from core.util.TimeManager import TimeManager
+	from core.util.SubprocessManager import SubprocessManager
+	from core.voice.WakewordManager import WakewordManager
 
 
 class ProjectAliceObject:
@@ -230,64 +246,68 @@ class ProjectAliceObject:
 
 
 	@property
-	def ProjectAlice(self): #NOSONAR
+	def ProjectAlice(self) -> ProjectAlice: #NOSONAR
 		return SM.SuperManager.getInstance().projectAlice
 
 
 	@property
-	def ConfigManager(self): #NOSONAR
+	def ConfigManager(self) -> ConfigManager: #NOSONAR
 		return SM.SuperManager.getInstance().configManager
 
 
 	@property
-	def MqttManager(self): #NOSONAR
+	def MqttManager(self) -> MqttManager: #NOSONAR
 		return SM.SuperManager.getInstance().mqttManager
 
 
 	@property
-	def DatabaseManager(self): #NOSONAR
+	def DatabaseManager(self) -> DatabaseManager: #NOSONAR
 		return SM.SuperManager.getInstance().databaseManager
 
 
 	@property
-	def ThreadManager(self): #NOSONAR
+	def ThreadManager(self) -> ThreadManager: #NOSONAR
 		return SM.SuperManager.getInstance().threadManager
 
 
 	@property
-	def TimeManager(self): #NOSONAR
+	def TimeManager(self) -> TimeManager: #NOSONAR
 		return SM.SuperManager.getInstance().timeManager
 
 
 	@property
-	def HotwordManager(self): #NOSONAR
+	def HotwordManager(self) -> HotwordManager: #NOSONAR
 		return SM.SuperManager.getInstance().hotwordManager
 
 
 	@property
-	def Commons(self): #NOSONAR
+	def Commons(self) -> CommonsManager: #NOSONAR
 		return SM.SuperManager.getInstance().commonsManager
 
 
 	@property
-	def NetworkManager(self): #NOSONAR
+	def NetworkManager(self) -> NetworkManager: #NOSONAR
 		return SM.SuperManager.getInstance().networkManager
 
 
 	@property
-	def SkillManager(self): #NOSONAR
+	def SkillManager(self) -> SkillManager: #NOSONAR
 		return SM.SuperManager.getInstance().skillManager
 
 
 	@property
-	def InternetManager(self): #NOSONAR
+	def InternetManager(self) -> InternetManager: #NOSONAR
 		return SM.SuperManager.getInstance().internetManager
 
 
 	@property
-	def WakewordManager(self): #NOSONAR
+	def WakewordManager(self) -> WakewordManager: #NOSONAR
 		return SM.SuperManager.getInstance().wakewordManager
 
 	@property
-	def AudioServer(self): #NOSONAR
+	def AudioServer(self) -> AudioManager: #NOSONAR
 		return SM.SuperManager.getInstance().audioManager
+
+	@property
+	def SubprocessManager(self) -> SubprocessManager:  # NOSONAR
+		return SM.SuperManager.getInstance().subprocessManager
