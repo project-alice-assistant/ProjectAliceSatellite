@@ -140,13 +140,6 @@ class NetworkManager(Manager):
 		self._tries = 0
 		self.logInfo('Alice answered and accepted the connection')
 
-		self.MqttManager.publish(
-			topic=constants.TOPIC_CLEAR_LEDS,
-			payload={
-				'uid': self.ConfigManager.getAliceConfigByName('uid')
-			}
-		)
-
 
 	def onAliceConnectionRefused(self):
 		if self._state != State.WAITING_REPLY:

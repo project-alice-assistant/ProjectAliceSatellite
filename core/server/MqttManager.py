@@ -156,6 +156,7 @@ class MqttManager(Manager):
 
 			if message.topic == constants.TOPIC_ALICE_CONNECTION_ACCEPTED:
 				self.NetworkManager.onAliceConnectionAccepted()
+				self.broadcast(method=constants.EVENT_ALICE_CONNECTION_ACCEPTED, exceptions=[self.NetworkManager.name], propagateToSkills=True)
 				self.publish(
 					topic=constants.TOPIC_CLEAR_LEDS,
 					payload={
@@ -164,6 +165,7 @@ class MqttManager(Manager):
 				)
 			elif message.topic == constants.TOPIC_ALICE_CONNECTION_REFUSED:
 				self.NetworkManager.onAliceConnectionRefused()
+				self.broadcast(method=constants.EVENT_ALICE_CONNECTION_REFUSED, exceptions=[self.NetworkManager.name], propagateToSkills=True)
 				self.publish(
 					topic='hermes/leds/connectionError',
 					payload={

@@ -15,11 +15,10 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>
 #
-#  Last modified: 2021.04.13 at 12:56:48 CEST
-
-import threading
+#  Last modified: 2021.05.19 at 12:56:48 CEST
 
 import subprocess
+import threading
 import time
 from pathlib import Path
 from typing import Optional
@@ -35,46 +34,8 @@ class SnipsWakeword(WakewordEngine):
 			'snips-hotword',
 			'snips-hotword-model-heysnipsv4'
 		],
-		'pip': []
+		'pip'   : []
 	}
-
-
-	def __init__(self):
-		super().__init__()
-		self._thread: Optional[threading.Thread] = None
-		self._flag = threading.Event()
-
-
-	def run(self):
-		cmd = f'snips-hotword --assistant {self.Commons.rootDir()}/assistant --mqtt {self.ConfigManager.getAliceConfigByName("mqttHost")}:{self.ConfigManager.getAliceConfigByName("mqttPort")}'
-
-		if self.ConfigManager.getAliceConfigByName('monoWakewordEngine'):
-			cmd += ' --audio +@mqtt'
-		else:
-			cmd += f' --audio {self.ConfigManager.getAliceConfigByName("uid")}@mqtt'
-
-		if self.ConfigManager.getAliceConfigByName('mqttUser'):
-			cmd += f' --mqtt-username {self.ConfigManager.getAliceConfigByName("mqttUser")} --mqtt-password {self.ConfigManager.getAliceConfigByName("mqttPassword")}'
-
-		if self.ConfigManager.getAliceConfigByName('mqttTLSFile'):
-			cmd += f' --mqtt-tls-cafile {self.ConfigManager.getAliceConfigByName("mqttTLSFile")}'
-
-		cmd += f' --model {self.Commons.rootDir()}/trained/hotwords/snips_hotword/hey_snips={self.ConfigManager.getAliceConfigByName("wakewordSensitivity")}'
-
-		for entry in Path(self.Commons.rootDir(), '/trained/hotwords/snips_hotword/').glob('*'):
-			if not entry.is_dir() or entry.name == 'hey_snips':
-				continue
-
-			cmd += f' --model {self.Commons.rootDir()}/trained/hotwords/snips_hotword/{entry.name}={self.ConfigManager.getAliceConfigByName("wakewordSensitivity")}'
-
-		process = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-
-		self._flag.set()
-		try:
-			while self._flag.is_set():
-				time.sleep(0.5)
-		finally:
-			process.terminate()
 
 
 	def installDependencies(self) -> bool:
@@ -83,20 +44,36 @@ class SnipsWakeword(WakewordEngine):
 		if installed.returncode or installed2.returncode:
 			self.logError(f"Couldn't install Snips wakeword: {installed.stderr}")
 			return False
+		return True
 
 
 	def onStop(self):
 		super().onStop()
-		self._flag.clear()
-		if self._thread and self._thread.is_alive():
-			self.ThreadManager.terminateThread(name='snipsHotword')
+		self.SubprocessManager.terminateSubprocess(name='SnipsHotword')
 
 
 	def onStart(self):
 		super().onStart()
-		self._flag.clear()
-		if self._thread and self._thread.is_alive():
-			self._thread.join(timeout=5)
 
-		self._thread: threading.Thread = self.ThreadManager.newThread(name='snipsHotword', target=self.run, autostart=False)
-		self._thread.start()
+		cmd = f'snips-hotword --assistant {self.Commons.rootDir()}/assistant --mqtt {self.ConfigManager.getAliceConfigByName("mqttHost")}:{self.ConfigManager.getAliceConfigByName("mqttPort")}'
+
+		if self.ConfigManager.getMainUnitConfigByName('monoWakewordEngine'):
+			cmd += ' --audio +@mqtt'
+		else:
+			cmd += f' --audio {self.ConfigManager.getAliceConfigByName("uuid")}@mqtt'
+
+		if self.ConfigManager.getAliceConfigByName('mqttUser'):
+			cmd += f' --mqtt-username {self.ConfigManager.getAliceConfigByName("mqttUser")} --mqtt-password {self.ConfigManager.getAliceConfigByName("mqttPassword")}'
+
+		if self.ConfigManager.getAliceConfigByName('mqttTLSFile'):
+			cmd += f' --mqtt-tls-cafile {self.ConfigManager.getAliceConfigByName("mqttTLSFile")}'
+
+		cmd += f' --model {self.Commons.rootDir()}/trained/hotwords/snips_hotword/hey_snips=0.5'
+
+		for entry in Path(f'{self.Commons.rootDir()}/trained/hotwords/snips_hotword').glob('*'):
+			if not entry.is_dir() or entry.name == '.' or entry.name == '..':
+				continue
+
+			cmd += f' --model {self.Commons.rootDir()}/trained/hotwords/snips_hotword/{entry}=0.5'
+
+		self.SubprocessManager.runSubprocess(name='SnipsHotword', cmd=cmd, autoRestart=True)

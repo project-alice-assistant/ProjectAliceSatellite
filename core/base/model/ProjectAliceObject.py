@@ -174,75 +174,83 @@ class ProjectAliceObject:
 
 
 	def onStart(self):
-		pass # Super object function is overriden only if needed
+		pass # Super object function is overridden only if needed
 
 
 	def onStop(self):
-		pass # Super object function is overriden only if needed
+		pass # Super object function is overridden only if needed
 
 
 	def onBooted(self):
-		pass # Super object function is overriden only if needed
+		pass # Super object function is overridden only if needed
 
 
 	def onFullMinute(self):
-		pass # Super object function is overriden only if needed
+		pass # Super object function is overridden only if needed
 
 
 	def onFiveMinute(self):
-		pass # Super object function is overriden only if needed
+		pass # Super object function is overridden only if needed
 
 
 	def onQuarterHour(self):
-		pass # Super object function is overriden only if needed
+		pass # Super object function is overridden only if needed
 
 
 	def onFullHour(self):
-		pass # Super object function is overriden only if needed
+		pass # Super object function is overridden only if needed
 
 
 	def onAudioFrame(self, **kwargs):
-		pass # Super object function is overriden only if needed
+		pass # Super object function is overridden only if needed
 
 
 	def onWakeword(self, user: str = constants.UNKNOWN_USER):
-		pass # Super object function is overriden only if needed
+		pass # Super object function is overridden only if needed
 
 
 	def onHotword(self, user: str = constants.UNKNOWN_USER):
-		pass # Super object function is overriden only if needed
+		pass # Super object function is overridden only if needed
 
 
 	def onHotwordToggleOn(self):
-		pass # Super object function is overriden only if needed
+		pass # Super object function is overridden only if needed
 
 
 	def onHotwordToggleOff(self):
-		pass # Super object function is overriden only if needed
+		pass # Super object function is overridden only if needed
 
 
 	def onPlayBytes(self, requestId: str, payload: bytearray, sessionId: str = None):
-		pass # Super object function is overriden only if needed
+		pass # Super object function is overridden only if needed
 
 
 	def onPlayBytesFinished(self, requestId: str, sessionId: str = None):
-		pass # Super object function is overriden only if needed
+		pass # Super object function is overridden only if needed
 
 
 	def onStartListening(self):
-		pass # Super object function is overriden only if needed
+		pass # Super object function is overridden only if needed
 
 
 	def onStopListening(self):
-		pass # Super object function is overriden only if needed
+		pass # Super object function is overridden only if needed
 
 
 	def onDndOn(self):
-		pass # Super object function is overriden only if needed
+		pass # Super object function is overridden only if needed
 
 
 	def onDndOff(self):
-		pass # Super object function is overriden only if needed
+		pass # Super object function is overridden only if needed
+	
+	
+	def onAliceConnectionAccepted(self):
+		pass # Super object function is overridden only if needed
+
+
+	def onAliceConnectionRefused(self):
+		pass # Super object function is overridden only if needed
 
 
 	@property

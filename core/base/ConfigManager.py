@@ -4,6 +4,8 @@ import logging
 import typing
 from pathlib import Path
 
+import requests
+
 from core.ProjectAliceExceptions import ConfigurationUpdateFailed
 from core.base.model.Manager import Manager
 
@@ -18,10 +20,17 @@ class ConfigManager(Manager):
 
 		self._aliceTemplateConfigurations: typing.Dict[str, dict] = json.loads(self.TEMPLATE_FILE.read_text())
 		self._aliceConfigurations: typing.Dict[str, typing.Any] = self._loadCheckAndUpdateAliceConfigFile()
+		self._mainUnitConfigs: typing.Dict[str, typing.Any] = dict()
 
 
 	def onStart(self):
 		super().onStart()
+		request = requests.get(f'http://{self.getAliceConfigByName("mqttHost")}:5001/api/v1.0.1/utils/config')
+		if request.status_code != 200:
+			self.logFatal("Main unit configuration failed loading, cannot continue, sorry")
+			return
+
+		self._mainUnitConfigs = request.json()
 
 
 	def _loadCheckAndUpdateAliceConfigFile(self) -> dict:
@@ -124,6 +133,13 @@ class ConfigManager(Manager):
 		return self._aliceConfigurations.get(
 			configName,
 			difflib.get_close_matches(word=configName, possibilities=self._aliceConfigurations, n=3) if voiceControl else ''
+		)
+
+
+	def getMainUnitConfigByName(self, configName: str) -> typing.Any:
+		return self._aliceConfigurations.get(
+			configName,
+			None
 		)
 
 
