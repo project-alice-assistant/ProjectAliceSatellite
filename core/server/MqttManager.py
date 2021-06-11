@@ -274,7 +274,7 @@ class MqttManager(Manager):
 
 	def topicPlayBytes(self, _client, _data, msg: mqtt.MQTTMessage):
 		"""
-		SessionId is completly custom and does not belong in the Hermes Protocol
+		SessionId is completely custom and does not belong in the Hermes Protocol
 		:param _client:
 		:param _data:
 		:param msg:

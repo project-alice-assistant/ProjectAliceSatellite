@@ -1,126 +1,155 @@
 {
-	"disableSoundAndMic"      : {
-		"defaultValue": false,
-		"dataType"    : "boolean",
-		"isSensitive" : false,
-		"description" : "If this device is a server without sound and mic, turn this to true",
-		"onUpdate"    : "enableDisableSoundInSnips",
-		"category"    : "device"
+  "disableSoundAndMic": {
+	"defaultValue": false,
+	"dataType": "boolean",
+	"isSensitive": false,
+	"description": "If this device is a server without sound and mic, turn this to true",
+	"onUpdate": "enableDisableSoundInSnips",
+	"category": "device"
+  },
+  "outputDevice": {
+	"defaultValue": "",
+	"dataType": "list",
+	"isSensitive": false,
+	"values": [],
+	"description": "The device to use to play sounds",
+	"category": "audio",
+	"onInit"      : "populateAudioInputConfig",
+	"onUpdate": "AudioServer.updateAudioDevices"
+  },
+  "inputDevice": {
+	"defaultValue": "",
+	"dataType": "list",
+	"isSensitive": false,
+	"values": [],
+	"description": "The device to use to record sounds",
+	"category": "audio",
+	"onInit"      : "populateAudioInputConfig",
+	"onUpdate": "AudioServer.updateAudioDevices"
+  },
+  "uid": {
+	"defaultValue": "",
+	"dataType": "string",
+	"isSensitive": false,
+	"hidden": true,
+	"description": "Attributed device uid",
+	"category": "device"
+  },
+  "mainUnitBroadcastPort": {
+	"defaultValue": 12354,
+	"dataType": "integer",
+	"isSensitive": false,
+	"description": "Port where new hardware addition is broadcasting"
+  },
+  "temperatureOffset": {
+	"defaultValue": 0,
+	"dataType": "integer",
+	"isSensitive": false,
+	"description": "Offset to use for temperature correction"
+  },
+  "ssid": {
+	"defaultValue": "",
+	"dataType": "string",
+	"isSensitive": false,
+	"description": "Your Wifi name"
+  },
+  "debug": {
+	"defaultValue": false,
+	"dataType": "boolean",
+	"isSensitive": false,
+	"description": "If true debug logs will show"
+  },
+  "wifipassword": {
+	"defaultValue": "",
+	"dataType": "string",
+	"isSensitive": true,
+	"description": "Your Wifi password"
+  },
+  "mqttHost": {
+	"defaultValue": "localhost",
+	"dataType": "string",
+	"isSensitive": false,
+	"description": "Mqtt server ip address",
+	"onUpdate": "updateMqttSettings"
+  },
+  "mqttPort": {
+	"defaultValue": 1883,
+	"dataType": "integer",
+	"isSensitive": false,
+	"description": "Mqtt server port",
+	"onUpdate": "updateMqttSettings"
+  },
+  "mqttUser": {
+	"defaultValue": "",
+	"dataType": "string",
+	"isSensitive": false,
+	"description": "Mqtt user. Leave blank if not password protected",
+	"onUpdate": "updateMqttSettings"
+  },
+  "mqttPassword": {
+	"defaultValue": "",
+	"dataType": "string",
+	"isSensitive": true,
+	"description": "Mqtt password. Leave blank if not password protected",
+	"onUpdate": "updateMqttSettings"
+  },
+  "mqttTLSFile": {
+	"defaultValue": "",
+	"dataType": "string",
+	"isSensitive": false,
+	"description": "Mqtt TLS file path for SSL",
+	"onUpdate": "updateMqttSettings"
+  },
+  "useHLC": {
+	"defaultValue": false,
+	"dataType": "boolean",
+	"isSensitive": false,
+	"description": "Enables Hermes Led Control for visual feedback from your assistant"
+  },
+  "aliceAutoUpdate": {
+	"defaultValue": false,
+	"dataType": "boolean",
+	"isSensitive": false,
+	"description": "Whether Alice should auto update, checked every hour"
+  },
+  "aliceUpdateChannel": {
+	"defaultValue": "master",
+	"dataType": "list",
+	"isSensitive": false,
+	"values": {
+	  "Stable": "master",
+	  "Release candidate": "rc",
+	  "Beta": "beta",
+	  "Alpha": "alpha"
 	},
-	"uid": {
-		"defaultValue": "",
-		"dataType"    : "string",
-		"isSensitive" : false,
-		"hidden"      : true,
-		"description" : "Attributed device uid",
-		"category"    : "device"
-	},
-	"mainUnitBroadcastPort": {
-		"defaultValue": 12354,
-		"dataType"    : "integer",
-		"isSensitive" : false,
-		"description" : "Port where new hardware addition is broadcasting"
-	},
-	"temperatureOffset"    : {
-		"defaultValue": 0,
-		"dataType"    : "integer",
-		"isSensitive" : false,
-		"description" : "Offset to use for temperature correction"
-	},
-	"ssid"                 : {
-		"defaultValue": "",
-		"dataType"    : "string",
-		"isSensitive" : false,
-		"description" : "Your Wifi name"
-	},
-	"debug"                : {
-		"defaultValue": false,
-		"dataType"    : "boolean",
-		"isSensitive" : false,
-		"description" : "If true debug logs will show"
-	},
-	"wifipassword"         : {
-		"defaultValue": "",
-		"dataType"    : "string",
-		"isSensitive" : true,
-		"description" : "Your Wifi password"
-	},
-	"mqttHost"             : {
-		"defaultValue": "localhost",
-		"dataType"    : "string",
-		"isSensitive" : false,
-		"description" : "Mqtt server ip address",
-		"onUpdate"    : "updateMqttSettings"
-	},
-	"mqttPort"             : {
-		"defaultValue": 1883,
-		"dataType"    : "integer",
-		"isSensitive" : false,
-		"description" : "Mqtt server port",
-		"onUpdate"    : "updateMqttSettings"
-	},
-	"mqttUser"             : {
-		"defaultValue": "",
-		"dataType"    : "string",
-		"isSensitive" : false,
-		"description" : "Mqtt user. Leave blank if not password protected",
-		"onUpdate"    : "updateMqttSettings"
-	},
-	"mqttPassword"         : {
-		"defaultValue": "",
-		"dataType"    : "string",
-		"isSensitive" : true,
-		"description" : "Mqtt password. Leave blank if not password protected",
-		"onUpdate"    : "updateMqttSettings"
-	},
-	"mqttTLSFile"          : {
-		"defaultValue": "",
-		"dataType"    : "string",
-		"isSensitive" : false,
-		"description" : "Mqtt TLS file path for SSL",
-		"onUpdate"    : "updateMqttSettings"
-	},
-	"useHLC"               : {
-		"defaultValue": false,
-		"dataType"    : "boolean",
-		"isSensitive" : false,
-		"description" : "Enables Hermes Led Control for visual feedback from your assistant"
-	},
-	"aliceAutoUpdate"      : {
-		"defaultValue": false,
-		"dataType"    : "boolean",
-		"isSensitive" : false,
-		"description" : "Whether Alice should auto update, checked every hour"
-	},
-	"aliceUpdateChannel"   : {
-		"defaultValue": "master",
-		"dataType"    : "list",
-		"isSensitive" : false,
-		"values"      : {"Stable": "master", "Release candidate": "rc", "Beta": "beta", "Alpha": "alpha"},
-		"description" : "Choose your update frequency. Release is the only supposedly safe option! But if you like to live on the edge, alpha will allow you to preview what\"s coming next!"
-	},
-	"onReboot"             : {
-		"defaultValue": "",
-		"dataType"    : "string",
-		"isSensitive" : false,
-		"display"     : "hidden"
-	},
-	"wakewordEngine"     : {
-		"defaultValue": "snips",
-		"dataType"    : "list",
-		"isSensitive" : false,
-		"values"      : ["porcupine", "snips", "precise"],
-		"description" : "Wakeword engine to use",
-		"category"    : "wakeword"
-	},
-	"wakewordSensitivity": {
-		"defaultValue": 0.5,
-		"dataType"    : "range",
-		"min"         : 0,
-		"max"         : 1,
-		"step"        : 0.01,
-		"isSensitive" : false,
-		"description" : "Default wakeword sensitivity",
-		"category"    : "wakeword"
-	}
+	"description": "Choose your update frequency. Release is the only supposedly safe option! But if you like to live on the edge, alpha will allow you to preview what\"s coming next!"
+  },
+  "onReboot": {
+	"defaultValue": "",
+	"dataType": "string",
+	"isSensitive": false,
+	"display": "hidden"
+  },
+  "wakewordEngine": {
+	"defaultValue": "snips",
+	"dataType": "list",
+	"isSensitive": false,
+	"values": [
+	  "porcupine",
+	  "snips",
+	  "precise"
+	],
+	"description": "Wakeword engine to use",
+	"category": "wakeword"
+  },
+  "wakewordSensitivity": {
+	"defaultValue": 0.5,
+	"dataType": "range",
+	"min": 0,
+	"max": 1,
+	"step": 0.01,
+	"isSensitive": false,
+	"description": "Default wakeword sensitivity",
+	"category": "wakeword"
+  }
 }

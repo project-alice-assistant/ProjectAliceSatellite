@@ -5,3 +5,4 @@ paho-mqtt==1.5.0
 PyAudio==0.2.11
 webrtcvad==2.0.10
 importlib_metadata==1.6.0
+sounddevice==0.4.1
