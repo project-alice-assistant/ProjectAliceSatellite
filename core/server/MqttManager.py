@@ -280,15 +280,10 @@ class MqttManager(Manager):
 		:param msg:
 		:return:
 		"""
-		count = msg.topic.count('/')
-		if count > 4:
-			requestId = msg.topic.rsplit('/')[-1]
-			sessionId = msg.topic.rsplit('/')[-2]
-		else:
-			requestId = msg.topic.rsplit('/')[-1]
-			sessionId = None
+		sessionId = msg.topic.rsplit('/')[-1]
+		deviceUid = msg.topic.rsplit('/')[-3]
 
-		self.broadcast(method=constants.EVENT_PLAY_BYTES, exceptions=self.name, propagateToSkills=True, requestId=requestId, payload=msg.payload, sessionId=sessionId)
+		self.broadcast(method=constants.EVENT_PLAY_BYTES, exceptions=self.name, propagateToSkills=True, payload=msg.payload, deviceUid=deviceUid, sessionId=sessionId)
 
 
 	def hotwordToggleOn(self, _client, _data, msg: mqtt.MQTTMessage):
