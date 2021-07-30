@@ -107,7 +107,7 @@ class ThreadManager(Manager):
 			if thread and thread.is_alive():
 				thread.join(timeout=1)
 		except Exception as e:
-			self.logError(f'Error terminating thread "{name}": {e}')
+			self.logDebug(f'Error terminating thread "{name}": {e}')
 
 
 	def isThreadAlive(self, name: str) -> bool:
