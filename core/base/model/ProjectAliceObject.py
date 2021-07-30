@@ -12,6 +12,7 @@ from core.base.model.Version import Version
 from core.commons import constants
 from core.util.model.Logger import Logger
 
+
 if TYPE_CHECKING:
 	from core.ProjectAlice import ProjectAlice
 	from core.base.ConfigManager import ConfigManager
@@ -221,7 +222,7 @@ class ProjectAliceObject:
 		pass # Super object function is overridden only if needed
 
 
-	def onPlayBytes(self, requestId: str, payload: bytearray, sessionId: str = None):
+	def onPlayBytes(self, payload: bytearray, deviceUid: str, sessionId: str = None):
 		pass # Super object function is overridden only if needed
 
 
