@@ -56,7 +56,7 @@ class SnipsWakeword(WakewordEngine):
 		super().onStart()
 
 		cmd = f'snips-hotword'
-		cmd += f' --audio {self.ConfigManager.getAliceConfigByName("uid")}@mqtt'
+		cmd += f' --audio {self.ConfigManager.getAliceConfigByName("uuid")}@mqtt'
 
 		if self.ConfigManager.getMainUnitConfigByName('monoWakewordEngine'):
 			cmd += f' --mqtt {self.ConfigManager.getAliceConfigByName("mqttHost")}:{self.ConfigManager.getAliceConfigByName("mqttPort")}'

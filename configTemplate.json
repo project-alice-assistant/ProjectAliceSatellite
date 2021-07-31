@@ -27,13 +27,13 @@
 	"onInit"      : "populateAudioInputConfig",
 	"onUpdate": "AudioServer.updateAudioDevices"
   },
-  "uid": {
-	"defaultValue": "",
-	"dataType": "string",
-	"isSensitive": false,
-	"hidden": true,
-	"description": "Attributed device uid",
-	"category": "device"
+  "uuid": {
+	  "defaultValue": "",
+	  "dataType"    : "string",
+	  "isSensitive" : false,
+	  "hidden"      : true,
+	  "description" : "Attributed device uuid",
+	  "category"    : "device"
   },
   "mainUnitBroadcastPort": {
 	"defaultValue": 12354,

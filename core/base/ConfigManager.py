@@ -19,18 +19,16 @@
 import json
 import logging
 import re
-import typing
-from pathlib import Path
-
 import requests
 import sounddevice as sd
+import typing
+from pathlib import Path
 
 from core.ProjectAliceExceptions import ConfigurationUpdateFailed, VitalConfigMissing
 from core.base.model.Manager import Manager
 
 
 class ConfigManager(Manager):
-
 	TEMPLATE_FILE = Path('configTemplate.json')
 	CONFIG_FILE = Path('config.json')
 
@@ -104,13 +102,13 @@ class ConfigManager(Manager):
 
 		changes = False
 
-		# most important: uuid is always required!
-		if not aliceConfigs.get('uuid', None):
-			import uuid
-
-			##uuid4: no collision expected until extinction of all life (only on earth though!)
-			aliceConfigs['uuid'] = str(uuid.uuid4())
-			changes = True
+		# most important: uuid is always required! but we will get it from main device..
+		#		if not aliceConfigs.get('uuid', None):
+		#			import uuid
+		#
+		#			##uuid4: no collision expected until extinction of all life (only on earth though!)
+		#			aliceConfigs['uuid'] = str(uuid.uuid4())
+		#			changes = True
 
 		for setting, definition in self._aliceTemplateConfigurations.items():
 			if setting not in aliceConfigs:

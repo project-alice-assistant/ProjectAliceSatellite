@@ -1,8 +1,7 @@
 import json
+import paho.mqtt.client as mqtt
 import traceback
 from typing import Union
-
-import paho.mqtt.client as mqtt
 
 from core.base.model.Manager import Manager
 from core.base.model.States import State
@@ -16,7 +15,7 @@ class MqttManager(Manager):
 		self._mqttClient = mqtt.Client()
 		self._mqttLocalClient = mqtt.Client()
 		self._dnd = False
-		self._audioFrameTopic = constants.TOPIC_AUDIO_FRAME.replace('{}', self.ConfigManager.getAliceConfigByName('uid'))
+		self._audioFrameTopic = constants.TOPIC_AUDIO_FRAME.replace('{}', self.ConfigManager.getAliceConfigByName('uuid'))
 		self.logInfo(self._audioFrameTopic)
 
 	def onStart(self):
@@ -36,14 +35,14 @@ class MqttManager(Manager):
 		self._mqttClient.message_callback_add(constants.TOPIC_HOTWORD_TOGGLE_OFF, self.hotwordToggleOff)
 		self._mqttLocalClient.message_callback_add(constants.TOPIC_HOTWORD_DETECTED, self.onHotwordDetected)
 		self._mqttLocalClient.message_callback_add(self._audioFrameTopic, self.onAudioFrameTopic)
-		self._mqttClient.message_callback_add(constants.TOPIC_PLAY_BYTES.format(self.ConfigManager.getAliceConfigByName('uid')), self.topicPlayBytes)
+		self._mqttClient.message_callback_add(constants.TOPIC_PLAY_BYTES.format(self.ConfigManager.getAliceConfigByName('uuid')), self.topicPlayBytes)
 
-		if self.ConfigManager.getAliceConfigByName('uid'):
+		if self.ConfigManager.getAliceConfigByName('uuid'):
 			self.connect()
 
 
 	def onBooted(self):
-		if not self.ConfigManager.getAliceConfigByName('uid'):
+		if not self.ConfigManager.getAliceConfigByName('uuid'):
 			try:
 				self.NetworkManager.setupSatellite()
 				self.connect()
@@ -80,7 +79,7 @@ class MqttManager(Manager):
 			(constants.TOPIC_ASR_START_LISTENING, 0),
 			(constants.TOPIC_ASR_STOP_LISTENING, 0),
 			(constants.TOPIC_CORE_HEARTBEAT, 0),
-			(constants.TOPIC_PLAY_BYTES.format(self.ConfigManager.getAliceConfigByName('uid')), 0)
+			(constants.TOPIC_PLAY_BYTES.format(self.ConfigManager.getAliceConfigByName('uuid')), 0)
 		]
 
 		self._mqttClient.subscribe(subscribedEvents)
@@ -141,11 +140,11 @@ class MqttManager(Manager):
 			uid = payload.get('uid', None)
 
 			if uid:
-				if uid != self.ConfigManager.getAliceConfigByName('uid'):
+				if uid != self.ConfigManager.getAliceConfigByName('uuid'):
 					self.logDebug(f'Based on received uid **{uid}** the message --{message.topic}-- was filtered out')
 					return
 			else:
-				if siteId and siteId != self.ConfigManager.getAliceConfigByName('uid'):
+				if siteId and siteId != self.ConfigManager.getAliceConfigByName('uuid'):
 					self.logDebug(f'Based on received siteId **{siteId}** the message --{message.topic}-- was filtered out')
 					return
 
@@ -160,7 +159,7 @@ class MqttManager(Manager):
 				self.publish(
 					topic=constants.TOPIC_CLEAR_LEDS,
 					payload={
-						'siteId': self.ConfigManager.getAliceConfigByName('uid')
+						'siteId': self.ConfigManager.getAliceConfigByName('uuid')
 					}
 				)
 			elif message.topic == constants.TOPIC_ALICE_CONNECTION_REFUSED:
@@ -169,7 +168,7 @@ class MqttManager(Manager):
 				self.publish(
 					topic='hermes/leds/connectionError',
 					payload={
-						'siteId': self.ConfigManager.getAliceConfigByName('uid')
+						'siteId': self.ConfigManager.getAliceConfigByName('uuid')
 					}
 				)
 
@@ -180,7 +179,7 @@ class MqttManager(Manager):
 				self.publish(
 					topic=constants.TOPIC_CLEAR_LEDS,
 					payload={
-						'siteId': self.ConfigManager.getAliceConfigByName('uid')
+						'siteId': self.ConfigManager.getAliceConfigByName('uuid')
 					}
 				)
 				self._dnd = False
@@ -191,7 +190,7 @@ class MqttManager(Manager):
 				self.publish(
 					topic=constants.TOPIC_DND_LEDS,
 					payload={
-						'siteId': self.ConfigManager.getAliceConfigByName('uid')
+						'siteId': self.ConfigManager.getAliceConfigByName('uuid')
 					}
 				)
 				self._dnd = True
@@ -214,7 +213,7 @@ class MqttManager(Manager):
 				self.publish(
 					topic=topic,
 					payload={
-						'siteId': self.ConfigManager.getAliceConfigByName('uid')
+						'siteId': self.ConfigManager.getAliceConfigByName('uuid')
 					}
 				)
 
@@ -228,7 +227,7 @@ class MqttManager(Manager):
 				self.publish(
 					topic=constants.TOPIC_DEVICE_STATUS,
 					payload={
-						'uid': self.ConfigManager.getAliceConfigByName('uid'),
+						'uid'     : self.ConfigManager.getAliceConfigByName('uuid'),
 						statusName: statusValue
 					}
 				)
@@ -242,7 +241,7 @@ class MqttManager(Manager):
 
 	def onNewHotword(self, _client, _userdata, message: mqtt.MQTTMessage):
 		payload = self.Commons.payload(message)
-		if 'uid' not in payload or payload['uid'] != self.ConfigManager.getAliceConfigByName('uid'):
+		if 'uid' not in payload or payload['uid'] != self.ConfigManager.getAliceConfigByName('uuid'):
 			return
 
 		self.HotwordManager.newHotword(payload)
@@ -257,7 +256,7 @@ class MqttManager(Manager):
 		self.publish(
 			topic='hermes/leds/connectionError',
 			payload={
-				'siteId': self.ConfigManager.getAliceConfigByName('uid')
+				'siteId': self.ConfigManager.getAliceConfigByName('uuid')
 			}
 		)
 
@@ -319,10 +318,10 @@ class MqttManager(Manager):
 		self.publish(
 			topic=constants.TOPIC_HOTWORD_DETECTED,
 			payload={
-				'siteId': self.ConfigManager.getAliceConfigByName('uid'),
-				'modelId': payload['modelId'],
-				'modelVersion': payload['modelVersion'],
-				'modelType': payload['modelType'],
+				'siteId'            : self.ConfigManager.getAliceConfigByName('uuid'),
+				'modelId'           : payload['modelId'],
+				'modelVersion'      : payload['modelVersion'],
+				'modelType'         : payload['modelType'],
 				'currentSensitivity': payload['currentSensitivity']
 			}
 		)
@@ -366,4 +365,4 @@ class MqttManager(Manager):
 
 	def isForMe(self, message: mqtt.MQTTMessage) -> bool:
 		siteId = self.Commons.parseSiteId(message)
-		return siteId == self.ConfigManager.getAliceConfigByName('uid')
+		return siteId == self.ConfigManager.getAliceConfigByName('uuid')

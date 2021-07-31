@@ -20,11 +20,20 @@ class NetworkManager(Manager):
 		self._heartbeatsThread: Optional[Thread] = None
 
 
+	def onStart(self):
+		if not self.ConfigManager.getAliceConfigByName('uuid'):
+			try:
+				self.NetworkManager.setupSatellite()
+			except Exception as e:
+				self.logCritical(f'Couldn\'t access Alice\'s network: {e}')
+				traceback.print_exc()
+
+
 	def onStop(self):
 		self.MqttManager.publish(
 			topic=constants.TOPIC_DISCONNECTING,
 			payload={
-				'uid': self.ConfigManager.getAliceConfigByName('uid')
+				'uid': self.ConfigManager.getAliceConfigByName('uuid')
 			}
 		)
 		self._heartbeats.clear()
@@ -90,7 +99,7 @@ class NetworkManager(Manager):
 
 		# Save everything and let's continue!
 		self.ConfigManager.updateAliceConfiguration(key='mqttHost', value=mainUnitIp)
-		self.ConfigManager.updateAliceConfiguration(key='uid', value=attributedUid)
+		self.ConfigManager.updateAliceConfiguration(key='uuid', value=attributedUid)
 		self._state = State.ACCEPTED
 
 
@@ -116,7 +125,7 @@ class NetworkManager(Manager):
 		self.MqttManager.publish(
 			topic=constants.TOPIC_ALICE_GREETING,
 			payload={
-				'uid': self.ConfigManager.getAliceConfigByName('uid')
+				'uid': self.ConfigManager.getAliceConfigByName('uuid')
 			}
 		)
 
@@ -189,7 +198,7 @@ class NetworkManager(Manager):
 		self.MqttManager.publish(
 			topic=constants.TOPIC_DEVICE_HEARTBEAT,
 			payload={
-				'uid': self.ConfigManager.getAliceConfigByName('uid')
+				'uid': self.ConfigManager.getAliceConfigByName('uuid')
 			}
 		)
 

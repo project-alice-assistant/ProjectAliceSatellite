@@ -18,12 +18,11 @@
 #  Last modified: 2021.04.13 at 12:56:47 CEST
 
 import io
+import sounddevice as sd
 import time
 import uuid
 import wave
 from typing import Dict, Optional
-
-import sounddevice as sd
 # noinspection PyUnresolvedReferences
 from webrtcvad import Vad
 
@@ -140,9 +139,9 @@ class AudioManager(Manager):
 					elif speechFrames >= minSpeechFrames:
 						speech = True
 						self.MqttManager.publish(
-							topic=constants.TOPIC_VAD_UP.format(self.ConfigManager.getAliceConfigByName('uid')),
+							topic=constants.TOPIC_VAD_UP.format(self.ConfigManager.getAliceConfigByName('uuid')),
 							payload={
-								'siteId': self.ConfigManager.getAliceConfigByName('uid')
+								'siteId': self.ConfigManager.getAliceConfigByName('uuid')
 							})
 						silence = self.SAMPLERATE / self.FRAMES_PER_BUFFER
 						speechFrames = 0
@@ -153,9 +152,9 @@ class AudioManager(Manager):
 						else:
 							speech = False
 							self.MqttManager.publish(
-								topic=constants.TOPIC_VAD_DOWN.format(self.ConfigManager.getAliceConfigByName('uid')),
+								topic=constants.TOPIC_VAD_DOWN.format(self.ConfigManager.getAliceConfigByName('uuid')),
 								payload={
-									'siteId': self.ConfigManager.getAliceConfigByName('uid')
+									'siteId': self.ConfigManager.getAliceConfigByName('uuid')
 								})
 					else:
 						speechFrames = 0
@@ -174,11 +173,11 @@ class AudioManager(Manager):
 				wav.writeframes(frames)
 
 			audioFrames = buffer.getvalue()
-			self.MqttManager.publish(topic=constants.TOPIC_AUDIO_FRAME.format(self.ConfigManager.getAliceConfigByName('uid'), payload=bytearray(audioFrames)))
+			self.MqttManager.publish(topic=constants.TOPIC_AUDIO_FRAME.format(self.ConfigManager.getAliceConfigByName('uuid'), payload=bytearray(audioFrames)))
 
 
 	def onPlayBytes(self, payload: bytearray, deviceUid: str, sessionId: str = None, requestId: str = None):
-		if deviceUid != self.ConfigManager.getAliceConfigByName('uid'):
+		if deviceUid != self.ConfigManager.getAliceConfigByName('uuid'):
 			return
 
 		requestId = requestId or sessionId or str(uuid.uuid4())
