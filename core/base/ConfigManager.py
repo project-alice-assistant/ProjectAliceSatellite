@@ -19,10 +19,11 @@
 import json
 import logging
 import re
-import requests
-import sounddevice as sd
 import typing
 from pathlib import Path
+
+import requests
+import sounddevice as sd
 
 from core.ProjectAliceExceptions import ConfigurationUpdateFailed, VitalConfigMissing
 from core.base.model.Manager import Manager
@@ -63,12 +64,15 @@ class ConfigManager(Manager):
 				raise VitalConfigMissing(conf)
 
 		if self.getAliceConfigByName('mqttHost') and self.getAliceConfigByName('mqttHost') != 'localhost':
-			request = requests.get(f'http://{self.getAliceConfigByName("mqttHost")}:5001/api/v1.0.1/utils/config')
-			if request.status_code != 200:
-				self.logFatal("Main unit configuration failed loading, cannot continue, sorry")
-				return
+			try:
+				request = requests.get(f'http://{self.getAliceConfigByName("mqttHost")}:5001/api/v1.0.1/utils/config/')
+				if request.status_code != 200:
+					self.logFatal("Main unit configuration failed loading, cannot continue, sorry")
+					return
 
-			self._mainUnitConfigs = request.json()
+				self._mainUnitConfigs = request.json()
+			except:
+				self.logWarning("Couldn't contact Alice main unit")
 
 		for setting, definition in {**self._aliceTemplateConfigurations, **self._skillsTemplateConfigurations}.items():
 			function = definition.get('onStart', None)
