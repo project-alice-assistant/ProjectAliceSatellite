@@ -112,6 +112,11 @@ class AudioManager(Manager):
 
 
 	def publishAudio(self):
+		"""
+		captures the audio and broadcasts it via publishAudioFrames to the topic 'hermes/audioServer/{}/audioFrame'
+		furtherfmore it will publish VAD_UP and VAD_DOWN when detected
+		:return:
+		"""
 		self.logInfo('Starting audio publisher')
 		self._audioInputStream = sd.RawInputStream(
 			dtype='int16',
@@ -138,7 +143,7 @@ class AudioManager(Manager):
 						speechFrames += 1
 					elif speechFrames >= minSpeechFrames:
 						speech = True
-						self.MqttManager.publish(
+						self.MqttManager.localPublish(
 							topic=constants.TOPIC_VAD_UP.format(self.ConfigManager.getAliceConfigByName('uuid')),
 							payload={
 								'siteId': self.ConfigManager.getAliceConfigByName('uuid')
@@ -151,7 +156,7 @@ class AudioManager(Manager):
 							silence -= 1
 						else:
 							speech = False
-							self.MqttManager.publish(
+							self.MqttManager.localPublish(
 								topic=constants.TOPIC_VAD_DOWN.format(self.ConfigManager.getAliceConfigByName('uuid')),
 								payload={
 									'siteId': self.ConfigManager.getAliceConfigByName('uuid')
@@ -165,6 +170,11 @@ class AudioManager(Manager):
 
 
 	def publishAudioFrames(self, frames: bytes):
+		"""
+		receives some audioframes, adds them to the buffer and publishes them to MQTT
+		:param frames:
+		:return:
+		"""
 		with io.BytesIO() as buffer:
 			with wave.open(buffer, 'wb') as wav:
 				wav.setnchannels(1)
@@ -173,7 +183,8 @@ class AudioManager(Manager):
 				wav.writeframes(frames)
 
 			audioFrames = buffer.getvalue()
-			self.MqttManager.publish(topic=constants.TOPIC_AUDIO_FRAME.format(self.ConfigManager.getAliceConfigByName('uuid'), payload=bytearray(audioFrames)))
+			# todo: broadcast local if hotword is local, broadcast global if hotword is central or ASR is active
+			self.MqttManager.localPublish(topic=constants.TOPIC_AUDIO_FRAME.format(self.ConfigManager.getAliceConfigByName('uuid')), payload=bytearray(audioFrames))
 
 
 	def onPlayBytes(self, payload: bytearray, deviceUid: str, sessionId: str = None, requestId: str = None):
