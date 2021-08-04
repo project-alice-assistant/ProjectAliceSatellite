@@ -53,6 +53,7 @@ class AudioManager(Manager):
 		self._audioInput = None
 		self._audioOutput = None
 
+		self._broadcastLocal = True
 
 	def onStart(self):
 		super().onStart()
@@ -102,6 +103,14 @@ class AudioManager(Manager):
 		if self._audioInputStream:
 			self._audioInputStream.stop(ignore_errors=True)
 			self._audioInputStream.close(ignore_errors=True)
+
+
+	def onHotwordToggleOff(self):
+		self._broadcastLocal = False
+
+
+	def onHotwordToggleOn(self):
+		self._broadcastLocal = True
 
 
 	def recordFrame(self, deviceUid: str, frame: bytes):
@@ -183,8 +192,10 @@ class AudioManager(Manager):
 				wav.writeframes(frames)
 
 			audioFrames = buffer.getvalue()
-			# todo: broadcast local if hotword is local, broadcast global if hotword is central or ASR is active
-			self.MqttManager.localPublish(topic=constants.TOPIC_AUDIO_FRAME.format(self.ConfigManager.getAliceConfigByName('uuid')), payload=bytearray(audioFrames))
+			if self._broadcastLocal:
+				self.MqttManager.localPublish(topic=constants.TOPIC_AUDIO_FRAME.format(self.ConfigManager.getAliceConfigByName('uuid')), payload=bytearray(audioFrames))
+			else:
+				self.MqttManager.publish(topic=constants.TOPIC_AUDIO_FRAME.format(self.ConfigManager.getAliceConfigByName('uuid')), payload=bytearray(audioFrames))
 
 
 	def onPlayBytes(self, payload: bytearray, deviceUid: str, sessionId: str = None, requestId: str = None):
