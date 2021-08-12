@@ -9,6 +9,7 @@ import requests
 
 from core.base.model.Version import Version
 
+
 PIP = './venv/bin/pip'
 YAML = '/boot/ProjectAliceSatellite.yaml'
 ASOUND = '/etc/asound.conf'
@@ -159,6 +160,11 @@ network={
 		subprocess.run(['sudo', 'apt-get', 'dist-upgrade', '-y'])
 		reqs = [line.rstrip('\n') for line in open(Path(self._rootDir, 'sysrequirements.txt'))]
 		subprocess.run(['sudo', 'apt-get', 'install', '-y', '--allow-unauthenticated'] + reqs)
+
+		subprocess.run(['sudo', 'systemctl', 'stop', 'mosquitto'])
+		subprocess.run('sudo sed -i -e \'s/persistence true/persistence false/\' /etc/mosquitto/mosquitto.conf'.split())
+		subprocess.run(['sudo', 'rm', '/var/lib/mosquitto/mosquitto.db '])
+		subprocess.run(['sudo', 'systemctl', 'start', 'mosquitto'])
 
 		confs = json.loads(self._confsFile.read_text())
 
