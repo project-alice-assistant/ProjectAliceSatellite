@@ -157,7 +157,7 @@ network={
 
 
 		subprocess.run(['sudo', 'apt-get', 'update'])
-		subprocess.run(['sudo', 'apt-get', 'dist-upgrade', '-y'])
+		#subprocess.run(['sudo', 'apt-get', 'dist-upgrade', '-y'])
 		reqs = [line.rstrip('\n') for line in open(Path(self._rootDir, 'sysrequirements.txt'))]
 		subprocess.run(['sudo', 'apt-get', 'install', '-y', '--allow-unauthenticated'] + reqs)
 
