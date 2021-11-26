@@ -17,17 +17,10 @@
 #
 #  Last modified: 2021.05.19 at 12:56:48 CEST
 
-import subprocess
-import threading
-import time
-from pathlib import Path
-from typing import Optional
-
 from core.voice.model.WakewordEngine import WakewordEngine
 
 
 class SnipsWakeword(WakewordEngine):
-
 	NAME = 'Snips hotword'
 	DEPENDENCIES = {
 		'system': [
@@ -54,12 +47,12 @@ class SnipsWakeword(WakewordEngine):
 
 	def onStart(self):
 		super().onStart()
+		cmd = f'snips-hotword --assistant {self.Commons.rootDir()}/assistant --mqtt {self.ConfigManager.getAliceConfigByName("mqttHost")}:{self.ConfigManager.getAliceConfigByName("mqttPort")}'
 
-		cmd = f'snips-hotword'
-		cmd += f' --audio {self.ConfigManager.getAliceConfigByName("uuid")}@mqtt'
-
-		if self.ConfigManager.getMainUnitConfigByName('monoWakewordEngine'):
-			cmd += f' --mqtt {self.ConfigManager.getAliceConfigByName("mqttHost")}:{self.ConfigManager.getAliceConfigByName("mqttPort")}'
+		if self.ConfigManager.getAliceConfigByName('monoWakewordEngine'):
+			cmd += ' --audio +@mqtt'
+		else:
+			cmd += f' --audio {self.ConfigManager.getAliceConfigByName("uuid")}@mqtt'
 
 		if self.ConfigManager.getAliceConfigByName('mqttUser'):
 			cmd += f' --mqtt-username {self.ConfigManager.getAliceConfigByName("mqttUser")} --mqtt-password {self.ConfigManager.getAliceConfigByName("mqttPassword")}'
@@ -67,10 +60,6 @@ class SnipsWakeword(WakewordEngine):
 		if self.ConfigManager.getAliceConfigByName('mqttTLSFile'):
 			cmd += f' --mqtt-tls-cafile {self.ConfigManager.getAliceConfigByName("mqttTLSFile")}'
 
-		for entry in Path(f'{self.Commons.rootDir()}/trained/hotwords/snips_hotword').glob('*'):
-			if not entry.is_dir() or entry.name == '.' or entry.name == '..':
-				continue
-
-			cmd += f' --model {entry}=0.5'
+		cmd += f' --model {self.Commons.rootDir()}/trained/hotwords/snips_hotword/hey_snips={self.ConfigManager.getAliceConfigByName("wakewordSensitivity")}'
 
 		self.SubprocessManager.runSubprocess(name='SnipsHotword', cmd=cmd, autoRestart=True)
