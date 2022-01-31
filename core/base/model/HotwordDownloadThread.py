@@ -24,7 +24,7 @@ class HotwordDownloadThread(Thread):
 		try:
 			self._logger.logInfo('Cleaning up')
 
-			rootPath = Path(SuperManager.getInstance().commons.rootDir(), 'trained/hotwords/snips_hotword')
+			rootPath = Path(SuperManager.getInstance().Commons.rootDir(), 'trained/hotwords/snips_hotword')
 			hotwordPath = rootPath / f'{self._hotwordName}'
 			zipPath = hotwordPath.with_suffix('.zip')
 
@@ -71,4 +71,4 @@ class HotwordDownloadThread(Thread):
 		finally:
 			sock.close()
 			os.remove(zipPath)
-			SuperManager.getInstance().wakewordManager.restartEngine()
+			SuperManager.getInstance().WakewordManager.restartEngine()

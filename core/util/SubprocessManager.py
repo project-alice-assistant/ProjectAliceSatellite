@@ -40,7 +40,7 @@ class SubprocessManager(Manager):
 		if self._thread and self._thread.is_alive():
 			self._thread.join(timeout=5)
 
-		self._thread: threading.Thread = self.ThreadManager.newThread(name='subprocessManager', target=self.run, autostart=False)
+		self._thread: threading.Thread = self.ThreadManager.newThread(name='SubprocessManager', target=self.run, autostart=False)
 		self._thread.start()
 
 
@@ -53,7 +53,7 @@ class SubprocessManager(Manager):
 
 		self._flag.clear()
 		if self._thread and self._thread.is_alive():
-			self.ThreadManager.terminateThread(name='subprocessManager')
+			self.ThreadManager.terminateThread(name='SubprocessManager')
 
 
 	def isSubprocessAlive(self, name: str) -> bool:

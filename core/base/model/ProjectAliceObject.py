@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import re
 from copy import copy
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 from importlib_metadata import PackageNotFoundError, version as packageVersion
 
@@ -141,33 +141,32 @@ class ProjectAliceObject:
 			return False
 
 
-	def logInfo(self, msg: str):
-		self._logger.doLog(function='info', msg=self.decorateLogs(msg), printStack=False)
+	def logInfo(self, msg: str, plural: Union[list, str] = None):
+		self._logger.doLog(function='info', msg=self.decorateLogs(msg), printStack=False, plural=plural)
 
 
-	def logError(self, msg: str):
-		self._logger.doLog(function='error', msg=self.decorateLogs(msg))
+	def logError(self, msg: str, plural: Union[list, str] = None, printStack: bool = True):
+		self._logger.doLog(function='error', msg=self.decorateLogs(msg), plural=plural, printStack=printStack)
 
 
-	def logDebug(self, msg: str):
-		self._logger.doLog(function='debug', msg=self.decorateLogs(msg), printStack=False)
+	def logDebug(self, msg: str, plural: Union[list, str] = None):
+		self._logger.doLog(function='debug', msg=self.decorateLogs(msg), printStack=False, plural=plural)
 
 
-	def logFatal(self, msg: str):
-		self._logger.doLog(function='fatal', msg=self.decorateLogs(msg))
+	def logFatal(self, msg: str, plural: Union[list, str] = None):
+		self._logger.doLog(function='fatal', msg=self.decorateLogs(msg), plural=plural)
 		try:
 			self.ProjectAlice.onStop()
-			exit()
 		except:
 			exit()
 
 
-	def logWarning(self, msg: str, printStack: bool = False):
-		self._logger.doLog(function='warning', msg=self.decorateLogs(msg), printStack=printStack)
+	def logWarning(self, msg: str, printStack: bool = False, plural: Union[list, str] = None):
+		self._logger.doLog(function='warning', msg=self.decorateLogs(msg), printStack=printStack, plural=plural)
 
 
-	def logCritical(self, msg: str):
-		self._logger.doLog(function='critical', msg=self.decorateLogs(msg))
+	def logCritical(self, msg: str, plural: Union[list, str] = None):
+		self._logger.doLog(function='critical', msg=self.decorateLogs(msg), plural=plural)
 
 
 	def decorateLogs(self, text: str) -> str:
@@ -261,62 +260,62 @@ class ProjectAliceObject:
 
 	@property
 	def ConfigManager(self) -> ConfigManager: #NOSONAR
-		return SM.SuperManager.getInstance().configManager
+		return SM.SuperManager.getInstance().ConfigManager
 
 
 	@property
 	def MqttManager(self) -> MqttManager: #NOSONAR
-		return SM.SuperManager.getInstance().mqttManager
+		return SM.SuperManager.getInstance().MqttManager
 
 
 	@property
 	def DatabaseManager(self) -> DatabaseManager: #NOSONAR
-		return SM.SuperManager.getInstance().databaseManager
+		return SM.SuperManager.getInstance().DatabaseManager
 
 
 	@property
 	def ThreadManager(self) -> ThreadManager: #NOSONAR
-		return SM.SuperManager.getInstance().threadManager
+		return SM.SuperManager.getInstance().ThreadManager
 
 
 	@property
 	def TimeManager(self) -> TimeManager: #NOSONAR
-		return SM.SuperManager.getInstance().timeManager
+		return SM.SuperManager.getInstance().TimeManager
 
 
 	@property
 	def HotwordManager(self) -> HotwordManager: #NOSONAR
-		return SM.SuperManager.getInstance().hotwordManager
+		return SM.SuperManager.getInstance().HotwordManager
 
 
 	@property
 	def Commons(self) -> CommonsManager: #NOSONAR
-		return SM.SuperManager.getInstance().commonsManager
+		return SM.SuperManager.getInstance().CommonsManager
 
 
 	@property
 	def NetworkManager(self) -> NetworkManager: #NOSONAR
-		return SM.SuperManager.getInstance().networkManager
+		return SM.SuperManager.getInstance().NetworkManager
 
 
 	@property
 	def SkillManager(self) -> SkillManager: #NOSONAR
-		return SM.SuperManager.getInstance().skillManager
+		return SM.SuperManager.getInstance().SkillManager
 
 
 	@property
 	def InternetManager(self) -> InternetManager: #NOSONAR
-		return SM.SuperManager.getInstance().internetManager
+		return SM.SuperManager.getInstance().InternetManager
 
 
 	@property
 	def WakewordManager(self) -> WakewordManager: #NOSONAR
-		return SM.SuperManager.getInstance().wakewordManager
+		return SM.SuperManager.getInstance().WakewordManager
 
 	@property
 	def AudioServer(self) -> AudioManager: #NOSONAR
-		return SM.SuperManager.getInstance().audioManager
+		return SM.SuperManager.getInstance().AudioManager
 
 	@property
 	def SubprocessManager(self) -> SubprocessManager:  # NOSONAR
-		return SM.SuperManager.getInstance().subprocessManager
+		return SM.SuperManager.getInstance().SubprocessManager

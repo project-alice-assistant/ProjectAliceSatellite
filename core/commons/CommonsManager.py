@@ -2,15 +2,16 @@ import hashlib
 import inspect
 import json
 import random
-import requests
 import socket
 import string
 import subprocess
 from contextlib import contextmanager
 from ctypes import *
-from paho.mqtt.client import MQTTMessage
 from pathlib import Path
 from typing import Any
+
+import requests
+from paho.mqtt.client import MQTTMessage
 
 from core.base.model.Manager import Manager
 
@@ -70,7 +71,7 @@ class CommonsManager(Manager):
 		else:
 			from core.base.SuperManager import SuperManager
 
-			return data.get('IPAddress', SuperManager.getInstance().configManager.getAliceConfigByName('uuid'))
+			return data.get('IPAddress', SuperManager.getInstance().ConfigManager.getAliceConfigByName('uuid'))
 
 
 	@staticmethod

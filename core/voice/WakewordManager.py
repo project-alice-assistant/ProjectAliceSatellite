@@ -19,6 +19,7 @@ class WakewordManager(Manager):
 
 
 	def onStop(self):
+		super().onStop()
 		if self._engine:
 			self._engine.onStop()
 

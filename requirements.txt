@@ -6,3 +6,4 @@ PyAudio==0.2.11
 webrtcvad==2.0.10
 importlib_metadata==4.8.2
 sounddevice==0.4.3
+alicegit~=0.0.37

@@ -40,14 +40,14 @@ class SkillStartingFailed(ProjectAliceException):
 		self._logger.logWarning(f'[{skillName}] ❗ Error starting skill: {error}')
 
 		if skillName:
-			SuperManager.getInstance().skillManager.deactivateSkill(skillName)
+			SuperManager.getInstance().SkillManager.deactivateSkill(skillName)
 
 
 class SkillStartDelayed(ProjectAliceException):
 	def __init__(self, skillName):
 		super().__init__(skillName)
 		self._logger.logWarning(f'[{skillName}] ⌛ Delaying skill start')
-		SuperManager.getInstance().skillManager.getSkillInstance(skillName).delayed = True
+		SuperManager.getInstance().SkillManager.getSkillInstance(skillName).delayed = True
 
 
 class IntentError(ProjectAliceException):
@@ -123,5 +123,5 @@ class PlayBytesStopped(ProjectAliceException):
 class VitalConfigMissing(ProjectAliceException):
 	def __init__(self, message: str = None):
 		super().__init__(message)
-		self._logger.logWarning(f'A vital configuration --{message}-- is missing. Make sure the following configurations are set: {" / ".join(SuperManager.getInstance().configManager.vitalConfigs)}')
+		self._logger.logWarning(f'A vital configuration --{message}-- is missing. Make sure the following configurations are set: {" / ".join(SuperManager.getInstance().ConfigManager.vitalConfigs)}')
 		SuperManager.getInstance().projectAlice.onStop()
