@@ -22,7 +22,7 @@ import sounddevice as sd
 import time
 import uuid
 import wave
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 # noinspection PyUnresolvedReferences
 from webrtcvad import Vad
 
@@ -119,6 +119,12 @@ class AudioManager(Manager):
 
 		self._waves[deviceUid].writeframes(frame)
 
+	def publishToListener(self, topic: str, payload: Union[dict, str] = None, qos: int = 0, retain: bool = False):
+		if self._broadcastLocal:
+			self.MqttManager.localPublish(topic=topic, payload=payload)
+		else:
+			self.MqttManager.publish(topic=topic, payload=payload, qos=qos, retain=retain)
+
 
 	def publishAudio(self):
 		"""
@@ -151,12 +157,12 @@ class AudioManager(Manager):
 					if not speech and speechFrames < minSpeechFrames:
 						speechFrames += 1
 					elif speechFrames >= minSpeechFrames:
+						self.publishToListener(
+								topic=constants.TOPIC_VAD_UP.format(self.ConfigManager.getAliceConfigByName('uuid')),
+								payload={
+									'siteId': self.ConfigManager.getAliceConfigByName('uuid')
+								})
 						speech = True
-						self.MqttManager.localPublish(
-							topic=constants.TOPIC_VAD_UP.format(self.ConfigManager.getAliceConfigByName('uuid')),
-							payload={
-								'siteId': self.ConfigManager.getAliceConfigByName('uuid')
-							})
 						silence = self.SAMPLERATE / self.FRAMES_PER_BUFFER
 						speechFrames = 0
 				else:
@@ -165,11 +171,11 @@ class AudioManager(Manager):
 							silence -= 1
 						else:
 							speech = False
-							self.MqttManager.localPublish(
-								topic=constants.TOPIC_VAD_DOWN.format(self.ConfigManager.getAliceConfigByName('uuid')),
-								payload={
-									'siteId': self.ConfigManager.getAliceConfigByName('uuid')
-								})
+							self.publishToListener(
+									topic=constants.TOPIC_VAD_DOWN.format(self.ConfigManager.getAliceConfigByName('uuid')),
+									payload={
+										'siteId': self.ConfigManager.getAliceConfigByName('uuid')
+									})
 					else:
 						speechFrames = 0
 
@@ -192,10 +198,8 @@ class AudioManager(Manager):
 				wav.writeframes(frames)
 
 			audioFrames = buffer.getvalue()
-			if self._broadcastLocal:
-				self.MqttManager.localPublish(topic=constants.TOPIC_AUDIO_FRAME.format(self.ConfigManager.getAliceConfigByName('uuid')), payload=bytearray(audioFrames))
-			else:
-				self.MqttManager.publish(topic=constants.TOPIC_AUDIO_FRAME.format(self.ConfigManager.getAliceConfigByName('uuid')), payload=bytearray(audioFrames))
+
+			self.publishToListener(topic=constants.TOPIC_AUDIO_FRAME.format(self.ConfigManager.getAliceConfigByName('uuid')), payload=bytearray(audioFrames))
 
 
 	def onPlayBytes(self, payload: bytearray, deviceUid: str, sessionId: str = None, requestId: str = None):
