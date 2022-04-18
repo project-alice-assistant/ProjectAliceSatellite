@@ -286,10 +286,17 @@ class MqttManager(Manager):
 
 
 	def hotwordToggleOn(self, _client, _data, msg: mqtt.MQTTMessage):
+		"""
+		detect hotwordToggleOn on main mqtt and relay it for hotword process to localMqtt
+		broadcast to main components in same process as well
+		:param _client:
+		:param _data:
+		:param msg:
+		:return:
+		"""
 		if not self.isForMe(msg):
 			return
-
-		self._mqttLocalClient.loop_start()
+		self.localPublish(topic=msg.topic, payload=msg.payload)
 		self.broadcast(method=constants.EVENT_HOTWORD_TOGGLE_ON, exceptions=[self.name], propagateToSkills=True)
 
 
@@ -297,6 +304,7 @@ class MqttManager(Manager):
 		if not self.isForMe(msg):
 			return
 
+		self.localPublish(topic=msg.topic, payload=msg.payload)
 		self.broadcast(method=constants.EVENT_HOTWORD_TOGGLE_OFF, exceptions=[self.name], propagateToSkills=True)
 
 
@@ -308,7 +316,6 @@ class MqttManager(Manager):
 		:param msg:
 		:return:
 		"""
-		self._mqttLocalClient.loop_stop()
 		payload = self.Commons.payload(msg)
 
 		user = constants.UNKNOWN_USER
