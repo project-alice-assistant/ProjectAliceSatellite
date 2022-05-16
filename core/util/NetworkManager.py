@@ -52,15 +52,16 @@ class NetworkManager(Manager):
 		i = 0
 		data = ''
 		# Try to get some data
-		while i <= 5:
+		while i <= 10:
 			try:
 				data = listenSocket.recv(1024)
 				break
 			except socket.timeout:
 				i += 1
 				if i >= 5:
-					self.logFatal('No main unit found, did you ask Alice to add this new device?')
-					return
+					self.logWarning('No main unit found, did you ask Alice to add this new device?')
+					time.sleep(60)
+					i = 0
 
 		self.logInfo('Main unit found!')
 		try:
