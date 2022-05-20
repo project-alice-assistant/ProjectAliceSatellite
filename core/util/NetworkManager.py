@@ -96,6 +96,7 @@ class NetworkManager(Manager):
 		elif data.decode() != 'ok':
 			self._state = State.ERROR
 			self.logFatal('The main unit refused the addition')
+			self.logWarning(data)
 			return
 
 		# Save everything and let's continue!
@@ -206,7 +207,7 @@ class NetworkManager(Manager):
 
 	def checkCoreHeartbeat(self):
 		now = time.time()
-		if now - 5 > self._coreLastHeartbeat:
+		if self._coreLastHeartbeat and now - 5 > self._coreLastHeartbeat:
 			self.logWarning(f'Main unit hasn\'t given any signs of life for over 5 seconds, disconnecting...')
 			self.onCoreDisconnection()
 
