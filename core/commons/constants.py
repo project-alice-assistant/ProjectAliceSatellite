@@ -1,6 +1,7 @@
 VERSION = '1.0.0-rc1'
 DEVICETYPE = 'ProjectAliceSatellite'
 
+PYTHON = 'python3.7'
 
 DEFAULT_SITE_ID = 'default'
 DEFAULT = 'default'
