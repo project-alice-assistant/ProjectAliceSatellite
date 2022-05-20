@@ -1,4 +1,7 @@
 VERSION = '1.0.0-rc1'
+DEVICETYPE = 'ProjectAliceSatellite'
+
+
 DEFAULT_SITE_ID = 'default'
 DEFAULT = 'default'
 DUMMY = 'dummy'
