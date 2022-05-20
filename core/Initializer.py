@@ -304,7 +304,7 @@ class PreInit(object):
 			exit(0)
 
 		# noinspection PyUnboundLocalVariable
-		req = requests.get(f'https://api.github.com/repos/project-alice-assistant/{constants.DEVICETYPE}]/branches')
+		req = requests.get(f'https://api.github.com/repos/project-alice-assistant/{constants.DEVICETYPE}/branches')
 		result = req.json()
 
 		versions = list()
