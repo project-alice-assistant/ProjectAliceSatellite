@@ -643,7 +643,7 @@ class Initializer(object):
 				subprocess.run(['sudo', 'systemctl', 'stop', 'hermesledcontrol'])
 				subprocess.run(['sudo', 'systemctl', 'disable', 'hermesledcontrol'])
 
-			subprocess.run([PYTHON, '-m', 'venv', f'{str(hlcDir)}/venv'])
+			subprocess.run([constants.PYTHON, '-m', 'venv', f'{str(hlcDir)}/venv'])
 			subprocess.run([f'{str(hlcDir)}/venv/bin/pip', 'install', '-r', f'{str(hlcDir)}/requirements.txt',
 			                '--no-cache-dir'])
 
