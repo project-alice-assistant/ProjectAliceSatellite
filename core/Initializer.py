@@ -345,9 +345,9 @@ class PreInit(object):
 
 
 	def updateVenv(self):
-		subprocess.run([self.PIP, 'uninstall', '-y', '-r', str(Path(self.rootDir, 'pipuninstalls.txt'))])
-		subprocess.run([self.PIP, 'install', 'wheel'])
-		subprocess.run([self.PIP, 'install', '-r', str(Path(self.rootDir, 'requirements.txt')), '--upgrade', '--no-cache-dir'])
+		subprocess.run([PIP, 'uninstall', '-y', '-r', str(Path(self.rootDir, 'pipuninstalls.txt'))])
+		subprocess.run([PIP, 'install', 'wheel'])
+		subprocess.run([PIP, 'install', '-r', str(Path(self.rootDir, 'requirements.txt')), '--upgrade', '--no-cache-dir'])
 
 
 	@staticmethod
@@ -464,11 +464,11 @@ class Initializer(object):
 			subprocess.run(['wget', '--content-disposition',
 			                'https://github.com/project-alice-assistant/snips-nlu-rebirth/blob/master/wheels/snips_nlu-0.20.2-py3-none-any.whl?raw=true'])
 			time.sleep(1)
-			subprocess.run([self.PIP, 'install', 'scipy-1.3.3-cp37-cp37m-linux_armv7l.whl'])
-			subprocess.run([self.PIP, 'install', 'scikit_learn-0.22.1-cp37-cp37m-linux_armv7l.whl'])
-			subprocess.run([self.PIP, 'install', 'snips_nlu_utils-0.9.1-cp37-cp37m-linux_armv7l.whl'])
-			subprocess.run([self.PIP, 'install', 'snips_nlu_parsers-0.4.3-cp37-cp37m-linux_armv7l.whl'])
-			subprocess.run([self.PIP, 'install', 'snips_nlu-0.20.2-py3-none-any.whl'])
+			subprocess.run([PIP, 'install', 'scipy-1.3.3-cp37-cp37m-linux_armv7l.whl'])
+			subprocess.run([PIP, 'install', 'scikit_learn-0.22.1-cp37-cp37m-linux_armv7l.whl'])
+			subprocess.run([PIP, 'install', 'snips_nlu_utils-0.9.1-cp37-cp37m-linux_armv7l.whl'])
+			subprocess.run([PIP, 'install', 'snips_nlu_parsers-0.4.3-cp37-cp37m-linux_armv7l.whl'])
+			subprocess.run([PIP, 'install', 'snips_nlu-0.20.2-py3-none-any.whl'])
 			time.sleep(1)
 			subprocess.run(['rm', 'scipy-1.3.3-cp37-cp37m-linux_armv7l.whl'])
 			subprocess.run(['rm', 'scikit_learn-0.22.1-cp37-cp37m-linux_armv7l.whl'])
