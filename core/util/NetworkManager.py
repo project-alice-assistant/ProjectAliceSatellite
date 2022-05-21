@@ -95,8 +95,8 @@ class NetworkManager(Manager):
 			return
 		elif data.decode() != 'ok':
 			self._state = State.ERROR
-			self.logFatal('The main unit refused the addition')
 			self.logWarning(data)
+			self.logFatal('The main unit refused the addition')
 			return
 
 		# Save everything and let's continue!
