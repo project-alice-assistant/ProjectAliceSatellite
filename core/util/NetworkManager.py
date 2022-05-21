@@ -55,23 +55,25 @@ class NetworkManager(Manager):
 		while i <= 10:
 			try:
 				data = listenSocket.recv(1024)
-				break
+				self.logInfo('Main unit found!')
+				try:
+					data = data.decode().split(':')
+					cmd = str(data[0])
+					if cmd == 'pair':
+						mainUnitIp = str(data[1])
+						mainUnitListenPort = int(data[2])
+						attributedUid = str(data[3])
+						break
+					else:
+						continue
+				except:
+					self.logFatal('Bad formatting in the main unit return data')
 			except socket.timeout:
 				i += 1
 				if i >= 5:
 					self.logWarning('No main unit found, did you ask Alice to add this new device?')
 					time.sleep(60)
 					i = 0
-
-		self.logInfo('Main unit found!')
-		try:
-			data = data.decode()
-			mainUnitIp = str(data.split(':')[0])
-			mainUnitListenPort = int(data.split(':')[1])
-			attributedUid = str(data.split(':')[2])
-		except:
-			self.logFatal('Bad formatting in the main unit return data')
-			return
 
 		# Send back the module type and ip
 		sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -86,6 +88,10 @@ class NetworkManager(Manager):
 		while i <= 5:
 			try:
 				data = listenSocket.recv(1024)
+				data = data.decode().split(':')
+				cmd = str(data[0])
+				if cmd == 'pair':
+					continue
 				break
 			except socket.timeout:
 				i += 1
@@ -93,7 +99,7 @@ class NetworkManager(Manager):
 		if not data:
 			self.logFatal('The main unit did not answer')
 			return
-		elif data.decode() != 'ok':
+		elif data[0] != 'ok':
 			self._state = State.ERROR
 			self.logWarning(data)
 			self.logFatal('The main unit refused the addition')
