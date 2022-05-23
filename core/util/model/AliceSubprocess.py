@@ -1,6 +1,6 @@
 #  Copyright (c) 2021
 #
-#  This file, WakewordEngine.py, is part of Project Alice.
+#  This file, SuperManager.py, is part of Project Alice.
 #
 #  Project Alice is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -15,36 +15,21 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>
 #
-#  Last modified: 2021.04.13 at 12:56:48 CEST
+#  Last modified: 2021.05.24 at 12:56:46 CEST
 
-from core.base.model.ProjectAliceObject import ProjectAliceObject
-from core.commons import constants
-
-
-class WakewordEngine(ProjectAliceObject):
-
-	NAME = constants.UNKNOWN
-
-	def __init__(self):
-		super().__init__()
-		self._enabled = True
+import subprocess
+from typing import Callable
 
 
-	def onStart(self):
-		self.logInfo(f'Starting **{self.NAME}**')
-		self._enabled = True
+class AliceSubprocess:
+
+	def __init__(self, name: str, cmd: str, stoppedCallback: Callable, autoRestart: bool):
+		self.name = name
+		self.cmd = cmd
+		self.stoppedCallback = stoppedCallback
+		self.autoRestart = autoRestart
+		self.process = None
 
 
-	def onStop(self, **kwargs):
-		self.logInfo(f'Stopping **{self.NAME}**')
-		self._enabled = False
-
-
-	@property
-	def enabled(self) -> bool:
-		return self._enabled
-
-
-	@enabled.setter
-	def enabled(self, value: bool):
-		self._enabled = value
+	def start(self):
+		self.process = subprocess.Popen(self.cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)

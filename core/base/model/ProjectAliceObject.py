@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 import json
 import re
 from copy import copy
+from typing import TYPE_CHECKING, Union
 
 from importlib_metadata import PackageNotFoundError, version as packageVersion
 
@@ -8,6 +11,20 @@ import core.base.SuperManager as SM
 from core.base.model.Version import Version
 from core.commons import constants
 from core.util.model.Logger import Logger
+
+
+if TYPE_CHECKING:
+	from core.ProjectAlice import ProjectAlice
+	from core.base.ConfigManager import ConfigManager
+	from core.commons.CommonsManager import CommonsManager
+	from core.server.AudioServer import AudioManager
+	from core.server.MqttManager import MqttManager
+	from core.util.DatabaseManager import DatabaseManager
+	from core.util.InternetManager import InternetManager
+	from core.util.ThreadManager import ThreadManager
+	from core.util.TimeManager import TimeManager
+	from core.util.SubprocessManager import SubprocessManager
+	from core.voice.WakewordManager import WakewordManager
 
 
 class ProjectAliceObject:
@@ -124,33 +141,32 @@ class ProjectAliceObject:
 			return False
 
 
-	def logInfo(self, msg: str):
-		self._logger.doLog(function='info', msg=self.decorateLogs(msg), printStack=False)
+	def logInfo(self, msg: str, plural: Union[list, str] = None):
+		self._logger.doLog(function='info', msg=self.decorateLogs(msg), printStack=False, plural=plural)
 
 
-	def logError(self, msg: str):
-		self._logger.doLog(function='error', msg=self.decorateLogs(msg))
+	def logError(self, msg: str, plural: Union[list, str] = None, printStack: bool = True):
+		self._logger.doLog(function='error', msg=self.decorateLogs(msg), plural=plural, printStack=printStack)
 
 
-	def logDebug(self, msg: str):
-		self._logger.doLog(function='debug', msg=self.decorateLogs(msg), printStack=False)
+	def logDebug(self, msg: str, plural: Union[list, str] = None):
+		self._logger.doLog(function='debug', msg=self.decorateLogs(msg), printStack=False, plural=plural)
 
 
-	def logFatal(self, msg: str):
-		self._logger.doLog(function='fatal', msg=self.decorateLogs(msg))
+	def logFatal(self, msg: str, plural: Union[list, str] = None):
+		self._logger.doLog(function='fatal', msg=self.decorateLogs(msg), plural=plural)
 		try:
 			self.ProjectAlice.onStop()
-			exit()
 		except:
 			exit()
 
 
-	def logWarning(self, msg: str, printStack: bool = False):
-		self._logger.doLog(function='warning', msg=self.decorateLogs(msg), printStack=printStack)
+	def logWarning(self, msg: str, printStack: bool = False, plural: Union[list, str] = None):
+		self._logger.doLog(function='warning', msg=self.decorateLogs(msg), printStack=printStack, plural=plural)
 
 
-	def logCritical(self, msg: str):
-		self._logger.doLog(function='critical', msg=self.decorateLogs(msg))
+	def logCritical(self, msg: str, plural: Union[list, str] = None):
+		self._logger.doLog(function='critical', msg=self.decorateLogs(msg), plural=plural)
 
 
 	def decorateLogs(self, text: str) -> str:
@@ -158,136 +174,148 @@ class ProjectAliceObject:
 
 
 	def onStart(self):
-		pass # Super object function is overriden only if needed
+		pass # Super object function is overridden only if needed
 
 
 	def onStop(self):
-		pass # Super object function is overriden only if needed
+		pass # Super object function is overridden only if needed
 
 
 	def onBooted(self):
-		pass # Super object function is overriden only if needed
+		pass # Super object function is overridden only if needed
 
 
 	def onFullMinute(self):
-		pass # Super object function is overriden only if needed
+		pass # Super object function is overridden only if needed
 
 
 	def onFiveMinute(self):
-		pass # Super object function is overriden only if needed
+		pass # Super object function is overridden only if needed
 
 
 	def onQuarterHour(self):
-		pass # Super object function is overriden only if needed
+		pass # Super object function is overridden only if needed
 
 
 	def onFullHour(self):
-		pass # Super object function is overriden only if needed
+		pass # Super object function is overridden only if needed
 
 
 	def onAudioFrame(self, **kwargs):
-		pass # Super object function is overriden only if needed
+		pass # Super object function is overridden only if needed
 
 
 	def onWakeword(self, user: str = constants.UNKNOWN_USER):
-		pass # Super object function is overriden only if needed
+		pass # Super object function is overridden only if needed
 
 
 	def onHotword(self, user: str = constants.UNKNOWN_USER):
-		pass # Super object function is overriden only if needed
+		pass # Super object function is overridden only if needed
 
 
 	def onHotwordToggleOn(self):
-		pass # Super object function is overriden only if needed
+		pass # Super object function is overridden only if needed
 
 
 	def onHotwordToggleOff(self):
-		pass # Super object function is overriden only if needed
+		pass # Super object function is overridden only if needed
 
 
-	def onPlayBytes(self, requestId: str, payload: bytearray, sessionId: str = None):
-		pass # Super object function is overriden only if needed
+	def onPlayBytes(self, payload: bytearray, deviceUid: str, sessionId: str = None):
+		pass # Super object function is overridden only if needed
 
 
 	def onPlayBytesFinished(self, requestId: str, sessionId: str = None):
-		pass # Super object function is overriden only if needed
+		pass # Super object function is overridden only if needed
 
 
 	def onStartListening(self):
-		pass # Super object function is overriden only if needed
+		pass # Super object function is overridden only if needed
 
 
 	def onStopListening(self):
-		pass # Super object function is overriden only if needed
+		pass # Super object function is overridden only if needed
 
 
 	def onDndOn(self):
-		pass # Super object function is overriden only if needed
+		pass # Super object function is overridden only if needed
 
 
 	def onDndOff(self):
-		pass # Super object function is overriden only if needed
+		pass # Super object function is overridden only if needed
+	
+	
+	def onAliceConnectionAccepted(self):
+		pass # Super object function is overridden only if needed
+
+
+	def onAliceConnectionRefused(self):
+		pass # Super object function is overridden only if needed
 
 
 	@property
-	def ProjectAlice(self): #NOSONAR
+	def ProjectAlice(self) -> ProjectAlice: #NOSONAR
 		return SM.SuperManager.getInstance().projectAlice
 
 
 	@property
-	def ConfigManager(self): #NOSONAR
-		return SM.SuperManager.getInstance().configManager
+	def ConfigManager(self) -> ConfigManager: #NOSONAR
+		return SM.SuperManager.getInstance().ConfigManager
 
 
 	@property
-	def MqttManager(self): #NOSONAR
-		return SM.SuperManager.getInstance().mqttManager
+	def MqttManager(self) -> MqttManager: #NOSONAR
+		return SM.SuperManager.getInstance().MqttManager
 
 
 	@property
-	def DatabaseManager(self): #NOSONAR
-		return SM.SuperManager.getInstance().databaseManager
+	def DatabaseManager(self) -> DatabaseManager: #NOSONAR
+		return SM.SuperManager.getInstance().DatabaseManager
 
 
 	@property
-	def ThreadManager(self): #NOSONAR
-		return SM.SuperManager.getInstance().threadManager
+	def ThreadManager(self) -> ThreadManager: #NOSONAR
+		return SM.SuperManager.getInstance().ThreadManager
 
 
 	@property
-	def TimeManager(self): #NOSONAR
-		return SM.SuperManager.getInstance().timeManager
+	def TimeManager(self) -> TimeManager: #NOSONAR
+		return SM.SuperManager.getInstance().TimeManager
 
 
 	@property
-	def HotwordManager(self): #NOSONAR
-		return SM.SuperManager.getInstance().hotwordManager
+	def HotwordManager(self) -> HotwordManager: #NOSONAR
+		return SM.SuperManager.getInstance().HotwordManager
 
 
 	@property
-	def Commons(self): #NOSONAR
-		return SM.SuperManager.getInstance().commonsManager
+	def Commons(self) -> CommonsManager: #NOSONAR
+		return SM.SuperManager.getInstance().CommonsManager
 
 
 	@property
-	def NetworkManager(self): #NOSONAR
-		return SM.SuperManager.getInstance().networkManager
+	def NetworkManager(self) -> NetworkManager: #NOSONAR
+		return SM.SuperManager.getInstance().NetworkManager
 
 
 	@property
-	def SkillManager(self): #NOSONAR
-		return SM.SuperManager.getInstance().skillManager
+	def SkillManager(self) -> SkillManager: #NOSONAR
+		return SM.SuperManager.getInstance().SkillManager
 
 
 	@property
-	def InternetManager(self): #NOSONAR
-		return SM.SuperManager.getInstance().internetManager
+	def InternetManager(self) -> InternetManager: #NOSONAR
+		return SM.SuperManager.getInstance().InternetManager
 
 
 	@property
-	def WakewordManager(self): #NOSONAR
-		return SM.SuperManager.getInstance().wakewordManager
+	def WakewordManager(self) -> WakewordManager: #NOSONAR
+		return SM.SuperManager.getInstance().WakewordManager
 
 	@property
-	def AudioServer(self): #NOSONAR
-		return SM.SuperManager.getInstance().audioManager
+	def AudioServer(self) -> AudioManager: #NOSONAR
+		return SM.SuperManager.getInstance().AudioManager
+
+	@property
+	def SubprocessManager(self) -> SubprocessManager:  # NOSONAR
+		return SM.SuperManager.getInstance().SubprocessManager

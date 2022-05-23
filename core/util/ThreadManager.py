@@ -1,5 +1,24 @@
+#  Copyright (c) 2021
+#
+#  This file, ThreadManager.py, is part of Project Alice.
+#
+#  Project Alice is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <https://www.gnu.org/licenses/>
+#
+#  Last modified: 2021.04.13 at 12:56:48 CEST
+
 import threading
-from typing import Callable
+from typing import Callable, Union
 
 from core.base.model.Manager import Manager
 from core.util.model.AliceEvent import AliceEvent
@@ -27,17 +46,30 @@ class ThreadManager(Manager):
 				thread.join(timeout=1)
 
 		for event in self._events.values():
-			if event.isSet():
+			if event.is_set():
 				event.clear()
 
 
 	def onQuarterHour(self):
 		deadTimers = 0
-		for threadTimer in self._timers:
+		deadThreads = 0
+		timers = self._timers.copy()
+		for threadTimer in timers:
 			if not threadTimer.timer.isAlive():
 				self._timers.remove(threadTimer)
 				deadTimers += 1
-		self.logInfo(f'Cleaned {deadTimers} dead timers')
+
+		threads = self._threads.copy()
+		for threadName, thread in threads.items():
+			if not thread.is_alive():
+				self._threads.pop(threadName, None)
+				deadThreads += 1
+
+		if deadTimers > 0:
+			self.logInfo(f'Cleaned {deadTimers} dead timer', 'timer')
+
+		if deadThreads > 0:
+			self.logInfo(f'Cleaned {deadThreads} dead thread', 'thread')
 
 
 	def newTimer(self, interval: float, func: Callable, autoStart: bool = True, args: list = None, kwargs: dict = None) -> threading.Timer:
@@ -45,15 +77,15 @@ class ThreadManager(Manager):
 		kwargs = kwargs or dict()
 
 		threadTimer = ThreadTimer(callback=func, args=args, kwargs=kwargs)
-		thread = threading.Timer(interval=interval, function=self.onTimerEnd, args=[threadTimer])
-		thread.daemon = True
-		threadTimer.timer = thread
+		timer = threading.Timer(interval=interval, function=self.onTimerEnd, args=[threadTimer])
+		timer.daemon = True
+		threadTimer.timer = timer
 		self._timers.append(threadTimer)
 
 		if autoStart:
-			thread.start()
+			timer.start()
 
-		return thread
+		return timer
 
 
 	def doLater(self, interval: float, func: Callable, args: list = None, kwargs: dict = None):
@@ -84,7 +116,10 @@ class ThreadManager(Manager):
 		kwargs = kwargs or dict()
 
 		if name in self._threads:
-			self._threads[name].join(timeout=2)
+			try:
+				self._threads[name].join(timeout=2)
+			except:
+				pass  # Might be a non started thread only
 
 		thread = threading.Thread(name=name, target=target, args=args, kwargs=kwargs)
 		thread.setDaemon(True)
@@ -93,6 +128,7 @@ class ThreadManager(Manager):
 			thread.start()
 
 		self._threads[name] = thread
+		self.logDebug(f'Started new thread **{name}**, thread count: {threading.active_count()}')
 		return thread
 
 
@@ -109,6 +145,8 @@ class ThreadManager(Manager):
 		except Exception as e:
 			self.logError(f'Error terminating thread "{name}": {e}')
 
+		self.logDebug(f'Terminated thread **{name}**, thread count: {threading.active_count()}')
+
 
 	def isThreadAlive(self, name: str) -> bool:
 		if name not in self._threads:
@@ -117,7 +155,7 @@ class ThreadManager(Manager):
 		return self._threads[name].isAlive()
 
 
-	def newEvent(self, name: str, onSetCallback: str = None, onClearCallback: str = None) -> AliceEvent:
+	def newEvent(self, name: str, onSetCallback: Union[str, Callable] = None, onClearCallback: Union[str, Callable] = None) -> AliceEvent:
 		if name in self._events:
 			self._events[name].clear()
 

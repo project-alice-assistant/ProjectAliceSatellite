@@ -29,8 +29,8 @@ class ProjectAlice(Singleton):
 
 			self._superManager.initManagers()
 
-			if self._superManager.configManager.getAliceConfigByName('useHLC'):
-				self._superManager.commons.runRootSystemCommand(['systemctl', 'start', 'hermesledcontrol'])
+			if self._superManager.ConfigManager.getAliceConfigByName('useHLC'):
+				self._superManager.Commons.runRootSystemCommand(['systemctl', 'start', 'hermesledcontrol'])
 
 			self._superManager.onStart()
 
@@ -69,8 +69,8 @@ class ProjectAlice(Singleton):
 		self._logger.logInfo('Shutting down')
 		self._shuttingDown = True
 		self._superManager.onStop()
-		if self._superManager.configManager.getAliceConfigByName('useHLC'):
-			self._superManager.commons.runRootSystemCommand(['systemctl', 'stop', 'hermesledcontrol'])
+		if self._superManager.ConfigManager.getAliceConfigByName('useHLC'):
+			self._superManager.Commons.runRootSystemCommand(['systemctl', 'stop', 'hermesledcontrol'])
 
 		self._booted = False
 		self.INSTANCE = None
@@ -82,7 +82,7 @@ class ProjectAlice(Singleton):
 
 
 	def onFullHour(self):
-		if not self._superManager.configManager.getAliceConfigByName('aliceAutoUpdate'):
+		if not self._superManager.ConfigManager.getAliceConfigByName('aliceAutoUpdate'):
 			return
 		self.updateProjectAlice()
 
@@ -90,12 +90,12 @@ class ProjectAlice(Singleton):
 	def updateProjectAlice(self):
 		self._logger.logInfo('Checking for satellite updates')
 		self._isUpdating = True
-		req = requests.get(url=f'{constants.GITHUB_API_URL}/ProjectAliceSatellite/branches', auth=SuperManager.getInstance().configManager.getGithubAuth())
+		req = requests.get(url=f'{constants.GITHUB_API_URL}/ProjectAliceSatellite/branches', auth=SuperManager.getInstance().ConfigManager.getGithubAuth())
 		if req.status_code != 200:
 			self._logger.logWarning('Failed checking for updates')
 			return
 
-		userUpdatePref = SuperManager.getInstance().configManager.getAliceConfigByName('aliceUpdateChannel')
+		userUpdatePref = SuperManager.getInstance().ConfigManager.getAliceConfigByName('aliceUpdateChannel')
 
 		if userUpdatePref == 'master':
 			candidate = 'master'
@@ -114,7 +114,7 @@ class ProjectAlice(Singleton):
 					candidate = repoVersion
 
 		self._logger.logInfo(f'Checking on "{str(candidate)}" update channel')
-		commons = SuperManager.getInstance().commons
+		commons = SuperManager.getInstance().Commons
 
 		currentHash = subprocess.check_output(['git', 'rev-parse', '--short HEAD'])
 

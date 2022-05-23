@@ -1,11 +1,10 @@
 import io
+import pyaudio
 import queue
 import struct
 import wave
-from typing import Optional
-
-import pyaudio
 from paho.mqtt.client import MQTTMessage
+from typing import Optional
 
 from core.commons import constants
 from core.voice.model.WakewordEngine import WakewordEngine
@@ -97,10 +96,10 @@ class PorcupineWakeword(WakewordEngine):
 					self.MqttManager.localPublish(
 						topic=constants.TOPIC_HOTWORD_DETECTED.format('default'),
 						payload={
-							'siteId': self.ConfigManager.getAliceConfigByName('uid'),
-							'modelId': f'porcupine_{result}',
-							'modelVersion': self._handler.version,
-							'modelType': 'universal',
+							'siteId'            : self.ConfigManager.getAliceConfigByName('uuid'),
+							'modelId'           : f'porcupine_{result}',
+							'modelVersion'      : self._handler.version,
+							'modelType'         : 'universal',
 							'currentSensitivity': self.ConfigManager.getAliceConfigByName('wakewordSensitivity')
 						}
 					)

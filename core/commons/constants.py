@@ -1,4 +1,8 @@
-VERSION = '1.0.0-a1'
+VERSION = '1.0.0-rc1'
+DEVICETYPE = 'ProjectAliceSatellite'
+
+PYTHON = 'python3.7'
+
 DEFAULT_SITE_ID = 'default'
 DEFAULT = 'default'
 DUMMY = 'dummy'
@@ -57,3 +61,5 @@ EVENT_START_LISTENING = 'startListening'
 EVENT_STOP_LISTENING = 'stopListening'
 EVENT_DND_ON = 'dndOn'
 EVENT_DND_OFF = 'dndOff'
+EVENT_ALICE_CONNECTION_ACCEPTED = 'aliceConnectionAccepted'
+EVENT_ALICE_CONNECTION_REFUSED = 'aliceConnectionRefused'

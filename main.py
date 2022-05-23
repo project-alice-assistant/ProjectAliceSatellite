@@ -25,22 +25,6 @@ from datetime import datetime
 from pathlib import Path
 
 PIP = './venv/bin/pip'
-try:
-	import psutil
-except:
-	subprocess.run([PIP, 'install', 'psutil'])
-	import psutil
-
-try:
-	import requests
-except:
-	subprocess.run([PIP, 'install', 'requests'])
-
-try:
-	import importlib_metadata
-except:
-	subprocess.run([PIP, 'install', 'importlib_metadata'])
-
 
 from core.Initializer import Initializer
 from core.util.model import BashFormatting, FileFormatting, HtmlFormatting
@@ -114,6 +98,13 @@ def main():
 			time.sleep(3)
 			sys.stdout.flush()
 			try:
+
+				try:
+					import psutil
+				except:
+					subprocess.run([PIP, 'install', 'psutil'])
+					import psutil
+
 				# Close everything related to ProjectAlice, allows restart without component failing
 				p = psutil.Process(os.getpid())
 				for h in p.open_files() + p.connections():

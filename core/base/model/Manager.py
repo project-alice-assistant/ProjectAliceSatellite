@@ -50,7 +50,7 @@ class Manager(ProjectAliceObject):
 
 	def _initDB(self):
 		if self._databaseSchema:
-			return SuperManager.getInstance().databaseManager.initDB(schema=self._databaseSchema, callerName=self.name)
+			return SuperManager.getInstance().DatabaseManager.initDB(schema=self._databaseSchema, callerName=self.name)
 		return True
 
 

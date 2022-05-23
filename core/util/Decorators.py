@@ -64,7 +64,7 @@ def Online(func: Callable = None, text: str = 'offline', offlineHandler: Callabl
 	def argumentWrapper(func):
 		@functools.wraps(func)
 		def offlineDecorator(*args, **kwargs):
-			internetManager = SuperManager.getInstance().internetManager
+			internetManager = SuperManager.getInstance().InternetManager
 			if internetManager.online:
 				try:
 					return func(*args, **kwargs)
@@ -104,7 +104,7 @@ def IfSetting(func: Callable = None, settingName: str = None, settingValue: Any 
 				Logger(prepend='[Decorator]').logWarning(msg='Cannot use IfSetting decorator without settingName')
 				return None
 
-			configManager = SuperManager.getInstance().configManager
+			configManager = SuperManager.getInstance().ConfigManager
 			value = configManager.getSkillConfigByName(skillName, settingName) if skillName else configManager.getAliceConfigByName(settingName)
 
 			if value is None:

@@ -2,3 +2,5 @@ python3-pip
 python3-venv
 git
 mosquitto
+libportaudio2
+libasound-dev
