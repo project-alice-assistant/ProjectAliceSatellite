@@ -88,11 +88,13 @@ class SubprocessManager(Manager):
 		while self._flag.is_set():
 			for subproc in self._subproc.values():
 				if subproc.process is not None and subproc.process.poll() is not None:
-					self.logInfo(f'Subprocess {subproc.name} went defunct')
+					self.logWarning(f'Subprocess {subproc.name} went defunct')
+					self.logDebug(subproc.process.stdout.read().decode())
 					subproc.process = None
 					# ask for a restart of that process!
 					if subproc.autoRestart:
 						self.logInfo(f'Restarting Subprocess {subproc.name}')
+						self.logDebug(f'cmd: {subproc.cmd}')
 						subproc.start()
 
 					if subproc.stoppedCallback is not None:
