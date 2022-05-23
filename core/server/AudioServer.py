@@ -74,8 +74,8 @@ class AudioManager(Manager):
 			try:
 				self._audioOutput = sd.query_devices(kind='output')['name']
 			except:
-				self.logFatal('Audio output not found, cannot continue')
-				return
+				self.logError('Audio output not found, cannot continue')
+				self._audioOutput = 'default'
 			self.ConfigManager.updateAliceConfiguration(key='outputDevice', value=self._audioOutput)
 		else:
 			self._audioOutput = self.ConfigManager.getAliceConfigByName('outputDevice')
