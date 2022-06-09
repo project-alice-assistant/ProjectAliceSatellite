@@ -2,8 +2,10 @@ import sqlite3
 import typing
 from pathlib import Path
 
+from ProjectAlice.core.base.model import Manager
+from core.base.model.Manager
+
 from core.ProjectAliceExceptions import DbConnectionError, InvalidQuery
-from core.base.model.Manager import Manager
 from core.commons import constants
 
 

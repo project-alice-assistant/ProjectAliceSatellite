@@ -1,5 +1,7 @@
+from ProjectAlice.core.base.model import Manager
+from core.base.model.Manager
+
 from core.base.model.HotwordDownloadThread import HotwordDownloadThread
-from core.base.model.Manager import Manager
 
 
 class HotwordManager(Manager):

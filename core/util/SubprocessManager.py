@@ -21,7 +21,9 @@ import threading
 import time
 from typing import Callable, Optional
 
-from core.base.model.Manager import Manager
+from ProjectAlice.core.base.model import Manager
+from core.base.model.Manager
+
 from core.util.model.AliceSubprocess import AliceSubprocess
 
 

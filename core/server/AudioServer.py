@@ -18,16 +18,18 @@
 #  Last modified: 2021.04.13 at 12:56:47 CEST
 
 import io
-import sounddevice as sd
 import time
 import uuid
 import wave
 from typing import Dict, Optional, Union
+
+import sounddevice as sd
+from ProjectAlice.core.base.model import Manager
+from core.base.model.Manager
 # noinspection PyUnresolvedReferences
 from webrtcvad import Vad
 
 from core.ProjectAliceExceptions import PlayBytesStopped
-from core.base.model.Manager import Manager
 from core.commons import constants
 from core.util.model.AliceEvent import AliceEvent
 
