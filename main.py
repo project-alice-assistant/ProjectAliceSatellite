@@ -17,7 +17,6 @@
 import logging.handlers
 import os
 import signal
-import subprocess
 import sys
 import time
 import traceback
@@ -26,7 +25,7 @@ from pathlib import Path
 
 PIP = './venv/bin/pip'
 
-from core.Initializer import Initializer
+from ProjectAlice.core.Initializer import Initializer
 from core.util.model import BashFormatting, FileFormatting, HtmlFormatting
 
 _logger = logging.getLogger('ProjectAlice')

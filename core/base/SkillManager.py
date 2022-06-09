@@ -7,11 +7,12 @@ import traceback
 from pathlib import Path
 from typing import Dict, Optional
 
+from ProjectAlice.core.base.modeel.Version import Version
+
 from core.ProjectAliceExceptions import GithubNotFound, GithubRateLimit, GithubTokenFailed, SkillStartingFailed
 from core.base.model.AliceSkill import AliceSkill
 from core.base.model.FailedAliceSkill import FailedAliceSkill
 from core.base.model.Manager import Manager
-from core.base.model.Version import Version
 from core.commons import constants
 from core.util.Decorators import IfSetting, Online
 

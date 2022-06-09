@@ -5,10 +5,10 @@ import re
 from copy import copy
 from typing import TYPE_CHECKING, Union
 
+from ProjectAlice.core.base.modeel.Version import Version
 from importlib_metadata import PackageNotFoundError, version as packageVersion
 
 import core.base.SuperManager as SM
-from core.base.model.Version import Version
 from core.commons import constants
 from core.util.model.Logger import Logger
 

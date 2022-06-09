@@ -1,9 +1,9 @@
 import subprocess
 
 import requests
+from ProjectAlice.core.base.modeel.Version import Version
 
 from core.base.SuperManager import SuperManager
-from core.base.model.Version import Version
 from core.commons import constants
 from core.commons.model.Singleton import Singleton
 from core.util.Stopwatch import Stopwatch
