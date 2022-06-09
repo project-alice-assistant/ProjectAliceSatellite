@@ -25,7 +25,6 @@ from typing import Dict, Optional, Union
 
 import sounddevice as sd
 from ProjectAlice.core.base.model import Manager
-from core.base.model.Manager
 # noinspection PyUnresolvedReferences
 from webrtcvad import Vad
 

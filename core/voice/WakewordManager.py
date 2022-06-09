@@ -1,7 +1,6 @@
 from importlib import import_module, reload
 
 from ProjectAlice.core.base.model import Manager
-from core.base.model.Manager
 from paho.mqtt.client import MQTTMessage
 
 from core.voice.model.WakewordEngine import WakewordEngine

@@ -25,7 +25,6 @@ from pathlib import Path
 import requests
 import sounddevice as sd
 from ProjectAlice.core.base.model import Manager
-from core.base.model.Manager
 
 from core.ProjectAliceExceptions import ConfigurationUpdateFailed, VitalConfigMissing
 

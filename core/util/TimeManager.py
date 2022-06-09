@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from ProjectAlice.core.base.model import Manager
-from core.base.model.Manager
 
 from core.commons import constants
 

@@ -9,7 +9,6 @@ from typing import Dict, Optional
 
 from ProjectAlice.core.base.modeel.Version import Version
 from ProjectAlice.core.base.model import Manager
-from core.base.model.Manager
 
 from core.ProjectAliceExceptions import GithubNotFound, GithubRateLimit, GithubTokenFailed, SkillStartingFailed
 from core.base.model.AliceSkill import AliceSkill

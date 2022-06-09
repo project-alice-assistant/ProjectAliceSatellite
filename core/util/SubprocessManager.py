@@ -22,7 +22,6 @@ import time
 from typing import Callable, Optional
 
 from ProjectAlice.core.base.model import Manager
-from core.base.model.Manager
 
 from core.util.model.AliceSubprocess import AliceSubprocess
 

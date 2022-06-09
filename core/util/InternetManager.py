@@ -1,6 +1,6 @@
 import requests
 from ProjectAlice.core.base.model import Manager
-from core.base.model.Manager
+
 from requests.exceptions import RequestException
 
 

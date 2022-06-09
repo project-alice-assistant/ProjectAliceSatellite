@@ -12,7 +12,6 @@ from typing import Any
 
 import requests
 from ProjectAlice.core.base.model import Manager
-from core.base.model.Manager
 from paho.mqtt.client import MQTTMessage
 
 

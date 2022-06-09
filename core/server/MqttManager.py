@@ -4,7 +4,6 @@ from typing import Union
 
 import paho.mqtt.client as mqtt
 from ProjectAlice.core.base.model import Manager
-from core.base.model.Manager
 
 from core.base.model.States import State
 from core.commons import constants

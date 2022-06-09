@@ -21,7 +21,6 @@ import threading
 from typing import Callable, Union
 
 from ProjectAlice.core.base.model import Manager
-from core.base.model.Manager
 
 from core.util.model.AliceEvent import AliceEvent
 from core.util.model.ThreadTimer import ThreadTimer
