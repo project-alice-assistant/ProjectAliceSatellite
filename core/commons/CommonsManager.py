@@ -3,6 +3,7 @@ import inspect
 import json
 import random
 import socket
+import sqlite3
 import string
 import subprocess
 from contextlib import contextmanager
@@ -164,6 +165,11 @@ class CommonsManager(Manager):
 		digits = string.digits
 		number = ''.join(random.choice(digits) for _ in range(length))
 		return int(number) if not number.startswith('0') else self.randomNumber(length)
+
+
+	@staticmethod
+	def dictFromRow(row: sqlite3.Row) -> dict:
+		return dict(zip(row.keys(), row))
 
 
 # noinspection PyUnusedLocal

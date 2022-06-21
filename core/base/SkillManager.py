@@ -220,7 +220,7 @@ class SkillManager(Manager):
 		except AttributeError as e:
 			self.logError(f"Couldn't find main class for skill {skillName}.{skillResource}: {e}")
 		except Exception as e:
-			self.logError(f"Couldn't instanciate skill {skillName}.{skillResource}: {e} {traceback.print_exc()}")
+			self.logError(f"Couldn't instantiate skill {skillName}.{skillResource}: {e} {traceback.print_exc()}")
 
 		return instance
 
