@@ -1,14 +1,30 @@
-import logging
-from typing import Match
+#  Copyright (c) 2021
+#
+#  This file, BashFormatting.py, is part of Project Alice.
+#
+#  Project Alice is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <https://www.gnu.org/licenses/>
+#
+#  Last modified: 2021.04.13 at 12:56:47 CEST
 
+import logging
 import re
 from copy import copy
 from enum import Enum
+from typing import Match
 
 
 class BashStringFormatCode(Enum):
-	SEQUENCE = '\033[{}m{}'
-
 	RESET = 0
 	BOLD = 1
 	DIM = 2
@@ -26,7 +42,7 @@ class Formatter(logging.Formatter):
 	BOLD = re.compile(r'\*\*(.+?)\*\*')
 	DIM = re.compile(r'--(.+?)--')
 	UNDERLINED = re.compile(r'__(.+?)__')
-	COLOR = re.compile(r'(?i)!\[(red|green|yellow|blue|gray)\]\((.+?)\)')
+	COLOR = re.compile(r'(?i)!\[(red|green|yellow|blue|gray)]\((.+?)\)')
 
 	GLUED_RESETS = re.compile(r'(?:\\033\[(?:0|2[1-8])m){2,}$')
 	GLUED_CODES = re.compile(r'\\033\[([0-9]+?)m+')
@@ -43,43 +59,26 @@ class Formatter(logging.Formatter):
 	def __init__(self):
 		mask = '%(message)s'
 		super().__init__(mask)
+		self._baseColor = BashStringFormatCode.DEFAULT.value
 
 
-	# TODO implement markdown support for stdout
 	def format(self, record: logging.LogRecord) -> str:
 		level = record.levelname
 		rec = copy(record)
 		msg = rec.msg
 
-		color = BashStringFormatCode.DEFAULT.value
 		if level in self.COLORS:
 			msg = f'\033[{self.COLORS[level]}m{msg}\033[0m'
-			color = self.COLORS[level]
+			self._baseColor = self.COLORS[level]
 
-		msg = self.BOLD.sub(f'\033[{BashStringFormatCode.BOLD.value}m' + r'\1' + f'\033[{BashStringFormatCode.RESET.value};{color}m', msg)
-		msg = self.DIM.sub(f'\033[{BashStringFormatCode.DIM.value}m' + r'\1' + f'\033[{BashStringFormatCode.RESET.value};{color}m', msg)
-		msg = self.UNDERLINED.sub(f'\033[{BashStringFormatCode.UNDERLINED.value}m' + r'\1' + f'\033[{BashStringFormatCode.RESET.value};{color}m', msg)
-		# msg = self.COLOR.sub(f'\033[{getattr(BashStringFormatCode, "RED")}m' + r'\2' + f'\033[{BashStringFormatCode.RESET.value};{color}m', msg)
-		# msg = self.COLOR.sub(self.colorFormat, msg)
+		msg = self.BOLD.sub(f'\033[{BashStringFormatCode.BOLD.value}m' + r'\1' + f'\033[{BashStringFormatCode.RESET.value};{self._baseColor}m', msg)
+		msg = self.DIM.sub(f'\033[{BashStringFormatCode.DIM.value}m' + r'\1' + f'\033[{BashStringFormatCode.RESET.value};{self._baseColor}m', msg)
+		msg = self.UNDERLINED.sub(f'\033[{BashStringFormatCode.UNDERLINED.value}m' + r'\1' + f'\033[{BashStringFormatCode.RESET.value};{self._baseColor}m', msg)
+		msg = self.COLOR.sub(self.colorFormat, msg)
 
 		return msg
 
 
-	@staticmethod
-	def colorFormat(m: Match) -> str:
-		color = m.group(1).title()
-
-		if color == 'red':
-			code = BashStringFormatCode.RED.value
-		elif color == 'green':
-			code = BashStringFormatCode.GREEN.value
-		elif color == 'yellow':
-			code = BashStringFormatCode.YELLOW.value
-		elif color == 'blue':
-			code = BashStringFormatCode.BLUE.value
-		elif color == 'grey':
-			code = BashStringFormatCode.GREY.value
-		else:
-			code = BashStringFormatCode.DEFAULT.value
-
-		return BashStringFormatCode.SEQUENCE.value.format(code, m.group(2), BashStringFormatCode.DEFAULT)
+	def colorFormat(self, matching: Match) -> str:
+		color = getattr(BashStringFormatCode, matching.group(1).upper()).value
+		return f'\033[{color}m{matching.group(2)}\033[{BashStringFormatCode.RESET.value};{self._baseColor}m'
