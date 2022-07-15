@@ -29,7 +29,7 @@ class ProjectAlice(Singleton):
 
 			self._superManager.initManagers()
 
-			if self._superManager.ConfigManager.getAliceConfigByName('useHLC'):
+			if self._superManager.ConfigManager.getAliceConfigByName('useHLC') and self._superManager.ConfigManager.getAliceConfigByName('uuid'):
 				self._superManager.Commons.runRootSystemCommand(['systemctl', 'start', 'hermesledcontrol'])
 
 			self._superManager.onStart()
