@@ -109,7 +109,7 @@ class NetworkManager(Manager):
 		self.ConfigManager.updateAliceConfiguration(key='mqttHost', value=mainUnitIp)
 		self.ConfigManager.updateAliceConfiguration(key='uuid', value=attributedUid)
 		self._state = State.ACCEPTED
-		self._superManager.Commons.runRootSystemCommand(['systemctl', 'start', 'hermesledcontrol'])
+		self.Commons.runRootSystemCommand(['systemctl', 'start', 'hermesledcontrol'])
 
 
 	def tryConnectingToAlice(self):
