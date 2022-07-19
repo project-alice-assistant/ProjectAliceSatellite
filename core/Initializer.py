@@ -780,7 +780,8 @@ class Initializer(object):
 		except Exception as e:
 			self._logger.logFatal(f'An error occurred while writing final configuration file: {e}')
 
-		subprocess.run(['sudo', 'rm', '-rf', Path(self._rootDir, 'assistant')])
+		if constants.DEVICETYPE == 'ProjectAlice':
+			subprocess.run(['sudo', 'rm', '-rf', Path(self._rootDir, 'assistant')])
 
 		subprocess.run(['sudo', 'sed', '-i', '-e', 's/#dtparam=i2c_arm=on/dtparam=i2c_arm=on/', '/boot/config.txt'])
 		subprocess.run(['sudo', 'sed', '-i', '-e', 's/#dtparam=spi=on/dtparam=spi=on/', '/boot/config.txt'])
