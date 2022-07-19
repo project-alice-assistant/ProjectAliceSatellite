@@ -636,7 +636,7 @@ class Initializer(object):
 				shutil.rmtree(hlcDir, ignore_errors=True)
 				repository = Repository.clone(url=url, directory=hlcDir, makeDir=True)
 
-			repository.checkout(branch='master')
+			repository.checkout(branch='master', force=True)
 			repository.pull()
 
 			if hlcServiceFilePath.exists():
