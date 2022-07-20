@@ -265,6 +265,15 @@ class AudioManager(Manager):
 			}
 		)
 
+		self.MqttManager.publish(
+			topic=constants.TOPIC_TTS_FINISHED,
+			payload={
+				'id'       : requestId,
+				'sessionId': sessionId,
+				'siteId'   : deviceUid
+			}
+		)
+
 
 	def stopPlaying(self):
 		self._stopPlayingFlag.set()
