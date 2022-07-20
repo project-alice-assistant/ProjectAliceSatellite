@@ -18,10 +18,11 @@
 #  Last modified: 2021.04.13 at 12:56:47 CEST
 
 import io
-import sounddevice as sd
 import time
 import uuid
 import wave
+
+import sounddevice as sd
 from typing import Dict, Optional, Union
 # noinspection PyUnresolvedReferences
 from webrtcvad import Vad
@@ -119,7 +120,8 @@ class AudioManager(Manager):
 
 		self._waves[deviceUid].writeframes(frame)
 
-	def publishToListener(self, topic: str, payload: Union[dict, str] = None, qos: int = 0, retain: bool = False):
+
+	def publishToListener(self, topic: str, payload: Union[dict, str, bytearray] = None, qos: int = 0, retain: bool = False):
 		if self._broadcastLocal:
 			self.MqttManager.localPublish(topic=topic, payload=payload)
 		else:
@@ -129,7 +131,7 @@ class AudioManager(Manager):
 	def publishAudio(self):
 		"""
 		captures the audio and broadcasts it via publishAudioFrames to the topic 'hermes/audioServer/{}/audioFrame'
-		furtherfmore it will publish VAD_UP and VAD_DOWN when detected
+		furthermore it will publish VAD_UP and VAD_DOWN when detected
 		:return:
 		"""
 		self.logInfo('Starting audio publisher')
@@ -186,7 +188,7 @@ class AudioManager(Manager):
 
 	def publishAudioFrames(self, frames: bytes):
 		"""
-		receives some audioframes, adds them to the buffer and publishes them to MQTT
+		receives some audio frames, adds them to the buffer and publishes them to MQTT
 		:param frames:
 		:return:
 		"""
@@ -250,6 +252,7 @@ class AudioManager(Manager):
 			except Exception as e:
 				self.logError(f'Playing wav failed with error: {e}')
 			finally:
+				self.logDebug('Playing bytes finished')
 				self._stopPlayingFlag.clear()
 				self._playing = False
 

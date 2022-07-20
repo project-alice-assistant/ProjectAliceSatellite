@@ -1,6 +1,7 @@
 import json
-import paho.mqtt.client as mqtt
 import traceback
+
+import paho.mqtt.client as mqtt
 from typing import Union
 
 from core.base.model.Manager import Manager
@@ -76,8 +77,6 @@ class MqttManager(Manager):
 			(constants.TOPIC_TOGGLE_DND, 0),
 			(constants.TOPIC_HOTWORD_TOGGLE_ON, 0),
 			(constants.TOPIC_HOTWORD_TOGGLE_OFF, 0),
-			(constants.TOPIC_ASR_START_LISTENING, 0),
-			(constants.TOPIC_ASR_STOP_LISTENING, 0),
 			(constants.TOPIC_CORE_HEARTBEAT, 0),
 			(constants.TOPIC_PLAY_BYTES.format(self.ConfigManager.getAliceConfigByName('uuid')), 0)
 		]
@@ -216,12 +215,6 @@ class MqttManager(Manager):
 						'siteId': self.ConfigManager.getAliceConfigByName('uuid')
 					}
 				)
-
-			elif message.topic == constants.TOPIC_ASR_START_LISTENING:
-				self.broadcast(method=constants.EVENT_START_LISTENING, exceptions=[self.name], propagateToSkills=True)
-
-			elif message.topic == constants.TOPIC_ASR_STOP_LISTENING:
-				self.broadcast(method=constants.EVENT_STOP_LISTENING, exceptions=[self.name], propagateToSkills=True)
 
 			if statusName:
 				self.publish(

@@ -3,9 +3,9 @@ from __future__ import annotations
 import json
 import re
 from copy import copy
-from typing import TYPE_CHECKING, Union
 
 from importlib_metadata import PackageNotFoundError, version as packageVersion
+from typing import TYPE_CHECKING, Union
 
 import core.base.SuperManager as SM
 from core.base.model.Version import Version
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 	from core.server.AudioServer import AudioManager
 	from core.server.MqttManager import MqttManager
 	from core.util.DatabaseManager import DatabaseManager
-	from core.util.InternetManager import InternetManager
+	#from core.util.InternetManager import InternetManager
 	from core.util.ThreadManager import ThreadManager
 	from core.util.TimeManager import TimeManager
 	from core.util.SubprocessManager import SubprocessManager
@@ -55,7 +55,7 @@ class ProjectAliceObject:
 			exceptions = [exceptions]
 
 		if not exceptions and not manager:
-			# Prevent infinite loop of broadcaster being broadcasted to re broadcasting
+			# Prevent infinite loop of broadcaster being broadcast to re broadcasting
 			self.logWarning('Cannot broadcast to itself, the calling method has to be put in exceptions')
 			return
 
@@ -243,8 +243,8 @@ class ProjectAliceObject:
 
 	def onDndOff(self):
 		pass # Super object function is overridden only if needed
-	
-	
+
+
 	def onAliceConnectionAccepted(self):
 		pass # Super object function is overridden only if needed
 
@@ -301,11 +301,6 @@ class ProjectAliceObject:
 	@property
 	def SkillManager(self) -> SkillManager: #NOSONAR
 		return SM.SuperManager.getInstance().SkillManager
-
-
-	@property
-	def InternetManager(self) -> InternetManager: #NOSONAR
-		return SM.SuperManager.getInstance().InternetManager
 
 
 	@property

@@ -47,9 +47,6 @@ class SuperManager:
 			subprocessManager = self._managers.pop('SubprocessManager')
 			subprocessManager.onStart()
 
-			internetManager = self._managers.pop('InternetManager')
-			internetManager.onStart()
-
 			databaseManager = self._managers.pop('DatabaseManager')
 			databaseManager.onStart()
 
@@ -69,7 +66,6 @@ class SuperManager:
 			self._managers[databaseManager.name] = databaseManager
 			self._managers[mqttManager.name] = mqttManager
 			self._managers[networkManager.name] = networkManager
-			self._managers[internetManager.name] = internetManager
 		except Exception as e:
 			import traceback
 
@@ -100,8 +96,7 @@ class SuperManager:
 		from core.util.TimeManager import TimeManager
 		from core.util.NetworkManager import NetworkManager
 		from core.util.HotwordManager import HotwordManager
-		from core.base.SkillManager import SkillManager
-		from core.util.InternetManager import InternetManager
+		#from core.base.SkillManager import SkillManager
 		from core.util.SubprocessManager import SubprocessManager
 		from core.server.AudioServer import AudioManager
 		from core.voice.WakewordManager import WakewordManager
@@ -115,8 +110,7 @@ class SuperManager:
 		self.TimeManager = TimeManager()
 		self.NetworkManager = NetworkManager()
 		self.HotwordManager = HotwordManager()
-		self.SkillManager = SkillManager()
-		self.InternetManager = InternetManager()
+		#self.SkillManager = SkillManager()
 		self.AudioManager = AudioManager()
 		self.WakewordManager = WakewordManager()
 		self.SubprocessManager = SubprocessManager()
