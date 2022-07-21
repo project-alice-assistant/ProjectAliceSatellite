@@ -29,7 +29,7 @@ class SuperManager:
 		self.TimeManager = None
 		self.NetworkManager = None
 		self.HotwordManager = None
-		self.SkillManager = None
+		#self.SkillManager = None
 		#self.InternetManager = None
 		self.AudioManager = None
 		self.WakewordManager = None
@@ -122,12 +122,12 @@ class SuperManager:
 		mqttManager = self._managers.pop('MqttManager', None) # Mqtt goes down last with bug reporter
 		bugReportManager = self._managers.pop('BugReportManager', None) # bug reporter goes down as last
 
-		skillManager = self._managers.pop('SkillManager', None) # Skill manager goes down first, to tell the skills
-		if skillManager:
-			try:
-				skillManager.onStop()
-			except Exception as e:
-				Logger().logError(f'Error stopping SkillManager: {e}')
+		#skillManager = self._managers.pop('SkillManager', None) # Skill manager goes down first, to tell the skills
+		#if skillManager:
+		#	try:
+		#		skillManager.onStop()
+		#	except Exception as e:
+		#		Logger().logError(f'Error stopping SkillManager: {e}')
 
 		for managerName, manager in self._managers.items():
 			try:
