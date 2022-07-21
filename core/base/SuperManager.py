@@ -30,7 +30,7 @@ class SuperManager:
 		self.NetworkManager = None
 		self.HotwordManager = None
 		self.SkillManager = None
-		self.InternetManager = None
+		#self.InternetManager = None
 		self.AudioManager = None
 		self.WakewordManager = None
 		self.SubprocessManager = None
