@@ -17,6 +17,8 @@
 #
 #  Last modified: 2021.05.19 at 12:56:48 CEST
 
+import os
+
 from core.voice.model.WakewordEngine import WakewordEngine
 
 
@@ -56,6 +58,8 @@ class SnipsWakeword(WakewordEngine):
 		if self.ConfigManager.getAliceConfigByName('mqttTLSFile'):
 			cmd += f' --mqtt-tls-cafile {self.ConfigManager.getAliceConfigByName("mqttTLSFile")}'
 
-		cmd += f' --model {self.Commons.rootDir()}/trained/hotwords/snips_hotword/hey_snips={self.ConfigManager.getAliceConfigByName("wakewordSensitivity")}'
+		for model in os.listdir(f'{self.Commons.rootDir()}/trained/hotwords/snips_hotword/'):
+			if os.path.isdir(os.path.join(f'{self.Commons.rootDir()}/trained/hotwords/snips_hotword/', model)):
+				cmd += f' --model {self.Commons.rootDir()}/trained/hotwords/snips_hotword/{model}={self.ConfigManager.getAliceConfigByName("wakewordSensitivity")}'
 
 		self.SubprocessManager.runSubprocess(name='SnipsHotword', cmd=cmd, autoRestart=True)
