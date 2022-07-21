@@ -1,11 +1,19 @@
 {
-  "disableSoundAndMic": {
+  "disableSound": {
 	"defaultValue": false,
 	"dataType": "boolean",
 	"isSensitive": false,
-	"description": "If this device is a server without sound and mic, turn this to true",
-	"onUpdate": "enableDisableSoundInSnips",
-	"category": "device"
+	"description": "Disable sound playback",
+	"onUpdate": "enableDisableSound",
+	"category": "audio"
+  },
+  "disableCapture": {
+	"defaultValue": false,
+	"dataType": "boolean",
+	"isSensitive": false,
+	"description": "Disable sound capture",
+	"onUpdate": "enableDisableCapture",
+	"category": "audio"
   },
   "outputDevice": {
 	"defaultValue": "",
@@ -14,7 +22,7 @@
 	"values": [],
 	"description": "The device to use to play sounds",
 	"category": "audio",
-	"onInit"      : "populateAudioInputConfig",
+	"onInit": "populateAudioInputConfig",
 	"onUpdate": "AudioServer.updateAudioDevices"
   },
   "inputDevice": {
@@ -24,16 +32,16 @@
 	"values": [],
 	"description": "The device to use to record sounds",
 	"category": "audio",
-	"onInit"      : "populateAudioInputConfig",
+	"onInit": "populateAudioInputConfig",
 	"onUpdate": "AudioServer.updateAudioDevices"
   },
   "uuid": {
-	  "defaultValue": "",
-	  "dataType"    : "string",
-	  "isSensitive" : false,
-	  "hidden"      : true,
-	  "description" : "Attributed device uuid",
-	  "category"    : "device"
+	"defaultValue": "",
+	"dataType": "string",
+	"isSensitive": false,
+	"hidden": true,
+	"description": "Attributed device uuid",
+	"category": "device"
   },
   "mainUnitBroadcastPort": {
 	"defaultValue": 12354,

@@ -47,14 +47,8 @@ class SnipsWakeword(WakewordEngine):
 
 	def onStart(self):
 		super().onStart()
-		#removed mqtt -> configs mqtt is main device - wakeword should only listen to local!
-		#cmd = f'snips-hotword --assistant {self.Commons.rootDir()}/assistant --mqtt {self.ConfigManager.getAliceConfigByName("mqttHost")}:{self.ConfigManager.getAliceConfigByName("mqttPort")}'
-		cmd = f'snips-hotword --assistant {self.Commons.rootDir()}/assistant'
 
-		if self.ConfigManager.getAliceConfigByName('monoWakewordEngine'):
-			cmd += ' --audio +@mqtt'
-		else:
-			cmd += f' --audio {self.ConfigManager.getAliceConfigByName("uuid")}@mqtt'
+		cmd = f'snips-hotword --assistant {self.Commons.rootDir()}/assistant --audio {self.ConfigManager.getAliceConfigByName("uuid")}@mqtt'
 
 		if self.ConfigManager.getAliceConfigByName('mqttUser'):
 			cmd += f' --mqtt-username {self.ConfigManager.getAliceConfigByName("mqttUser")} --mqtt-password {self.ConfigManager.getAliceConfigByName("mqttPassword")}'
