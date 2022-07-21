@@ -15,10 +15,11 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>
 #
-#  Last modified: 2021.05.20 at 12:56:48 CEST
+#  Last modified: 2021.07.31 at 15:40:13 CEST
 
 import threading
 import time
+
 from typing import Callable, Optional
 
 from core.base.model.Manager import Manager
@@ -40,20 +41,21 @@ class SubprocessManager(Manager):
 		if self._thread and self._thread.is_alive():
 			self._thread.join(timeout=5)
 
-		self._thread: threading.Thread = self.ThreadManager.newThread(name='SubprocessManager', target=self.run, autostart=False)
+		self._thread: threading.Thread = self.ThreadManager.newThread(name='subprocessManager', target=self.run, autostart=False)
 		self._thread.start()
 
 
 	def onStop(self):
 		super().onStop()
 
+		self._flag.clear()
+
 		for subproc in self._subproc.values():
 			if subproc.process is not None and subproc.process.poll() is None:
 				subproc.process.terminate()
 
-		self._flag.clear()
 		if self._thread and self._thread.is_alive():
-			self.ThreadManager.terminateThread(name='SubprocessManager')
+			self.ThreadManager.terminateThread(name='subprocessManager')
 
 
 	def isSubprocessAlive(self, name: str) -> bool:
@@ -73,7 +75,7 @@ class SubprocessManager(Manager):
 
 	def terminateSubprocess(self, name: str) -> bool:
 		if name not in self._subproc:
-			self.logError(f'Tried terminating the subprocess {name}, but it was not found')
+			self.logWarning(f'Tried terminating the subprocess {name}, but it was not found')
 			return False
 
 		# save to tmp to prevent thread reading terminated process and restarting it
@@ -87,14 +89,16 @@ class SubprocessManager(Manager):
 		self._flag.set()
 		while self._flag.is_set():
 			for subproc in self._subproc.values():
+				if self.ProjectAlice.shuttingDown:
+					self._flag.clear()
+					return
+
 				if subproc.process is not None and subproc.process.poll() is not None:
-					self.logWarning(f'Subprocess {subproc.name} went defunct')
-					self.logDebug(subproc.process.stdout.read().decode())
+					self.logInfo(f'Subprocess {subproc.name} went defunct')
 					subproc.process = None
 					# ask for a restart of that process!
 					if subproc.autoRestart:
 						self.logInfo(f'Restarting Subprocess {subproc.name}')
-						self.logDebug(f'cmd: {subproc.cmd}')
 						subproc.start()
 
 					if subproc.stoppedCallback is not None:
