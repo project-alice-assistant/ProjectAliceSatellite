@@ -17,7 +17,6 @@ class MqttManager(Manager):
 		self._mqttLocalClient = mqtt.Client()
 		self._dnd = False
 		self._audioFrameTopic = constants.TOPIC_AUDIO_FRAME.replace('{}', self.ConfigManager.getAliceConfigByName('uuid'))
-		self.logInfo(self._audioFrameTopic)
 
 	def onStart(self):
 		super().onStart()
